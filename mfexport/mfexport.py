@@ -4,19 +4,14 @@ from flopy.datbase import DataType, DataInterface
 from .array_export import export_array, export_array_contours
 from .pdf_export import export_pdf
 from .shapefile_export import export_shapefile
+from .utils import make_output_folders
 
 
 def export(model, modelgrid, packages=None, variables=None, output_path='postproc',
            contours=False,
            gis=True, pdfs=True, **kwargs):
 
-    pdfs_dir = os.path.join(output_path, 'pdfs')
-    rasters_dir = os.path.join(output_path, 'rasters')
-    shps_dir = os.path.join(output_path, 'shps')
-    for path in [pdfs_dir, shps_dir, rasters_dir]:
-        if not os.path.isdir(path):
-            print('creating {}...'.format(path))
-            os.makedirs(path)
+    pdfs_dir, rasters_dir, shps_dir = make_output_folders(output_path)
 
     if packages is None:
         packages = model.get_package_list()

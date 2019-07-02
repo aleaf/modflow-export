@@ -1,3 +1,4 @@
+import os
 import inspect
 import pprint
 import yaml
@@ -60,6 +61,15 @@ def load_yml(yml_file):
     return cfg
 
 
+def make_output_folders(output_path='postproc'):
+    pdfs_dir = os.path.join(output_path, 'pdfs')
+    rasters_dir = os.path.join(output_path, 'rasters')
+    shps_dir = os.path.join(output_path, 'shps')
+    for path in [pdfs_dir, shps_dir, rasters_dir]:
+        if not os.path.isdir(path):
+            print('creating {}...'.format(path))
+            os.makedirs(path)
+    return pdfs_dir, rasters_dir, shps_dir
 
 def print_item(k, v):
     print('{}: '.format(k), end='')
