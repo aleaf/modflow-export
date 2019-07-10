@@ -9,7 +9,7 @@ from .gis import df2shp
 
 
 def export_array(filename, a, modelgrid, nodata=-9999,
-                 fieldname='value',
+                 fieldname='value', verbose=False,
                  **kwargs):
     """
     Write a numpy array to Arc Ascii grid or shapefile with the model
@@ -68,7 +68,8 @@ def export_array(filename, a, modelgrid, nodata=-9999,
                 'dtype': a.dtype,
                 'driver': 'GTiff',
                 'crs': modelgrid.proj_str,
-                'transform': trans
+                'transform': trans,
+                'compress': 'lzw'
                 }
         meta.update(kwargs)
         with rasterio.open(filename, 'w', **meta) as dst:
@@ -79,7 +80,8 @@ def export_array(filename, a, modelgrid, nodata=-9999,
 
     elif filename.lower().endswith(".shp"):
         raise NotImplementedError()
-    print("took {:.2f}s".format(time.time() - t0))
+    if verbose:
+        print("array export took {:.2f}s".format(time.time() - t0))
 
 
 def export_array_contours(filename, a, modelgrid,
@@ -88,7 +90,7 @@ def export_array_contours(filename, a, modelgrid,
                           levels=None,
                           maxlevels=1000,
                           epsg=None,
-                          proj_str=None,
+                          proj_str=None, verbose=False,
                           **kwargs):
     """
     Contour an array using matplotlib; write shapefile of contours.
@@ -142,7 +144,8 @@ def export_array_contours(filename, a, modelgrid,
     df = pd.DataFrame({'level': level,
                        'geometry': geoms})
     df2shp(df, filename, epsg=epsg, proj4=proj_str)
-    print("took {:.2f}s".format(time.time() - t0))
+    if verbose:
+        print("array contour export took {:.2f}s".format(time.time() - t0))
     return
 
 

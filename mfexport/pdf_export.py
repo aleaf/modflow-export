@@ -8,7 +8,7 @@ from flopy.utils import MfList
 
 def export_pdf(filename, array, text,
                nodata=None, mfarray_type='array2d',
-               float_fmt='{:.2f}'):
+               float_fmt='{:.2f}', verbose=False):
     t0 = time.time()
     if array.min() < 0.01:
         float_fmt = '{:.6e}'
@@ -55,4 +55,5 @@ def export_pdf(filename, array, text,
             plt.close()
     if multipage_pdf:
         multipage_pdf.close()
-    print("took {:.2f}s".format(time.time() - t0))
+    if verbose:
+        print("pdf export took {:.2f}s".format(time.time() - t0))

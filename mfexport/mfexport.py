@@ -134,8 +134,6 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
                                 filenames.append(filename)
 
                     elif v.data_type == DataType.transientlist:
-                        print('{}:'.format(name))
-
                         if gis:
                             filename = os.path.join(shps_dir,
                                                     '{}.shp'.format(name)).lower()
@@ -150,6 +148,7 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
                             tl_variables = list(v.array.keys())
 
                             for tlv in tl_variables:
+                                print('{}:'.format(tlv))
                                 data_cols = [c for c in df.columns if tlv in c]
                                 array = np.zeros((len(data_cols) + 1,
                                                   df['k'].max() + 1,
@@ -171,14 +170,12 @@ def export_sfr():
     return
 
 
-def summarize(model, packages=None, variables=None, output_path='postproc',
+def summarize(model, packages=None, variables=None, output_path=None,
+              verbose=False,
               **kwargs):
 
     print('summarizing {} input...'.format(model.name))
     show_inactive = True
-
-    if not os.path.isdir(output_path):
-        os.makedirs(output_path)
 
     if packages is None:
         packages = model.get_package_list()
@@ -204,10 +201,10 @@ def summarize(model, packages=None, variables=None, output_path='postproc',
 
         if isinstance(package, str):
             package = getattr(model, package)
-        print('\n{} package...'.format(package.name[0]))
+        if verbose:
+            print('\n{} package...'.format(package.name[0]))
 
         if package.name[0] == 'SFR':
-            export_sfr()
             continue
 
         package_variables = package.data_list
@@ -225,7 +222,8 @@ def summarize(model, packages=None, variables=None, output_path='postproc',
                         return
                     if v.data_type == DataType.array2d and len(v.shape) == 2 \
                             and v.array.shape[1] > 0:
-                        print('{}'.format(name))
+                        if verbose:
+                            print('{}'.format(name))
                         array = v.array.copy()
                         if not show_inactive:
                             array = np.ma.masked_array(array, mask=inactive_cells[0])
@@ -236,7 +234,8 @@ def summarize(model, packages=None, variables=None, output_path='postproc',
                                            'max': array.max(),
                                            })
                     elif v.data_type == DataType.array3d:
-                        print('{}'.format(name))
+                        if verbose:
+                            print('{}'.format(name))
                         array = v.array.copy()
                         if not show_inactive:
                             array = np.ma.masked_array(array, mask=inactive_cells)
@@ -250,7 +249,6 @@ def summarize(model, packages=None, variables=None, output_path='postproc',
                                                })
 
                     elif v.data_type == DataType.transient2d:
-                        print('{}'.format(name))
                         array = v.array[:, 0, :, :].copy()
                         if not show_inactive:
                             array = np.ma.masked_array(array,
@@ -270,7 +268,8 @@ def summarize(model, packages=None, variables=None, output_path='postproc',
                         tl_variables = list(v.array.keys())
 
                         for tlv in tl_variables:
-                            print('{}'.format(tlv))
+                            if verbose:
+                                print('{}'.format(tlv))
                             data_cols = [c for c in df.columns if tlv in c]
                             array = np.zeros((len(data_cols) + 1,
                                               df['k'].max() + 1,
@@ -287,5 +286,8 @@ def summarize(model, packages=None, variables=None, output_path='postproc',
                                                    'max': df[c].max(),
                                                    })
     df = pd.DataFrame(summarized)
-    df.to_csv('{}/{}_summary.csv'.format(output_path, model.name), index=False)
+    if output_path is not None:
+        if not os.path.isdir(output_path):
+            os.makedirs(output_path)
+        df.to_csv('{}/{}_summary.csv'.format(output_path, model.name), index=False)
     return df

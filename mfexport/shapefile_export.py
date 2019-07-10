@@ -8,7 +8,8 @@ from .gis import df2shp
 
 def export_shapefile(filename, data, modelgrid, kper=None,
                      squeeze=True,
-                     epsg=None, proj_str=None, prj=None):
+                     epsg=None, proj_str=None, prj=None,
+                     verbose=False):
     t0 = time.time()
     if isinstance(data, MfList):
         df = data.get_dataframe(squeeze=squeeze)
@@ -38,4 +39,5 @@ def export_shapefile(filename, data, modelgrid, kper=None,
     if prj is None:
         prj = modelgrid.prj
     df2shp(df, filename, epsg=epsg, proj4=proj_str, prj=prj)
-    print("took {:.2f}s".format(time.time() - t0))
+    if verbose:
+        print("shapefile export took {:.2f}s".format(time.time() - t0))

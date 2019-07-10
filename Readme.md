@@ -1,7 +1,8 @@
 
 MFexport
 -----------------------------------------------
-Fast & easy export of MODFLOW data to GIS file formats.
+Fast & easy summarizing of MODFLOW data and export to GIS file formats.
+
 ### Version 0.0.0
 [![Build Status](https://travis-ci.com/aleaf/MFexport.svg?branch=master)](https://travis-ci.org/aleaf/MFexport.svg)
 [![Coverage Status](https://codecov.io/github/aleaf/MFexport/coverage.svg?branch=master)](https://codecov.io/github/aleaf/MFexport/coverage.svg?branch=master)
@@ -13,7 +14,7 @@ Fast & easy export of MODFLOW data to GIS file formats.
 Getting Started
 -----------------------------------------------
 
-Example notebook
+[Example Notebook](Examples/example.ipynb)
 
 
 ### Bugs
@@ -54,6 +55,7 @@ pip install -e .
 MODFLOW Resources
 -----------------------------------------------
 
++ [MODFLOW Online Guide](https://water.usgs.gov/ogw/modflow-nwt/MODFLOW-NWT-Guide/index.html?nwt_newton_solver.htm)
 + [MODFLOW 6](https://www.usgs.gov/software/modflow-6-usgs-modular-hydrologic-model)
 
 
