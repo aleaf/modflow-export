@@ -13,7 +13,7 @@ def export_pdf(filename, array, text,
     if array.min() < 0.01:
         float_fmt = '{:.6e}'
     elif 'int' in array.dtype.name:
-        float_fmt = '{:d}'
+        float_fmt = '{:.0f}'
 
     if len(array.shape) > 2:
         multipage_pdf = PdfPages(filename)

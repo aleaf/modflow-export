@@ -8,7 +8,7 @@ from .utils import make_output_folders
 
 def export_cell_budget(cell_budget_file, grid,
                        kstpkper,
-                       text='RECHARGE',
+                       text=None,
                        idx=0, output_path='postproc', suffix=''):
     """Read a flow component from MODFLOW binary cell budget output;
     write to raster.
@@ -24,16 +24,17 @@ def export_cell_budget(cell_budget_file, grid,
     outfolder : where to write raster
     """
 
-    if len(kstpkper[0]) == 1:
+    if np.isscalar(kstpkper[0]):
         kstpkper = [kstpkper]
 
     pdfs_dir, rasters_dir, shps_dir = make_output_folders(output_path)
-    if not isinstance(text, list):
+    if text is not None and not isinstance(text, list):
         text = [text]
 
     cbbobj = bf.CellBudgetFile(cell_budget_file)
     names = [r.decode().strip() for r in cbbobj.get_unique_record_names()]
-    names = list(set(text).intersection(names))
+    if text is not None:
+        names = list(set(text).intersection(names))
     if len(names) == 0:
         print('{} not found in {}'.format(' '.join(text), cell_budget_file))
 
@@ -96,7 +97,7 @@ def export_drawdown(heads_file, grid, hdry, hnflo,
 
     outfiles = []
     outfile = '{}/wt-ddn_per{}_stp{}{}.tif'.format(rasters_dir, kper, kstp, suffix)
-    ctr_outfile = '{}/wt-ddn_ctr_per{}_stp{}{}.shp'.format(rasters_dir, kper, kstp, suffix)
+    ctr_outfile = '{}/wt-ddn_ctr_per{}_stp{}{}.shp'.format(shps_dir, kper, kstp, suffix)
     export_array(outfile, wt_ddn, grid, nodata=hnflo)
     export_array_contours(ctr_outfile, wt_ddn, grid, levels=levels, interval=interval,
                                )
@@ -104,7 +105,7 @@ def export_drawdown(heads_file, grid, hdry, hnflo,
 
     for k, d in enumerate(ddn):
         outfile = '{}/ddn_lay{}_per{}_stp{}{}.tif'.format(rasters_dir, k, kper, kstp, suffix)
-        ctr_outfile = '{}/ddn_ctr{}_per{}_stp{}{}.shp'.format(rasters_dir, k, kper, kstp, suffix)
+        ctr_outfile = '{}/ddn_ctr_lay{}_per{}_stp{}{}.shp'.format(shps_dir, k, kper, kstp, suffix)
         export_array(outfile, d, grid, nodata=hnflo)
         export_array_contours(ctr_outfile, d, grid, levels=levels
                                    )
@@ -135,7 +136,7 @@ def export_heads(heads_file, grid, hdry, hnflo,
     * Shapefiles of head contours for each layer and the water table.
     """
 
-    if len(kstpkper[0]) == 1:
+    if np.isscalar(kstpkper[0]):
         kstpkper = [kstpkper]
 
     pdfs_dir, rasters_dir, shps_dir = make_output_folders(output_path)

@@ -21,9 +21,12 @@ def lpr_modelgrid():
 
 
 def check_files(outfiles, variables, kstpkper=None, layers=None):
+    replace = [('model_top', 'top')]
     for f in outfiles:
         assert os.path.getsize(f) > 0
         fname = os.path.split(f)[1]
+        for pair in replace:
+            fname = fname.replace(*pair)
         props = parse_fname(fname)
         assert props['var'] in variables
         if kstpkper is not None:
@@ -59,10 +62,10 @@ def test_cell_budget_export(lpr_modelgrid, output_path):
     file = 'Examples/data/lpr/lpr_inset.cbc'
     cbobj = bf.CellBudgetFile(file)
     layers = list(range(cbobj.nlay))
+    variables = [bs.decode().strip() for bs in cbobj.textlist]
     nrow, ncol = cbobj.nrow, cbobj.ncol
     cbobj.close()
     kstpkper = [(4, 0)]
-    variables = ['RECHARGE']
     outfiles = export_cell_budget(file, lpr_modelgrid,
                                   kstpkper=kstpkper, output_path=output_path)
     check_files(outfiles, variables, kstpkper)

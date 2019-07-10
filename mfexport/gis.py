@@ -14,13 +14,12 @@ import numpy as np
 import pandas as pd
 
 
-def df2shp(dataframe, shpname, geo_column='geometry', index=False,
+def df2shp(dataframe, shpname, index=False,
            retain_order=False,
            prj=None, epsg=None, proj4=None, crs=None):
     '''
     Write a DataFrame to a shapefile
     dataframe: dataframe to write to shapefile
-    geo_column: optional column containing geometry to write - default is 'geometry'
     index: If true, write out the dataframe index as a column
     retain_order : boolean
         Retain column order in dataframe, using an OrderedDict. Shapefile will
@@ -42,11 +41,6 @@ def df2shp(dataframe, shpname, geo_column='geometry', index=False,
         raise IndexError("DataFrame is empty!")
 
     df = dataframe.copy()  # make a copy so the supplied dataframe isn't edited
-
-    # reassign geometry column if geo_column is special (e.g. something other than "geometry")
-    if geo_column != 'geometry':
-        df['geometry'] = df[geo_column]
-        df.drop(geo_column, axis=1, inplace=True)
 
     # assign none for geometry, to write a dbf file from dataframe
     Type = None
@@ -298,152 +292,6 @@ def shp_properties(df):
     return properties
 
 
-def project(geom, projection1, projection2):
-    """Reproject shapely geometry object(s) or scalar
-    coodrinates to new coordinate system
-
-    Parameters
-    ----------
-    geom: shapely geometry object, list of shapely geometry objects,
-          list of (x, y) tuples, or (x, y) tuple.
-    projection1: string
-        Proj4 string specifying source projection
-    projection2: string
-        Proj4 string specifying destination projection
-    """
-    # check for x, y values instead of shapely objects
-    if isinstance(geom, tuple):
-        return np.squeeze([projectXY(geom[0], geom[1], projection1, projection2)])
-
-    if isinstance(geom, collections.Iterable):
-        geom = list(geom) # in case it's a generator
-        geom0 = geom[0]
-    else:
-        geom0 = geom
-
-    if isinstance(geom0, tuple):
-        a = np.array(geom)
-        x = a[:, 0]
-        y = a[:, 1]
-        return np.squeeze([projectXY(x, y, projection1, projection2)])
-
-    # transform shapely objects
-    # enforce strings
-    projection1 = str(projection1)
-    projection2 = str(projection2)
-
-    # define projections
-    pr1 = pyproj.Proj(projection1, errcheck=True, preserve_units=True)
-    pr2 = pyproj.Proj(projection2, errcheck=True, preserve_units=True)
-
-    # projection function
-    # (see http://toblerity.org/shapely/shapely.html#module-shapely.ops)
-    project = partial(pyproj.transform, pr1, pr2)
-
-    # do the transformation!
-    if isinstance(geom, collections.Iterable):
-        return [transform(project, g) for g in geom]
-    return transform(project, geom)
-
-
-def projectXY(x, y, projection1, projection2):
-    """Project x and y coordinates to different crs
-
-    Parameters
-    ----------
-    x: scalar or 1-D array
-    x: scalar or 1-D array
-    projection1: string
-        Proj4 string specifying source projection
-    projection2: string
-        Proj4 string specifying destination projection
-    """
-    projection1 = str(projection1)
-    projection2 = str(projection2)
-
-    # define projections
-    pr1 = pyproj.Proj(projection1, errcheck=True, preserve_units=True)
-    pr2 = pyproj.Proj(projection2, errcheck=True, preserve_units=True)
-
-    return pyproj.transform(pr1, pr2, x, y)
-
-
-
-def intersect(feature, grid, id_column=None,
-              epsg=None,
-              proj4=None):
-    """Intersect a feature with the model grid, using
-    the rasterio.features.rasterize method. Features are intersected
-    if they contain the cell center.
-
-    Parameters
-    ----------
-    feature : str (shapefile path), list of shapely objects,
-              or dataframe with geometry column
-    id_column : str
-        Column with unique integer identifying each feature; values
-        from this column will be assigned to the output raster.
-    grid : grid.StructuredGrid instance
-    epsg : int
-        EPSG code for feature coordinate reference system. Optional,
-        but an epgs code or proj4 string must be supplied if feature
-        isn't a shapefile, and isn't in the same CRS as the model.
-    proj4 : str
-        Proj4 string for feature CRS (optional)
-
-    Returns
-    -------
-    2D numpy array with intersected values
-
-    """
-    try:
-        from rasterio import features
-        from rasterio import Affine
-    except:
-        print('This method requires rasterio.')
-        return
-
-    #trans = Affine(sr.delr[0], 0., sr.xul,
-    #               0., -sr.delc[0], sr.yul) * Affine.rotation(sr.rotation)
-    trans = grid.transform
-
-    if isinstance(feature, str):
-        proj4 = get_proj4(feature)
-        df = shp2df(feature)
-    elif not isinstance(feature, collections.Iterable):
-        df = pd.DataFrame({'geometry': [feature]})
-    elif isinstance(feature, pd.DataFrame):
-        df = feature.copy()
-    else:
-        print('unrecognized feature input')
-        return
-
-    # handle shapefiles in different CRS than model grid
-    reproject = False
-    if proj4 is not None:
-        if proj4 != grid.proj_str:
-            reproject = True
-    elif epsg is not None and grid.epsg is not None:
-        if epsg != grid.epsg:
-            reproject = True
-            from fiona.crs import to_string, from_epsg
-            proj4 = to_string(from_epsg(epsg))
-    if reproject:
-        df['geometry'] = project(df.geometry.values, proj4, grid.proj_str)
-
-    # create list of GeoJSON features, with unique value for each feature
-    if id_column is None:
-        numbers = range(1, len(df)+1)
-    else:
-        numbers = df[id_column].tolist()
-    geoms = list(zip(df.geometry, numbers))
-    result = features.rasterize(geoms,
-                                out_shape=(grid.nrow, grid.ncol),
-                                transform=trans)
-    assert result.sum(axis=(0, 1)) != 0, "Nothing was intersected!"
-    return result.astype(np.int32)
-
-
 def get_proj4(prj):
     """Get proj4 string for a projection file
 
@@ -476,55 +324,3 @@ def get_proj4(prj):
         return proj4
     except:
         pass
-
-
-def arc_ascii(array, filename, xll=0, yll=0, cellsize=1.,
-              nodata=-9999, **kwargs):
-    """Write numpy array to Arc Ascii grid.
-
-    Parameters
-    ----------
-    kwargs: keyword arguments to np.savetxt
-    """
-    array = array.copy()
-    array[np.isnan(array)] = nodata
-
-    filename = '.'.join(filename.split('.')[:-1]) + '.asc'  # enforce .asc ending
-    nrow, ncol = array.shape
-    txt = 'ncols  {:d}\n'.format(ncol)
-    txt += 'nrows  {:d}\n'.format(nrow)
-    txt += 'xllcorner  {:f}\n'.format(xll)
-    txt += 'yllcorner  {:f}\n'.format(yll)
-    txt += 'cellsize  {}\n'.format(cellsize)
-    txt += 'NODATA_value  {:.0f}\n'.format(nodata)
-    with open(filename, 'w') as output:
-        output.write(txt)
-    with open(filename, 'ab') as output:
-        np.savetxt(output, array, **kwargs)
-    print('wrote {}'.format(filename))
-
-
-def read_arc_ascii(filename, shape=None):
-    with open(filename) as src:
-        meta = {}
-        for i in range(6):
-            k, v = next(src).strip().split()
-            v = float(v) if '.' in v else int(v)
-            meta[k.lower()] = v
-
-        # make a gdal-style geotransform
-        dx = meta['cellsize']
-        dy = meta['cellsize']
-        xul = meta['xllcorner']
-        yul = meta['yllcorner'] + dy * meta['nrows']
-        rx, ry = 0, 0
-        meta['geotransform'] = xul, dx, rx, yul, ry, -dy
-
-        if shape is not None:
-            assert (meta['nrow'], meta['ncol']) == shape, \
-                "Data in {} are {}x{}, expected {}x{}".format(filename,
-                                                              meta['nrows'],
-                                                              meta['ncols'],
-                                                              *shape)
-        arr = np.loadtxt(src)
-    return arr, meta

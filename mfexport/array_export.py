@@ -73,70 +73,13 @@ def export_array(filename, a, modelgrid, nodata=-9999,
         meta.update(kwargs)
         with rasterio.open(filename, 'w', **meta) as dst:
             dst.write(a)
+            if isinstance(a, np.ma.masked_array):
+                dst.write_mask(~a.mask.transpose(1, 2, 0))
         print('wrote {}'.format(filename))
 
     elif filename.lower().endswith(".shp"):
-        from flopy.export.shapefile_utils import write_grid_shapefile2
-        epsg = kwargs.get('epsg', None)
-        prj = kwargs.get('prj', None)
-        if epsg is None and prj is None:
-            epsg = modelgrid.epsg
-        write_grid_shapefile2(filename, modelgrid, array_dict={fieldname: a},
-                              nan_val=nodata,
-                              epsg=epsg, prj=prj)
+        raise NotImplementedError()
     print("took {:.2f}s".format(time.time() - t0))
-
-
-def contour_array(modelgrid, ax, a, **kwargs):
-    """
-    Create a QuadMesh plot of the specified array using pcolormesh
-
-    Parameters
-    ----------
-    ax : matplotlib.axes.Axes
-        ax to add the contours
-
-    a : np.ndarray
-        array to contour
-
-    Returns
-    -------
-    contour_set : ContourSet
-
-    """
-    try:
-        import matplotlib.tri as tri
-    except:
-        tri = None
-    plot_triplot = False
-    if 'plot_triplot' in kwargs:
-        plot_triplot = kwargs.pop('plot_triplot')
-    if 'extent' in kwargs and tri is not None:
-        extent = kwargs.pop('extent')
-        idx = (modelgrid.xcellcenters >= extent[0]) & (
-                modelgrid.xcellcenters <= extent[1]) & (
-                      modelgrid.ycellcenters >= extent[2]) & (
-                      modelgrid.ycellcenters <= extent[3])
-        a = a[idx].flatten()
-        xc = modelgrid.xcellcenters[idx].flatten()
-        yc = modelgrid.ycellcenters[idx].flatten()
-        triang = tri.Triangulation(xc, yc)
-        try:
-            amask = a.mask
-            mask = [False for i in range(triang.triangles.shape[0])]
-            for ipos, (n0, n1, n2) in enumerate(triang.triangles):
-                if amask[n0] or amask[n1] or amask[n2]:
-                    mask[ipos] = True
-            triang.set_mask(mask)
-        except:
-            mask = None
-        contour_set = ax.tricontour(triang, a, **kwargs)
-        if plot_triplot:
-            ax.triplot(triang, color='black', marker='o', lw=0.75)
-    else:
-        contour_set = ax.contour(modelgrid.xcellcenters, modelgrid.ycellcenters,
-                                 a, **kwargs)
-    return contour_set
 
 
 def export_array_contours(filename, a, modelgrid,
@@ -160,7 +103,7 @@ def export_array_contours(filename, a, modelgrid,
         EPSG code. See https://www.epsg-registry.org/ or spatialreference.org
     prj : str
         Existing projection file to be used with new shapefile.
-    **kwargs : keyword arguments to flopy.export.shapefile_utils.recarray2shp
+    **kwargs : keyword arguments to matplotlib.axes.Axes.contour
 
     """
     t0 = time.time()
@@ -170,17 +113,12 @@ def export_array_contours(filename, a, modelgrid,
         proj_str = modelgrid.proj_str
 
     if interval is not None:
-        imin = np.nanmin(a)
-        imax = np.nanmax(a)
-        nlevels = np.round(np.abs(imax - imin) / interval, 2)
-        msg = '{:.0f} levels at interval of {} > maxlevels={}'.format(
-            nlevels,
-            interval,
-            maxlevels)
-        assert nlevels < maxlevels, msg
-        levels = np.arange(imin, imax, interval)
+        kwargs['levels'] = make_levels(a, interval, maxlevels)
+
     ax = plt.subplots()[-1]
-    contours = contour_array(modelgrid, ax, a, levels=levels)
+    contours = ax.contour(modelgrid.xcellcenters,
+                          modelgrid.ycellcenters,
+                          a, **kwargs)
     plt.close()
 
     if not isinstance(contours, list):
@@ -203,6 +141,22 @@ def export_array_contours(filename, a, modelgrid,
     # convert the dictionary to a recarray
     df = pd.DataFrame({'level': level,
                        'geometry': geoms})
-    df2shp(df, filename, epsg=epsg, proj4=proj_str, **kwargs)
+    df2shp(df, filename, epsg=epsg, proj4=proj_str)
     print("took {:.2f}s".format(time.time() - t0))
     return
+
+
+def make_levels(array, interval, maxlevels=1000):
+    imin = np.round(np.floor(np.nanmin(array)), 0)
+    imax = np.round(np.ceil(np.nanmax(array)), 0)
+    levels = np.round(np.arange(imin, imax, interval), 6)
+    inrange = (levels >= np.nanmin(array)) & (levels <= np.nanmax(array))
+    levels = levels[inrange]
+    if len(levels) > maxlevels:
+        msg = '{:.0f} levels at interval of {}; setting contours based on maxlevels ({})'.format(
+            len(levels),
+            interval,
+            maxlevels)
+        print(msg)
+        levels = np.round(np.linspace(imin, imax, maxlevels), 6)
+    return levels

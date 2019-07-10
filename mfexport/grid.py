@@ -27,13 +27,13 @@ class MFexportGrid(StructuredGrid):
     def __eq__(self, other):
         if not isinstance(other, StructuredGrid):
             return False
-        if not np.allclose(other.xoff, self.xoff):
+        if not np.allclose(other.xoffset, self.xoffset):
             return False
-        if not np.allclose(other.yoff, self.yoff):
+        if not np.allclose(other.yoffset, self.yoffset):
             return False
         if not np.allclose(other.angrot, self.angrot):
             return False
-        if not np.allclose(other.proj4, self.proj4):
+        if not other.proj_str == self.proj_str:
             return False
         if not np.array_equal(other.delr, self.delr):
             return False

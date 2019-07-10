@@ -71,6 +71,7 @@ def make_output_folders(output_path='postproc'):
             os.makedirs(path)
     return pdfs_dir, rasters_dir, shps_dir
 
+
 def print_item(k, v):
     print('{}: '.format(k), end='')
     if isinstance(v, dict):

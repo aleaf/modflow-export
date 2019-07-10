@@ -1,1 +1,10 @@
 # List required packages in this file, one per line.
+pyyaml
+numpy
+pandas
+gdal
+fiona
+rasterio
+shapely
+pyproj
+flopy
