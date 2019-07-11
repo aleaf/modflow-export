@@ -9,6 +9,8 @@ from .shapefile_export import export_shapefile
 from .utils import make_output_folders
 
 
+othername = {'model_top': 'top'}
+
 def export(model, modelgrid, packages=None, variables=None, output_path='postproc',
            contours=False, show_inactive=False,
            gis=True, pdfs=True, **kwargs):
@@ -47,7 +49,11 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
             export_sfr()
             continue
 
-        package_variables = package.data_list
+        if variables is not None:
+            package_variables = [getattr(package, v, None) for v in variables]
+            package_variables = [v for v in package_variables if v is not None]
+        else:
+            package_variables = package.data_list
 
         for v in package_variables:
             if isinstance(v, DataInterface):
@@ -58,7 +64,8 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
                     if isinstance(v.name, str):
                         name = v.name.strip('_')
 
-                    if variables is not None and name.lower() not in variables:
+                    if variables is not None and name.lower() not in variables \
+                            and othername[name.lower()] not in variables:
                         return
 
                     if v.data_type == DataType.array2d and len(v.shape) == 2 \

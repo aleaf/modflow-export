@@ -22,7 +22,7 @@ def export_shapefile(filename, data, modelgrid, kper=None,
 
     if epsg is None:
         epsg = modelgrid.epsg
-    if prj is None:
+    if proj_str is None:
         proj_str = modelgrid.proj_str
 
     if kper is not None:
@@ -30,8 +30,9 @@ def export_shapefile(filename, data, modelgrid, kper=None,
         verts = np.array(modelgrid.get_cell_vertices(df.i, df.j))
     elif df is not None:
         verts = modelgrid.get_vertices(df.i.values, df.j.values)
-    polys = np.array([Polygon(v) for v in verts])
-    df['geometry'] = polys
+    if 'geometry' not in df.columns:
+        polys = np.array([Polygon(v) for v in verts])
+        df['geometry'] = polys
     if epsg is None:
         epsg = modelgrid.epsg
     if proj_str is None:

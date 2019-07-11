@@ -1,15 +1,8 @@
 import os
-import warnings
+import shutil
 import collections
-import time
-from functools import partial
 import fiona
-import rasterio
-from rasterio.windows import Window
-from rasterio import features
-from shapely.ops import transform, unary_union
-from shapely.geometry import shape, mapping, Polygon
-import pyproj
+from shapely.geometry import shape, mapping
 import numpy as np
 import pandas as pd
 
@@ -111,11 +104,16 @@ def df2shp(dataframe, shpname, index=False,
             ofp.write(prjstr)
             ofp.close()
         """
-        try:
+        dest_prj_file = "{}.prj".format(shpname[:-4])
+        if os.path.exists(prj):
             print('copying {} --> {}...'.format(prj, "{}.prj".format(shpname[:-4])))
-            shutil.copyfile(prj, "{}.prj".format(shpname[:-4]))
-        except IOError:
-            print('Warning: could not find specified prj file. shp will not be projected.')
+            shutil.copyfile(prj, dest_prj_file)
+        else:
+            print('Warning: could not find {}.'.format(prj))
+            if not os.path.exists(dest_prj_file):
+                print('Output shapefile has no projection information.'.format(prj))
+            else:
+                print('Projection for {} is {}'.format(shpname, crs))
 
 
 def shp2df(shplist, index=None, index_dtype=None, clipto=[], filter=None,

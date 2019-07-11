@@ -57,3 +57,56 @@ def export_pdf(filename, array, text,
         multipage_pdf.close()
     if verbose:
         print("pdf export took {:.2f}s".format(time.time() - t0))
+
+
+def sfr_baseflow_pdf(outfile, df, pointsize=0.5, verbose=False):
+    """make a scatter plot of base flow
+    (with point size proportional to Q)
+    """
+    t0 = time.time()
+    fig, ax = plt.subplots()
+    wet = df.loc[df.Qmean != 0]
+    dry = df.loc[df.Qmean == 0]
+    ax.scatter(dry.j, dry.i, s=pointsize, color='0.5')
+    Qpointsizes = np.log10(wet.Qmean)
+    Qpointsizes[Qpointsizes < 0] = 0.1
+    ax.scatter(wet.j, wet.i, s=Qpointsizes, alpha=0.5)
+    ax.invert_yaxis()
+    ax.set_title('Simulated base flow')
+    plt.savefig(outfile)
+    print('wrote {}'.format(outfile))
+    plt.close()
+    if verbose:
+        print("pdf export took {:.2f}s".format(time.time() - t0))
+
+
+def sfr_qaquifer_pdf(outfile, df, pointsize=0.5, verbose=False):
+    """make a scatter plot of Qaquifer
+    (with color proportional to flux, scaled to largest gaining flow)
+    """
+    t0 = time.time()
+    fig, ax = plt.subplots()
+    gaining = df.loc[df.Qaquifer < 0]
+    losing = df.loc[df.Qaquifer > 0]
+    dry = df.loc[df.Qmean == 0]
+    ax.scatter(dry.j, dry.i, pointsize, color='0.5')
+    Qpointcolors_l = np.abs(losing.Qaquifer)
+    Qpointcolors_g = np.abs(gaining.Qaquifer)
+    vmax = np.percentile(Qpointcolors_g, 95)
+    ax.scatter(losing.j, losing.i,
+               s=pointsize, c=Qpointcolors_l,
+               vmax=vmax,
+               cmap='Reds')
+
+    ax.scatter(gaining.j, gaining.i,
+               s=pointsize, c=Qpointcolors_g,
+               vmax=vmax,
+               cmap='Blues')
+    ax.invert_yaxis()
+    ax.set_title('Simulated stream-aquifer interactions')
+
+    plt.savefig(outfile)
+    print('wrote {}'.format(outfile))
+    plt.close()
+    if verbose:
+        print("pdf export took {:.2f}s".format(time.time() - t0))

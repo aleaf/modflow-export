@@ -3,31 +3,14 @@ import numpy as np
 import fiona
 import rasterio
 from shapely.geometry import box
-import flopy.modflow as fm
 import pytest
 from ..gis import shp2df
-from ..grid import load_modelgrid
 from ..mfexport import export, summarize
 from .test_results_export import check_files, compare_polygons
 
 @pytest.fixture(scope='module')
 def output_path(tmpdir):
     return os.path.join(tmpdir, 'lpr')
-
-
-@pytest.fixture(scope='module')
-def lpr_model():
-    namefile = 'lpr_inset.nam'
-    model_ws = 'Examples/data/lpr/'
-    m = fm.Modflow.load(namefile,
-                        model_ws=model_ws, check=False, forgive=False)
-    return m
-
-
-@pytest.fixture(scope='module')
-def lpr_modelgrid():
-    grid_file = 'Examples/data/lpr/lpr_grid.json'
-    return load_modelgrid(grid_file)
 
 
 def test_model_export(lpr_model, lpr_modelgrid, output_path):
@@ -41,6 +24,26 @@ def test_package_export(lpr_model, lpr_modelgrid, output_path):
     outfiles = export(lpr_model, lpr_modelgrid, packages[0], output_path=output_path)
     # TODO : add some checks
     assert True
+
+
+def test_variable_export(lpr_model, lpr_modelgrid, output_path):
+    variables = ['top']
+    layers = list(range(lpr_model.nlay))
+    outfiles = export(lpr_model, lpr_modelgrid,
+                      variables=variables,
+                      output_path=output_path)
+    check_files(outfiles, variables, layers=layers)
+
+
+def test_variable_export_with_package(lpr_model, lpr_modelgrid, output_path):
+    variables = ['botm']
+    packages = ['dis']
+    layers = list(range(lpr_model.nlay))
+    outfiles = export(lpr_model, lpr_modelgrid,
+                      packages=packages,
+                      variables=variables,
+                      output_path=output_path)
+    check_files(outfiles, variables, layers=layers)
 
 
 def test_summary(lpr_model, output_path):

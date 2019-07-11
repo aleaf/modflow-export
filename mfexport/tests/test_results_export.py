@@ -6,18 +6,12 @@ import fiona
 import rasterio
 from shapely.geometry import box
 from ..grid import load_modelgrid
-from ..results import export_cell_budget, export_heads, export_drawdown
+from ..results import export_cell_budget, export_heads, export_drawdown, export_sfr_results
 
 
 @pytest.fixture(scope='module')
 def output_path(tmpdir):
     return os.path.join(tmpdir, 'lpr')
-
-
-@pytest.fixture(scope='module')
-def lpr_modelgrid():
-    grid_file = 'Examples/data/lpr/lpr_grid.json'
-    return load_modelgrid(grid_file)
 
 
 def check_files(outfiles, variables, kstpkper=None, layers=None):
@@ -125,3 +119,19 @@ def test_drawdown_export(lpr_modelgrid, output_path):
     for f in shps:
         with fiona.open(f) as src:
             assert box(*src.bounds).within(lpr_modelgrid.bbox)
+
+
+def test_sfr_results_export(lpr_model, lpr_modelgrid, output_path):
+
+    mf2005_sfr_outputfile = 'Examples/data/lpr/lpr_inset.sfr.out'
+    kstpkper = [(4, 0)]
+    variables = ['sfrout', 'baseflow', 'qaquifer']
+    outfiles = export_sfr_results(mf2005_sfr_outputfile=mf2005_sfr_outputfile,
+                                  model=lpr_model,
+                                  grid=lpr_modelgrid,
+                                  kstpkper=kstpkper,
+                                  output_length_units='feet',
+                                  output_time_units='seconds',
+                                  output_path=output_path
+                                  )
+    check_files(outfiles, variables, kstpkper)

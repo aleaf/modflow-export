@@ -2,6 +2,12 @@ import numpy as np
 from flopy.utils import binaryfile as bf
 from flopy.utils.postprocessing import get_water_table
 from .array_export import export_array, export_array_contours
+from .budget_output import get_surface_bc_flux, read_sfr_output
+from .gis import shp2df
+from .pdf_export import sfr_baseflow_pdf, sfr_qaquifer_pdf
+from .shapefile_export import export_shapefile
+from .units import (convert_length_units, convert_time_units,
+                    get_length_units, get_time_units, get_unit_text)
 from .utils import make_output_folders
 
 # TODO: update docstrings
@@ -44,7 +50,7 @@ def export_cell_budget(cell_budget_file, grid,
             data = get_surface_bc_flux(cbbobj, variable, kstpkper=(kstp, kper), idx=idx)
             if data is None:
                 print('{} not exported.'.format(variable))
-                return
+                continue
             outfile = '{}/{}_per{}_stp{}{}.tif'.format(rasters_dir, variable, kper, kstp, suffix)
             export_array(outfile, data, grid, nodata=0)
             outfiles.append(outfile)
@@ -167,44 +173,98 @@ def export_heads(heads_file, grid, hdry, hnflo,
     return outfiles
 
 
-def get_surface_bc_flux(cbbobj, txt, kstpkper=(0, 0), idx=0):
-    """Read a flow component from MODFLOW binary cell budget output;
+def export_sfr_results(mf2005_sfr_outputfile=None,
+                       mf2005_SfrFile_instance=None,
+                       mf6_sfr_stage_file=None,
+                       mf6_sfr_budget_file=None,
+                       model=None,
+                       grid=None,
+                       kstpkper=(0, 0),
+                       sfrlinesfile=None,
+                       pointsize=0.5,
+                       output_length_units='feet',
+                       output_time_units='seconds',
+                       gis=True, pdfs=True,
+                       output_path='postproc', suffix='',
+                       verbose=False):
 
-    Parameters
-    ----------
-    cbbobj : open file handle (instance of flopy.utils.binaryfile.CellBudgetFile
-    txt : cell budget record to read (e.g. 'STREAM LEAKAGE')
-    kstpkper : tuple
-        (timestep, stress period) to read
-    idx : index of list returned by cbbobj (usually 0)
+    pdfs_dir, rasters_dir, shps_dir = make_output_folders(output_path)
+    m = model
+    if not isinstance(kstpkper, list):
+        kstpkper = [kstpkper]
 
-    Returns
-    -------
-    arr : ndarray
-    """
-    nrow, ncol, nlay = cbbobj.nrow, cbbobj.ncol, cbbobj.nlay
-    results = cbbobj.get_data(text=txt, kstpkper=kstpkper, idx=idx)
-    # this logic needs some cleanup
-    if len(results) > 0:
-        results = results[0]
-    else:
-        print('no data found at {} for {}'.format(kstpkper, txt))
-        return
-    if isinstance(results, list) and txt == 'RECHARGE':
-        results = results[1]
-    if results.size == 0:
-        print('no data found at {} for {}'.format(kstpkper, txt))
-        return
-    if results.shape == (nlay, nrow, ncol):
-        return results
-    elif results.shape == (1, nrow, ncol):
-        return results[0]
-    elif results.shape == (nrow, ncol):
-        return results
-    elif len(results.shape) == 1 and \
-            len({'node', 'q'}.difference(set(results.dtype.names))) == 0:
-        arr = np.zeros(nlay * nrow * ncol, dtype=float)
-        arr[results.node - 1] = results.q
-        arr = np.reshape(arr, (nlay, nrow, ncol))
-        arr = arr.sum(axis=0)
-        return arr
+    df = read_sfr_output(mf2005_sfr_outputfile=mf2005_sfr_outputfile,
+                         mf2005_SfrFile_instance=mf2005_SfrFile_instance,
+                         mf6_sfr_stage_file=mf6_sfr_stage_file,
+                         mf6_sfr_budget_file=mf6_sfr_budget_file,
+                         model=model)
+    lmult = convert_length_units(get_length_units(m),
+                                 output_length_units)
+    tmult = convert_time_units(get_time_units(m),
+                               output_time_units)
+    unit_text = get_unit_text(output_length_units,
+                              output_time_units, 3)
+
+    if 'GWF' in df.columns:
+        df['Qaquifer'] = -df.GWF # for consistency with MF2005
+    if 'Qmean' not in df.columns:
+        df['Qmean'] = df[['Qin', 'Qout']].abs().mean(axis=1)
+
+    # write columns in the output units
+    df['Qmean_{}'.format(unit_text)] = df.Qmean * lmult**3/tmult
+    df['Qaq_{}'.format(unit_text)] = df.Qaquifer * lmult**3/tmult
+
+    # add model top comparison if available
+    if m.dis is not None and 'i' in df.columns and 'j' in df.columns:
+        df['model_top'] = m.dis.top.array[df.i.values, df.j.values]
+    if 'stage' in df.columns:
+        df['above'] = df.stage - df.model_top
+    groups = df.groupby('kstpkper')
+
+    outfiles = []
+    if gis:
+        prj_file = None
+        if sfrlinesfile is not None:
+            sfrlines = shp2df(sfrlinesfile)
+            prj_file = sfrlines[:-4] + '.prj'
+            sfrlines.sort_values(by=['iseg', 'ireach'], inplace=True)
+            geoms = sfrlines.geometry
+        else:
+            #assert sr is not None, \
+            #    'need SpatialReference instance to locate model grid cells'
+            #dfp = groups.get_group((0, 0)).copy()
+            geoms = None
+            #vertices = sr.get_vertices(dfp.i, dfp.j)
+            #geoms = [Polygon(vrt) for vrt in vertices]
+
+        for kstp, kper in kstpkper:
+            dfp = groups.get_group((kstp, kper)).copy()
+            if geoms is not None:
+                dfp['geometry'] = geoms
+            #dfp = gp.GeoDataFrame(dfp)
+            #dfp.crs = sr.proj4_str
+            # to use cell polygons instead of lines
+            # verts = m.sr.get_vertices(df.i.values, df.j.values)
+            #df['geometry'] = [Polygon(v) for v in verts]
+            dfp['stp'] = [t[0] for t in dfp['kstpkper']]
+            dfp['per'] = [t[1] for t in dfp['kstpkper']]
+            dfp.drop('kstpkper', axis=1, inplace=True)  # geopandas doesn't like tuples
+            outfile = '{}/sfrout_per{}_stp{}{}.shp'.format(shps_dir, kper, kstp, suffix)
+
+            export_shapefile(outfile, dfp, modelgrid=grid, prj=prj_file)
+            outfiles.append(outfile)
+            #dfp.to_file(outfile)
+            #print('wrote {}'.format(outfile))
+
+    if pdfs:
+        # need to add a scale that addresses units
+        for kstp, kper in kstpkper:
+            df = groups.get_group((kstp, kper)).copy()
+            bf_outfile = '{}/baseflow_per{}_stp{}{}.pdf'.format(pdfs_dir, kper, kstp, suffix)
+            sfr_baseflow_pdf(bf_outfile, df, pointsize=pointsize, verbose=verbose)
+
+            qaq_outfile = '{}/qaquifer_per{}_stp{}.pdf'.format(pdfs_dir, kper, kstp, suffix)
+            sfr_qaquifer_pdf(qaq_outfile, df, pointsize=pointsize, verbose=verbose)
+            outfiles += [bf_outfile, qaq_outfile]
+    return outfiles
+
