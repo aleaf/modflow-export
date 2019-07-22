@@ -64,8 +64,8 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
                     if isinstance(v.name, str):
                         name = v.name.strip('_')
 
-                    if variables is not None and name.lower() not in variables \
-                            and othername[name.lower()] not in variables:
+                    if variables is not None and \
+                            othername.get(name.lower(), name.lower()) not in variables:
                         return
 
                     if v.data_type == DataType.array2d and len(v.shape) == 2 \
@@ -92,6 +92,7 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
                             filenames.append(filename)
 
                     elif v.data_type == DataType.array3d:
+                        # TODO: add option to export 3d arrays as multiband geotiffs
                         print('{}:'.format(name))
                         array = v.array.copy()
                         if not show_inactive:
@@ -140,6 +141,35 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
                                            mfarray_type='array2d')
                                 filenames.append(filename)
 
+                    elif v.data_type == DataType.transient3d:
+                        # TODO: need test for transient3d
+                        # squeeze periods to only those that are different
+                        print('{}:'.format(name))
+                        pers = [0] + list(np.where(np.diff(v.array.sum(axis=(1, 2, 3))) != 0)[0])
+                        array = v.array[pers, :, :, :].copy()
+
+                        for kper, array3d in enumerate(array):
+                            if not show_inactive:
+                                array3d = np.ma.masked_array(array3d,
+                                                           mask=np.broadcast_to(inactive_cells2d,
+                                                                                array3d.shape))
+                            for k, array2d in enumerate(array3d):
+                                if gis:
+                                    filename = os.path.join(rasters_dir,
+                                                            '{}_per{}_lay{}.tif'.format(name, kper, k))
+                                    export_array(filename, array2d, modelgrid, nodata=-9999,
+                                                 **kwargs)
+                                    filenames.append(filename)
+
+                                if pdfs:
+                                    filename = os.path.join(pdfs_dir,
+                                                            '{}_per{}_lay{}.pdf'.format(name, kper, k))
+                                    export_pdf(filename, array2d, nodata=np.nan,
+                                               text='Period {} Layer {} {}'.format(kper, k, name),
+                                               mfarray_type='array2d')
+                                    filenames.append(filename)
+
+                        
                     elif v.data_type == DataType.transientlist:
                         if gis:
                             filename = os.path.join(shps_dir,
@@ -269,6 +299,25 @@ def summarize(model, packages=None, variables=None, output_path=None,
                                                'mean': array2d.mean(),
                                                'max': array2d.max(),
                                                })
+
+                    elif v.data_type == DataType.transient3d:
+                        pers = [0] + list(np.where(np.diff(v.array.sum(axis=(1, 2, 3))) != 0)[0])
+                        array = v.array[pers, :, :, :].copy()
+
+                        for kper, array3d in enumerate(array):
+                            if not show_inactive:
+                                array3d = np.ma.masked_array(array3d,
+                                                             mask=np.broadcast_to(inactive_cells2d,
+                                                                                  array3d.shape))
+                            for k, array2d in enumerate(array3d):
+                                summarized.append({'package': package.name[0],
+                                                   'variable': name,
+                                                   'period': kper,
+                                                   'layer': k,
+                                                   'min': array2d.min(),
+                                                   'mean': array2d.mean(),
+                                                   'max': array2d.max(),
+                                                   })
 
                     elif v.data_type == DataType.transientlist:
                         df = v.get_dataframe(squeeze=True)
