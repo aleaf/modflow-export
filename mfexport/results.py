@@ -167,7 +167,7 @@ def export_heads(heads_file, grid, hdry, hnflo,
             outfile = '{}/hds_lay{}_per{}_stp{}{}.tif'.format(rasters_dir, k, kper, kstp, suffix)
             ctr_outfile = '{}/hds_ctr_lay{}_per{}_stp{}{}.shp'.format(shps_dir, k, kper, kstp, suffix)
             export_array(outfile, h, grid, nodata=hnflo)
-            export_array_contours(ctr_outfile, h, grid, levels=levels,#interval=1,
+            export_array_contours(ctr_outfile, h, grid, levels=levels, interval=interval,
                                   )
             outfiles += [outfile, ctr_outfile]
     return outfiles
