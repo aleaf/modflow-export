@@ -4,7 +4,7 @@ MFexport
 Fast & easy summarizing of MODFLOW data and export to GIS file formats.
 
 ### Version 0.0.0
-[![Build Status](https://travis-ci.com/aleaf/MFexport.svg?branch=master)](https://travis-ci.org/aleaf/MFexport.svg)
+[![Build Status](https://travis-ci.com/aleaf/MFexport.svg?branch=master)](https://travis-ci.com/aleaf/MFexport.svg?branch=master)
 [![Coverage Status](https://codecov.io/github/aleaf/MFexport/coverage.svg?branch=master)](https://codecov.io/github/aleaf/MFexport/coverage.svg?branch=master)
 
 
@@ -30,7 +30,7 @@ Installation
 MFsetup requires **Python** 3.6 (or higher)
 
 **Dependencies:**  
-pyaml  
+pyyaml  
 numpy  
 pandas  
 fiona  

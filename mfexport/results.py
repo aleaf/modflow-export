@@ -12,10 +12,11 @@ from .utils import make_output_folders
 
 # TODO: update docstrings
 
+
 def export_cell_budget(cell_budget_file, grid,
-                       kstpkper,
-                       text=None,
-                       idx=0, output_path='postproc', suffix=''):
+                       kstpkper, text=None, idx=0,
+                       precision='single',
+                       output_path='postproc', suffix=''):
     """Read a flow component from MODFLOW binary cell budget output;
     write to raster.
 
@@ -37,7 +38,7 @@ def export_cell_budget(cell_budget_file, grid,
     if text is not None and not isinstance(text, list):
         text = [text]
 
-    cbbobj = bf.CellBudgetFile(cell_budget_file)
+    cbbobj = bf.CellBudgetFile(cell_budget_file, precision=precision)
     names = [r.decode().strip() for r in cbbobj.get_unique_record_names()]
     if text is not None:
         names = list(set(text).intersection(names))

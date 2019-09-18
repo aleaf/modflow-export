@@ -1,0 +1,6 @@
+[run]
+source = mfexport
+omit = /Users/aleaf/Documents/GitHub/flopy/*
+    /Users/aleaf/Documents/GitHub/sfrmaker/*
+    mfexport/_version.py
+    

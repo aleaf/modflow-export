@@ -9,9 +9,9 @@ dependencies:
 - pandas
 - gdal
 - fiona
-- rasterio=1.*
+- rasterio>=1.0
 - shapely
-- pyproj
+- pyproj>=2.0
 - pyshp
 - flopy
 - codecov

@@ -61,6 +61,8 @@ def export_array(filename, a, modelgrid, nodata=-9999,
         if len(a.shape) == 2:
             a = np.reshape(a, (1, a.shape[0], a.shape[1]))
 
+        if a.dtype == np.int64:
+            a = a.astype(np.int32)
         meta = {'count': a.shape[0],
                 'width': a.shape[2],
                 'height': a.shape[1],
@@ -137,7 +139,7 @@ def export_array_contours(filename, a, modelgrid,
         levels = ctr.levels
         for i, c in enumerate(ctr.collections):
             paths = c.get_paths()
-            geoms += [LineString(p.vertices) for p in paths]
+            geoms += [LineString(p.vertices) if len(p) > 1 else LineString() for p in paths]
             level += list(np.ones(len(paths)) * levels[i])
 
     # convert the dictionary to a recarray

@@ -155,9 +155,14 @@ def aggregate_mf6_stress_budget(mf6_stress_budget_output,
     df.reset_index(inplace=True, drop=True)
     df.sort_values(by=['time', 'node'], inplace=True)
     assert not np.any(df.kstpkper.isna().values)
-    assert not np.any(df.rno.isna().values)
+    #assert not np.any(df.rno.isna().values)  # nan rnos can be unconnected reaches
+    df.to_csv('junk.csv')
+    #df.dropna(axis=0, subset=['rno'], inplace=True)
     if 'rno' in df.columns:
-        assert np.array_equal(df.node.values, df.rno.values)
+        #assert np.array_equal(df.node.values, df.rno.values)
+        assert np.array_equal(df.dropna(axis=0, subset=['rno']).node.values,
+                              df.dropna(axis=0, subset=['rno']).rno.values)
+
         df.drop('rno', axis=1, inplace=True)
     # convert to zero-based
     # (rnos in flopy package input are zero-based)
@@ -358,7 +363,14 @@ def read_sfr_output(mf2005_sfr_outputfile=None,
         if mf6_sfr_stage_file is not None:
             stg = read_mf6_dependent_variable_output(mf6_sfr_stage_file,
                                                      text='stage')
-            assert np.allclose(df.time.values, stg.time.values)
+            df.sort_values(by=['kstpkper', 'node'], inplace=True)
+            stg.sort_values(by=['kstpkper', 'node'], inplace=True)
+            na_reaches = np.isnan(df.time.values)
+            df.loc[~na_reaches].to_csv('df.csv')
+            stg.loc[~na_reaches].to_csv('stg.csv')
+            #assert np.allclose(df.time.values, stg.time.values)
+            assert np.allclose(df.loc[~na_reaches].time.values,
+                               stg.loc[~na_reaches].time.values)
             assert np.array_equal(df.node.values, stg.node.values)
             df['stage'] = stg['stage']
 

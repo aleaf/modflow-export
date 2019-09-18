@@ -11,31 +11,54 @@ from .utils import make_output_folders
 
 othername = {'model_top': 'top'}
 
+
+def get_package_list(model):
+    skip_packages = ['OC']
+    if model.version == 'mf6':
+        packages = [p.name[0].upper() for p in model.packagelist]
+    else:
+        packages = model.get_package_list()
+    packages = [p for p in packages if p not in skip_packages]
+    return packages
+
+
+def get_variable_list(variables):
+    if isinstance(variables, str):
+        variables = [variables.lower()]
+    else:
+        variables = [v.lower() for v in variables]
+    return variables
+
+
+def get_inactive_cells_mask(model):
+    if model.version == 'mf6':
+        inactive_cells = np.zeros((model.dis.nlay.array, model.dis.nrow.array, model.dis.ncol.array), dtype=bool)
+        inactive_cells[model.dis.idomain.array == 0] = True
+    else:
+        inactive_cells = np.zeros((model.dis.nlay, model.dis.nrow, model.dis.ncol), dtype=bool)
+        inactive_cells[model.bas6.ibound.array == 0] = True
+    return inactive_cells
+
+
 def export(model, modelgrid, packages=None, variables=None, output_path='postproc',
-           contours=False, show_inactive=False,
+           contours=False, include_inactive_cells=False,
            gis=True, pdfs=True, **kwargs):
 
     pdfs_dir, rasters_dir, shps_dir = make_output_folders(output_path)
 
     if packages is None:
-        packages = model.get_package_list()
+        packages = get_package_list(model)
+
     if not isinstance(packages, list):
         packages = [packages]
 
     if variables is not None:
-        if isinstance(variables, str):
-            variables = [variables.lower()]
-        else:
-            variables = [v.lower() for v in variables]
+        variables = get_variable_list(variables)
 
     if not isinstance(modelgrid, StructuredGrid):
         raise NotImplementedError('Unstructured grids not supported')
 
-    inactive_cells = np.zeros((model.dis.nlay, modelgrid.nrow, modelgrid.ncol), dtype=bool)
-    if model.version == 'mf6':
-        inactive_cells[model.dis.idomain.array == 0] = True
-    else:
-        inactive_cells[model.bas6.ibound.array == 0] = True
+    inactive_cells = get_inactive_cells_mask(model)
     inactive_cells2d = np.all(inactive_cells, axis=0)  # ij locations where all layers are inactive
 
     filenames = []
@@ -68,11 +91,11 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
                             othername.get(name.lower(), name.lower()) not in variables:
                         return
 
-                    if v.data_type == DataType.array2d and len(v.shape) == 2 \
+                    if v.data_type == DataType.array2d and len(v.array.shape) == 2 \
                             and v.array.shape[1] > 0:
                         print('{}:'.format(name))
                         array = v.array.copy()
-                        if not show_inactive:
+                        if not include_inactive_cells:
                             array = np.ma.masked_array(array, mask=inactive_cells[0])
                         if gis:
                             filename = os.path.join(rasters_dir, '{}.tif'.format(name))
@@ -95,7 +118,7 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
                         # TODO: add option to export 3d arrays as multiband geotiffs
                         print('{}:'.format(name))
                         array = v.array.copy()
-                        if not show_inactive:
+                        if not include_inactive_cells:
                             array = np.ma.masked_array(array, mask=inactive_cells)
                         for k, array2d in enumerate(array):
                             if gis:
@@ -120,7 +143,7 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
                     elif v.data_type == DataType.transient2d:
                         print('{}:'.format(name))
                         array = v.array[:, 0, :, :].copy()
-                        if not show_inactive:
+                        if not include_inactive_cells:
                             array = np.ma.masked_array(array,
                                                        mask=np.broadcast_to(inactive_cells2d,
                                                                             array.shape))
@@ -149,7 +172,7 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
                         array = v.array[pers, :, :, :].copy()
 
                         for kper, array3d in enumerate(array):
-                            if not show_inactive:
+                            if not include_inactive_cells:
                                 array3d = np.ma.masked_array(array3d,
                                                            mask=np.broadcast_to(inactive_cells2d,
                                                                                 array3d.shape))
@@ -208,30 +231,24 @@ def export_sfr():
 
 
 def summarize(model, packages=None, variables=None, output_path=None,
+              include_inactive_cells=False,
               verbose=False,
               **kwargs):
 
     print('summarizing {} input...'.format(model.name))
-    show_inactive = True
 
     if packages is None:
-        packages = model.get_package_list()
+        packages = get_package_list(model)
+
     if not isinstance(packages, list):
         packages = [packages]
 
     if variables is not None:
-        if isinstance(variables, str):
-            variables = [variables.lower()]
-        else:
-            variables = [v.lower() for v in variables]
+        variables = get_variable_list(variables)
 
-    nlay, nrow, ncol = model.dis.botm.shape
-    inactive_cells = np.zeros((nlay, nrow, ncol), dtype=bool)
-    if model.version == 'mf6':
-        inactive_cells[model.dis.idomain.array == 0] = True
-    else:
-        inactive_cells[model.bas6.ibound.array == 0] = True
+    inactive_cells = get_inactive_cells_mask(model)
     inactive_cells2d = np.all(inactive_cells, axis=0)  # ij locations where all layers are inactive
+    nlay, nrow, ncol = inactive_cells.shape
 
     summarized = []
     for package in packages:
@@ -257,12 +274,12 @@ def summarize(model, packages=None, variables=None, output_path=None,
 
                     if variables is not None and name.lower() not in variables:
                         return
-                    if v.data_type == DataType.array2d and len(v.shape) == 2 \
+                    if v.data_type == DataType.array2d and len(v.array.shape) == 2 \
                             and v.array.shape[1] > 0:
                         if verbose:
                             print('{}'.format(name))
                         array = v.array.copy()
-                        if not show_inactive:
+                        if not include_inactive_cells:
                             array = np.ma.masked_array(array, mask=inactive_cells[0])
                         summarized.append({'package': package.name[0],
                                            'variable': name,
@@ -274,7 +291,7 @@ def summarize(model, packages=None, variables=None, output_path=None,
                         if verbose:
                             print('{}'.format(name))
                         array = v.array.copy()
-                        if not show_inactive:
+                        if not include_inactive_cells:
                             array = np.ma.masked_array(array, mask=inactive_cells)
                         for k, array2d in enumerate(array):
                             summarized.append({'package': package.name[0],
@@ -287,7 +304,7 @@ def summarize(model, packages=None, variables=None, output_path=None,
 
                     elif v.data_type == DataType.transient2d:
                         array = v.array[:, 0, :, :].copy()
-                        if not show_inactive:
+                        if not include_inactive_cells:
                             array = np.ma.masked_array(array,
                                                        mask=np.broadcast_to(inactive_cells2d,
                                                                             array.shape))
@@ -305,7 +322,7 @@ def summarize(model, packages=None, variables=None, output_path=None,
                         array = v.array[pers, :, :, :].copy()
 
                         for kper, array3d in enumerate(array):
-                            if not show_inactive:
+                            if not include_inactive_cells:
                                 array3d = np.ma.masked_array(array3d,
                                                              mask=np.broadcast_to(inactive_cells2d,
                                                                                   array3d.shape))

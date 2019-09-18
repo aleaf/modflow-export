@@ -10,12 +10,35 @@ from ..results import export_cell_budget, export_heads, export_drawdown, export_
 
 
 @pytest.fixture(scope='module')
-def output_path(tmpdir):
+def lpr_output_path(tmpdir):
     return os.path.join(tmpdir, 'lpr')
+
+
+@pytest.fixture(scope='module')
+def shellmound(shellmound_model, shellmound_modelgrid, shellmound_output_path):
+    return shellmound_model, shellmound_modelgrid, shellmound_output_path
+
+
+@pytest.fixture(scope='module')
+def lpr(lpr_model, lpr_modelgrid, lpr_output_path):
+    return lpr_model, lpr_modelgrid, lpr_output_path
+
+
+# ugly work-around for fixtures not being supported as test parameters yet
+# https://github.com/pytest-dev/pytest/issues/349
+@pytest.fixture(params=['shellmound',
+                        'lpr'])
+def model(request,
+          shellmound,
+          lpr):
+    return {'shellmound': shellmound,
+            'lpr': lpr}[request.param]
 
 
 def check_files(outfiles, variables, kstpkper=None, layers=None):
     replace = [('model_top', 'top')]
+    if kstpkper is not None and np.isscalar(kstpkper[0]):
+        kstpkper = [kstpkper]
     for f in outfiles:
         assert os.path.getsize(f) > 0
         fname = os.path.split(f)[1]
@@ -52,34 +75,44 @@ def compare_polygons(p1, p2, **kwargs):
     assert np.allclose(p1.intersection(p2).area, p1.area, **kwargs)
 
 
-def test_cell_budget_export(lpr_modelgrid, output_path):
-    file = 'Examples/data/lpr/lpr_inset.cbc'
-    cbobj = bf.CellBudgetFile(file)
+def test_cell_budget_export(model):
+    m, grid, output_path = model
+    precision = 'single'
+    if m.version == 'mf6':
+        precision = 'double'
+    file = os.path.join(m.model_ws, '{}.cbc'.format(m.name))
+    #file = 'Examples/data/lpr/lpr_inset.cbc'
+    assert os.path.exists(file)
+    cbobj = bf.CellBudgetFile(file, precision=precision)
     layers = list(range(cbobj.nlay))
+    kstpkper = cbobj.get_kstpkper()[0]
     variables = [bs.decode().strip() for bs in cbobj.textlist]
     nrow, ncol = cbobj.nrow, cbobj.ncol
     cbobj.close()
-    kstpkper = [(4, 0)]
-    outfiles = export_cell_budget(file, lpr_modelgrid,
-                                  kstpkper=kstpkper, output_path=output_path)
+    outfiles = export_cell_budget(file, grid,
+                                  kstpkper=kstpkper,
+                                  precision=precision,
+                                  output_path=output_path)
     check_files(outfiles, variables, kstpkper)
     tifs = [f for f in outfiles if f.endswith('.tif')]
     for f in tifs:
         with rasterio.open(f) as src:
             assert src.width == ncol
             assert src.height == nrow
-            compare_polygons(lpr_modelgrid.bbox, box(*src.bounds))
+            compare_polygons(grid.bbox, box(*src.bounds))
 
 
-def test_heads_export(lpr_modelgrid, output_path):
-    file = 'Examples/data/lpr/lpr_inset.hds'
-    kstpkper = [(4, 0)]
+def test_heads_export(model):
+    m, grid, output_path = model
+    file = os.path.join(m.model_ws, '{}.hds'.format(m.name))
+    #file = 'Examples/data/lpr/lpr_inset.hds'
     variables = ['hds', 'wt']
     hdsobj = bf.HeadFile(file)
+    kstpkper = hdsobj.get_kstpkper()[-1:]
     layers = list(range(hdsobj.nlay))
     nrow, ncol = hdsobj.nrow, hdsobj.ncol
     hdsobj.close()
-    outfiles = export_heads(file, lpr_modelgrid, -1e4, -9999,
+    outfiles = export_heads(file, grid, -1e4, -9999,
                  kstpkper=kstpkper,
                  output_path=output_path)
     check_files(outfiles, variables, kstpkper, layers)
@@ -88,23 +121,26 @@ def test_heads_export(lpr_modelgrid, output_path):
         with rasterio.open(f) as src:
             assert src.width == ncol
             assert src.height == nrow
-            compare_polygons(lpr_modelgrid.bbox, box(*src.bounds))
+            compare_polygons(grid.bbox, box(*src.bounds))
     shps = [f for f in outfiles if f.endswith('.shp')]
     for f in shps:
         with fiona.open(f) as src:
-            compare_polygons(lpr_modelgrid.bbox, box(*src.bounds), rtol=0.1)
+            assert box(*src.bounds).within(grid.bbox)
+            #compare_polygons(grid.bbox, box(*src.bounds), rtol=0.1)
 
 
-def test_drawdown_export(lpr_modelgrid, output_path):
-    file = 'Examples/data/lpr/lpr_inset.hds'
-    kstpkper0 = (4, 4)
-    kstpkper1 = (4, 8)
+def test_drawdown_export(model):
+    m, grid, output_path = model
+    file = os.path.join(m.model_ws, '{}.hds'.format(m.name))
+    #file = 'Examples/data/lpr/lpr_inset.hds'
     variables = ['ddn', 'wt-ddn']
     hdsobj = bf.HeadFile(file)
+    kstpkper0 = hdsobj.get_kstpkper()[1]
+    kstpkper1 = hdsobj.get_kstpkper()[-1]
     layers = list(range(hdsobj.nlay))
     nrow, ncol = hdsobj.nrow, hdsobj.ncol
     hdsobj.close()
-    outfiles = export_drawdown(file, lpr_modelgrid, -1e4, -9999,
+    outfiles = export_drawdown(file, grid, -1e4, -9999,
                                kstpkper0=kstpkper0,
                                kstpkper1=kstpkper1,
                                output_path=output_path)
@@ -114,15 +150,14 @@ def test_drawdown_export(lpr_modelgrid, output_path):
         with rasterio.open(f) as src:
             assert src.width == ncol
             assert src.height == nrow
-            compare_polygons(lpr_modelgrid.bbox, box(*src.bounds))
+            compare_polygons(grid.bbox, box(*src.bounds))
     shps = [f for f in outfiles if f.endswith('.shp')]
     for f in shps:
         with fiona.open(f) as src:
-            assert box(*src.bounds).within(lpr_modelgrid.bbox)
+            assert box(*src.bounds).within(grid.bbox)
 
 
-def test_sfr_results_export(lpr_model, lpr_modelgrid, output_path):
-
+def test_sfr_results_export(lpr_model, lpr_modelgrid, lpr_output_path):
     mf2005_sfr_outputfile = 'Examples/data/lpr/lpr_inset.sfr.out'
     kstpkper = [(4, 0)]
     variables = ['sfrout', 'baseflow', 'qaquifer']
@@ -132,6 +167,26 @@ def test_sfr_results_export(lpr_model, lpr_modelgrid, output_path):
                                   kstpkper=kstpkper,
                                   output_length_units='feet',
                                   output_time_units='seconds',
-                                  output_path=output_path
+                                  output_path=lpr_output_path
+                                  )
+    check_files(outfiles, variables, kstpkper)
+
+
+def test_mf6sfr_results_export(shellmound_model, shellmound_modelgrid, shellmound_output_path):
+    mf6_sfr_stage_file = os.path.join(shellmound_model.model_ws, '{}.sfr.stage.bin'
+                                      .format(shellmound_model.name))
+    mf6_sfr_budget_file = os.path.join(shellmound_model.model_ws, '{}.sfr.cbc'
+                                       .format(shellmound_model.name))
+    hdsobj = bf.HeadFile(mf6_sfr_stage_file, text='stage')
+    kstpkper = hdsobj.get_kstpkper()[-1:]
+    variables = ['sfrout', 'baseflow', 'qaquifer']
+    outfiles = export_sfr_results(mf6_sfr_stage_file=mf6_sfr_stage_file,
+                                  mf6_sfr_budget_file=mf6_sfr_budget_file,
+                                  model=shellmound_model,
+                                  grid=shellmound_modelgrid,
+                                  kstpkper=kstpkper,
+                                  output_length_units='feet',
+                                  output_time_units='seconds',
+                                  output_path=shellmound_output_path
                                   )
     check_files(outfiles, variables, kstpkper)
