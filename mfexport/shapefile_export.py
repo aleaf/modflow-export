@@ -3,7 +3,9 @@ import numpy as np
 import pandas as pd
 from shapely.geometry import Polygon
 from flopy.utils import MfList
+from flopy.mf6.data.mfdatalist import MFTransientList
 from .gis import df2shp
+from .list_export import mftransientlist_to_dataframe
 
 
 def export_shapefile(filename, data, modelgrid, kper=None,
@@ -11,8 +13,8 @@ def export_shapefile(filename, data, modelgrid, kper=None,
                      epsg=None, proj_str=None, prj=None,
                      verbose=False):
     t0 = time.time()
-    if isinstance(data, MfList):
-        df = data.get_dataframe(squeeze=squeeze)
+    if isinstance(data, MFTransientList) or isinstance(data, MfList):
+        df = mftransientlist_to_dataframe(data, squeeze=squeeze)
     elif isinstance(data, np.recarray):
         df = pd.DataFrame(data)
     elif isinstance(data, pd.DataFrame):
@@ -25,11 +27,21 @@ def export_shapefile(filename, data, modelgrid, kper=None,
     if proj_str is None:
         proj_str = modelgrid.proj_str
 
+    if 'cellid' in df.columns and isinstance(df['cellid'].values[0], tuple):
+        k, i, j = list(zip(*df['cellid']))
+        i = np.array(i)
+        j = np.array(j)
+    elif 'i' in df.columns and 'j' in df.columns:
+        i, j = df['i'].values, df['j'].values
+    elif 'geometry' not in df.columns:
+        raise ValueError('DataFrame needs cellid, (i, j) or geometry'
+                         'information to be exported to shapefile.')
+
     if kper is not None:
         df = df.loc[df.per == kper]
-        verts = np.array(modelgrid.get_cell_vertices(df.i, df.j))
+        verts = np.array(modelgrid.get_cell_vertices(i, j))
     elif df is not None:
-        verts = modelgrid.get_vertices(df.i.values, df.j.values)
+        verts = modelgrid.get_vertices(i, j)
     if 'geometry' not in df.columns:
         polys = np.array([Polygon(v) for v in verts])
         df['geometry'] = polys

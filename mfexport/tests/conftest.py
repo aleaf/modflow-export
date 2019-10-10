@@ -61,3 +61,24 @@ def shellmound_model(shellmound_simulation):
 def shellmound_modelgrid():
     grid_file = 'mfexport/tests/data/shellmound/shellmound_grid.json'
     return load_modelgrid(grid_file)
+
+
+@pytest.fixture(scope='module')
+def shellmound(shellmound_model, shellmound_modelgrid, shellmound_output_path):
+    return shellmound_model, shellmound_modelgrid, shellmound_output_path
+
+
+@pytest.fixture(scope='module')
+def lpr(lpr_model, lpr_modelgrid, lpr_output_path):
+    return lpr_model, lpr_modelgrid, lpr_output_path
+
+
+# ugly work-around for fixtures not being supported as test parameters yet
+# https://github.com/pytest-dev/pytest/issues/349
+@pytest.fixture(params=['shellmound',
+                        'lpr'])
+def model(request,
+          shellmound,
+          lpr):
+    return {'shellmound': shellmound,
+            'lpr': lpr}[request.param]

@@ -4,6 +4,7 @@ import pandas as pd
 from flopy.datbase import DataType, DataInterface
 from flopy.discretization import StructuredGrid
 from .array_export import export_array, export_array_contours
+from .list_export import mftransientlist_to_dataframe, get_tl_variables
 from .pdf_export import export_pdf
 from .shapefile_export import export_shapefile
 from .utils import make_output_folders
@@ -194,6 +195,8 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
 
                         
                     elif v.data_type == DataType.transientlist:
+                        packagename = package.name[0].lower().replace('_', '')
+                        name = '{}_stress_period_data'.format(packagename)
                         if gis:
                             filename = os.path.join(shps_dir,
                                                     '{}.shp'.format(name)).lower()
@@ -204,8 +207,9 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
                         if pdfs:
                             filename = os.path.join(pdfs_dir,
                                                     '{}.pdf'.format(name)).lower()
-                            df = v.get_dataframe(squeeze=True)
-                            tl_variables = list(v.array.keys())
+                            df = mftransientlist_to_dataframe(v, squeeze=True)
+                            #df['k'], df['i'], df['j'] = list(zip(*df['cellid']))
+                            tl_variables = get_tl_variables(v)
 
                             for tlv in tl_variables:
                                 print('{}:'.format(tlv))
@@ -337,8 +341,9 @@ def summarize(model, packages=None, variables=None, output_path=None,
                                                    })
 
                     elif v.data_type == DataType.transientlist:
-                        df = v.get_dataframe(squeeze=True)
-                        tl_variables = list(v.array.keys())
+                        df = mftransientlist_to_dataframe(v, squeeze=True)
+                        #df['k'], df['i'], df['j'] = list(zip(*df['cellid']))
+                        tl_variables = get_tl_variables(v)
 
                         for tlv in tl_variables:
                             if verbose:

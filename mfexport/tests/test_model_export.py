@@ -5,29 +5,9 @@ import rasterio
 from shapely.geometry import box
 import pytest
 from ..gis import shp2df
+from ..list_export import mftransientlist_to_dataframe
 from ..mfexport import export, summarize
 from .test_results_export import check_files, compare_polygons
-
-
-@pytest.fixture(scope='module')
-def shellmound(shellmound_model, shellmound_modelgrid, shellmound_output_path):
-    return shellmound_model, shellmound_modelgrid, shellmound_output_path
-
-
-@pytest.fixture(scope='module')
-def lpr(lpr_model, lpr_modelgrid, lpr_output_path):
-    return lpr_model, lpr_modelgrid, lpr_output_path
-
-
-# ugly work-around for fixtures not being supported as test parameters yet
-# https://github.com/pytest-dev/pytest/issues/349
-@pytest.fixture(params=['shellmound',
-                        'lpr'])
-def model(request,
-          shellmound,
-          lpr):
-    return {'shellmound': shellmound,
-            'lpr': lpr}[request.param]
 
 
 def test_model_export(model):
@@ -117,9 +97,15 @@ def test_package_list_export(model):
 
 def test_transient_list_export(model):
     m, grid, output_path = model
-    if m.version == 'mf6':
-        return # need to add wel package
     outfiles = export(m, grid, 'wel', output_path=output_path)
-    df = m.wel.stress_period_data.get_dataframe(squeeze=True)
+    variables = ['wel0_stress_period_data']
+    if m.version != 'mf6':
+        variables = ['wel_stress_period_data']
+    check_files(outfiles, variables=variables)
+    df = mftransientlist_to_dataframe(m.wel.stress_period_data, squeeze=True)
+    df.index = range(len(df))
+    if 'cellid' in df.columns:
+        df['cellid'] = df['cellid'].astype(str)
     df2 = shp2df(outfiles[0]).drop('geometry', axis=1)
-    assert np.all(df == df2)
+    assert np.allclose(df.drop('cellid', axis=1),
+                       df2.drop('cellid', axis=1))

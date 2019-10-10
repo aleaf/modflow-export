@@ -13,5 +13,6 @@ BEGIN packages
   RCH6  shellmound.rcha  rcha
   OC6  shellmound.oc  oc
   SFR6  shellmound.sfr  sfr
+  WEL6  shellmound.wel  wel_0
 END packages
 

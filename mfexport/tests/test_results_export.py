@@ -14,27 +14,6 @@ def lpr_output_path(tmpdir):
     return os.path.join(tmpdir, 'lpr')
 
 
-@pytest.fixture(scope='module')
-def shellmound(shellmound_model, shellmound_modelgrid, shellmound_output_path):
-    return shellmound_model, shellmound_modelgrid, shellmound_output_path
-
-
-@pytest.fixture(scope='module')
-def lpr(lpr_model, lpr_modelgrid, lpr_output_path):
-    return lpr_model, lpr_modelgrid, lpr_output_path
-
-
-# ugly work-around for fixtures not being supported as test parameters yet
-# https://github.com/pytest-dev/pytest/issues/349
-@pytest.fixture(params=['shellmound',
-                        'lpr'])
-def model(request,
-          shellmound,
-          lpr):
-    return {'shellmound': shellmound,
-            'lpr': lpr}[request.param]
-
-
 def check_files(outfiles, variables, kstpkper=None, layers=None):
     replace = [('model_top', 'top')]
     if kstpkper is not None and np.isscalar(kstpkper[0]):
@@ -53,12 +32,16 @@ def check_files(outfiles, variables, kstpkper=None, layers=None):
 
 
 def parse_fname(fname):
-    info = os.path.splitext(fname)[0].split('_')
-    props = {'var': info.pop(0),
+    props = {'var': None,
              'lay': None,
              'per': None,
              'stp': None,
              'suffix': None}
+    if 'stress_period_data' in fname:
+        props['var'] = os.path.splitext(fname)[0]
+        return props
+    info = os.path.splitext(fname)[0].split('_')
+    props['var'] = info.pop(0)
     for i in range(len(info)):
         item = info.pop(0)
         if 'ctr' in item:
@@ -178,7 +161,7 @@ def test_mf6sfr_results_export(shellmound_model, shellmound_modelgrid, shellmoun
     mf6_sfr_budget_file = os.path.join(shellmound_model.model_ws, '{}.sfr.cbc'
                                        .format(shellmound_model.name))
     hdsobj = bf.HeadFile(mf6_sfr_stage_file, text='stage')
-    kstpkper = hdsobj.get_kstpkper()[-1:]
+    kstpkper = hdsobj.get_kstpkper()[:1] + hdsobj.get_kstpkper()[-1:]
     variables = ['sfrout', 'baseflow', 'qaquifer']
     outfiles = export_sfr_results(mf6_sfr_stage_file=mf6_sfr_stage_file,
                                   mf6_sfr_budget_file=mf6_sfr_budget_file,
@@ -190,3 +173,9 @@ def test_mf6sfr_results_export(shellmound_model, shellmound_modelgrid, shellmoun
                                   output_path=shellmound_output_path
                                   )
     check_files(outfiles, variables, kstpkper)
+
+
+def test_parse_fname():
+    fname = 'wel0_stress_period_data.shp'
+    result = parse_fname(fname)
+    assert result['var'] == os.path.splitext(fname)[0]

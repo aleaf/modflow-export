@@ -90,18 +90,23 @@ def sfr_qaquifer_pdf(outfile, df, pointsize=0.5, verbose=False):
     losing = df.loc[df.Qaquifer > 0]
     dry = df.loc[df.Qmean == 0]
     ax.scatter(dry.j, dry.i, pointsize, color='0.5')
-    Qpointcolors_l = np.abs(losing.Qaquifer)
-    Qpointcolors_g = np.abs(gaining.Qaquifer)
-    vmax = np.percentile(Qpointcolors_g, 95)
-    ax.scatter(losing.j, losing.i,
-               s=pointsize, c=Qpointcolors_l,
-               vmax=vmax,
-               cmap='Reds')
 
-    ax.scatter(gaining.j, gaining.i,
-               s=pointsize, c=Qpointcolors_g,
-               vmax=vmax,
-               cmap='Blues')
+    if len(losing) > 0:
+        Qpointcolors_l = np.abs(losing.Qaquifer)
+        vmax = None
+        if len(gaining) > 0:
+            vmax = np.percentile(np.abs(gaining.Qaquifer), 95)
+        ax.scatter(losing.j, losing.i,
+                   s=pointsize, c=Qpointcolors_l,
+                   vmax=vmax,
+                   cmap='Reds')
+    if len(gaining) > 0:
+        Qpointcolors_g = np.abs(gaining.Qaquifer)
+        vmax = np.percentile(Qpointcolors_g, 95)
+        ax.scatter(gaining.j, gaining.i,
+                   s=pointsize, c=Qpointcolors_g,
+                   vmax=vmax,
+                   cmap='Blues')
     ax.invert_yaxis()
     ax.set_title('Simulated stream-aquifer interactions')
 

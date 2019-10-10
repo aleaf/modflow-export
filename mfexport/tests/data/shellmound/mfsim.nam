@@ -2,7 +2,7 @@ BEGIN options
 END options
 
 BEGIN timing
-  TDIS6  shellmound.tdis
+  TDIS6  mfsim.tdis
 END timing
 
 BEGIN models
@@ -13,6 +13,6 @@ BEGIN exchanges
 END exchanges
 
 BEGIN solutiongroup  1
-  ims6  shellmound.ims  shellmound
+  ims6  mfsim.ims  shellmound
 END solutiongroup  1
 
