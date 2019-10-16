@@ -2,6 +2,7 @@ import numpy as np
 from ..array_export import make_levels, export_array
 from ..grid import MFexportGrid
 
+
 def test_make_levels():
 
     array = np.linspace(-5.5, 5.4, 100)

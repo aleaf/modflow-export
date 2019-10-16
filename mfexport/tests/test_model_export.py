@@ -46,7 +46,7 @@ def get_nrow_ncol_nlay_nper(model):
 
 def test_variable_export(model):
     m, grid, output_path = model
-    variables = ['top']
+    variables = ['top', 'thickness']
     layers = list(range(get_nlay(m)))
     outfiles = export(m, grid,
                       variables=variables,

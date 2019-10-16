@@ -47,13 +47,17 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
 
     pdfs_dir, rasters_dir, shps_dir = make_output_folders(output_path)
 
+    context = 'model'
     if packages is None:
         packages = get_package_list(model)
+    else:
+        context = 'packages'
 
     if not isinstance(packages, list):
         packages = [packages]
 
     if variables is not None:
+        context = 'variables'
         variables = get_variable_list(variables)
 
     if not isinstance(modelgrid, StructuredGrid):
@@ -69,9 +73,20 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
             package = getattr(model, package)
         print('\n{} package...'.format(package.name[0]))
 
-        if package.name[0] == 'SFR':
+        if package.name[0].lower() == 'sfr':
             export_sfr()
             continue
+
+        if model.version == 'mf6':
+            if package.name[0].lower() == 'dis':
+                variable_context = context == 'variables' and 'thickness' in variables
+                if context in ['model', 'packages'] or variable_context:
+                    export_thickness(package.top.array, package.botm.array, modelgrid,
+                                     filenames, rasters_dir, shps_dir, pdfs_dir,
+                                     gis=gis, pdfs=pdfs, contours=contours,
+                                     include_inactive_cells=include_inactive_cells,
+                                     inactive_cells=inactive_cells,
+                                     **kwargs)
 
         if variables is not None:
             package_variables = [getattr(package, v, None) for v in variables]
@@ -193,7 +208,6 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
                                                mfarray_type='array2d')
                                     filenames.append(filename)
 
-                        
                     elif v.data_type == DataType.transientlist:
                         packagename = package.name[0].lower().replace('_', '')
                         name = '{}_stress_period_data'.format(packagename)
@@ -232,6 +246,42 @@ def export_sfr():
     """Not implemented yet"""
     print('skipped, not implemented yet')
     return
+
+
+def export_thickness(top_array, botm_array, modelgrid,
+                     filenames, rasters_dir, shps_dir, pdfs_dir,
+                     gis=True, pdfs=True, contours=True,
+                     include_inactive_cells=True, inactive_cells=None,
+                     **kwargs):
+
+    name = 'thickness'
+    nlay, nrow, ncol = botm_array.shape
+    all_layers = np.zeros((nlay + 1, nrow, ncol), dtype=float)
+    all_layers[0] = top_array
+    all_layers[1:] = botm_array
+    array = -np.diff(all_layers, axis=0)
+
+    if not include_inactive_cells:
+        array = np.ma.masked_array(array, mask=inactive_cells)
+    for k, array2d in enumerate(array):
+        if gis:
+            filename = os.path.join(rasters_dir, '{}_lay{}.tif'.format(name, k))
+            export_array(filename, array2d, modelgrid, nodata=-9999,
+                         **kwargs)
+            filenames.append(filename)
+
+            if contours:
+                filename = os.path.join(shps_dir, '{}_lay{}.tif'.format(name, k))
+                export_array_contours(filename, array2d, modelgrid,
+                                      **kwargs)
+                filenames.append(filename)
+
+        if pdfs:
+            filename = os.path.join(pdfs_dir, '{}_lay{}.pdf'.format(name, k))
+            export_pdf(filename, array2d, nodata=np.nan,
+                       text='Layer {} {}'.format(k, name),
+                       mfarray_type='array2d')
+            filenames.append(filename)
 
 
 def summarize(model, packages=None, variables=None, output_path=None,

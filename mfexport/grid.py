@@ -78,7 +78,11 @@ class MFexportGrid(StructuredGrid):
 
     @property
     def proj_str(self):
-        return self.proj4
+        proj_str = self.proj4
+        if proj_str is not None:
+            if 'epsg' in proj_str.lower():
+                proj_str = proj_str.replace('+init=', '')
+        return proj_str
 
     @property
     def vertices(self):
