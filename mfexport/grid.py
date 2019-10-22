@@ -170,3 +170,14 @@ def load_modelgrid(filename):
         cfg['delc'] = np.ones(cfg['nrow']) * cfg['delc']
     kwargs = get_input_arguments(cfg, MFexportGrid)
     return MFexportGrid(**kwargs)
+
+
+def get_kij_from_node3d(node3d, nrow, ncol):
+    """For a consecutive cell number in row-major order
+    (row, column, layer), get the zero-based row, column position.
+    """
+    node2d = node3d % (nrow * ncol)
+    k = node3d // (nrow * ncol)
+    i = node2d // ncol
+    j = node2d % ncol
+    return k, i, j

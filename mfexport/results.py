@@ -2,7 +2,7 @@ import numpy as np
 from flopy.utils import binaryfile as bf
 from flopy.utils.postprocessing import get_water_table
 from .array_export import export_array, export_array_contours
-from .budget_output import get_surface_bc_flux, read_sfr_output
+from .budget_output import get_surface_bc_flux, read_sfr_output, get_flowja_face
 from .gis import shp2df
 from .pdf_export import sfr_baseflow_pdf, sfr_qaquifer_pdf
 from .shapefile_export import export_shapefile
@@ -14,7 +14,8 @@ from .utils import make_output_folders
 
 
 def export_cell_budget(cell_budget_file, grid,
-                       kstpkper, text=None, idx=0,
+                       binary_grid_file=None,
+                       kstpkper=None, text=None, idx=0,
                        precision='single',
                        output_path='postproc', suffix=''):
     """Read a flow component from MODFLOW binary cell budget output;
@@ -30,7 +31,13 @@ def export_cell_budget(cell_budget_file, grid,
     idx : index of list returned by cbbobj (usually 0)
     outfolder : where to write raster
     """
+    print('Exporting cell budget info...')
+    print('file: {}'.format(cell_budget_file))
+    print('binary grid file: {}'.format(binary_grid_file))
 
+    cbbobj = bf.CellBudgetFile(cell_budget_file, precision=precision)
+    if kstpkper is None:
+        kstpkper = cbbobj.get_times()[idx]
     if np.isscalar(kstpkper[0]):
         kstpkper = [kstpkper]
 
@@ -38,7 +45,6 @@ def export_cell_budget(cell_budget_file, grid,
     if text is not None and not isinstance(text, list):
         text = [text]
 
-    cbbobj = bf.CellBudgetFile(cell_budget_file, precision=precision)
     names = [r.decode().strip() for r in cbbobj.get_unique_record_names()]
     if text is not None:
         names = list(set(text).intersection(names))
@@ -47,8 +53,26 @@ def export_cell_budget(cell_budget_file, grid,
 
     outfiles = []
     for kstp, kper in kstpkper:
+        print('stress period {}, timestep {}'.format(kper, kstp))
         for variable in names:
-            data = get_surface_bc_flux(cbbobj, variable, kstpkper=(kstp, kper), idx=idx)
+            if variable == 'FLOW-JA-FACE':
+                df = get_flowja_face(cbbobj, binary_grid_file=binary_grid_file,
+                                       kstpkper=(kstp, kper), idx=idx,
+                                       precision=precision)
+                # export the vertical fluxes as rasters
+                # (in the downward direction; so fluxes between 2 layers
+                # would be represented in the upper layer)
+                if df is not None and 'kn' in df.columns:
+                    vflux = df.loc[(df['kn'] < df['km'])]
+                    nlay = vflux['km'].max()
+                    _, nrow, ncol = grid.shape
+                    vflux_array = np.zeros((nlay, nrow, ncol))
+                    vflux_array[vflux['kn'].values,
+                                vflux['in'].values,
+                                vflux['jn'].values] = vflux.q.values
+                    data = vflux_array
+            else:
+                data = get_surface_bc_flux(cbbobj, variable, kstpkper=(kstp, kper), idx=idx)
             if data is None:
                 print('{} not exported.'.format(variable))
                 continue
@@ -81,6 +105,14 @@ def export_drawdown(heads_file, grid, hdry, hnflo,
     * A raster of heads for each layer and a raster of the water table elevation
     * Shapefiles of head contours for each layer and the water table.
     """
+    print('Exporting drawdown...')
+    print('file: {}'.format(heads_file))
+    if kstpkper0 is not None:
+        print('from stress period {}, timestep {}'.format(*reversed(kstpkper0)))
+    if kstpkper1 is not None:
+        print('to stress period {}, timestep {}'.format(*reversed(kstpkper1)))
+    print('\n')
+
     if kstpkper1 == (0, 0):
         print('kstpkper == (0, 0, no drawdown to export')
         return
@@ -142,14 +174,16 @@ def export_heads(heads_file, grid, hdry, hnflo,
     * A raster of heads for each layer and a raster of the water table elevation
     * Shapefiles of head contours for each layer and the water table.
     """
-
     if np.isscalar(kstpkper[0]):
         kstpkper = [kstpkper]
+    print('Exporting heads...')
+    print('file: {}'.format(heads_file))
 
     pdfs_dir, rasters_dir, shps_dir = make_output_folders(output_path)
 
     outfiles = []
     for kstp, kper in kstpkper:
+        print('stress period {}, timestep {}'.format(kper, kstp))
         # Heads output
         hdsobj = bf.HeadFile(heads_file)
         hds = hdsobj.get_data(kstpkper=(kstp, kper))
@@ -193,6 +227,10 @@ def export_sfr_results(mf2005_sfr_outputfile=None,
     m = model
     if not isinstance(kstpkper, list):
         kstpkper = [kstpkper]
+    print('Exporting SFR results...')
+    for f in [mf2005_sfr_outputfile, mf6_sfr_stage_file, mf6_sfr_budget_file]:
+        if f is not None:
+            print('file: {}'.format(f))
 
     df = read_sfr_output(mf2005_sfr_outputfile=mf2005_sfr_outputfile,
                          mf2005_SfrFile_instance=mf2005_SfrFile_instance,
@@ -239,6 +277,7 @@ def export_sfr_results(mf2005_sfr_outputfile=None,
             #geoms = [Polygon(vrt) for vrt in vertices]
 
         for kstp, kper in kstpkper:
+            print('stress period {}, timestep {}'.format(kper, kstp))
             dfp = groups.get_group((kstp, kper)).copy()
             if geoms is not None:
                 dfp['geometry'] = geoms
@@ -260,6 +299,7 @@ def export_sfr_results(mf2005_sfr_outputfile=None,
     if pdfs:
         # need to add a scale that addresses units
         for kstp, kper in kstpkper:
+            print('stress period {}, timestep {}'.format(kper, kstp))
             df = groups.get_group((kstp, kper)).copy()
             bf_outfile = '{}/baseflow_per{}_stp{}{}.pdf'.format(pdfs_dir, kper, kstp, suffix)
             sfr_baseflow_pdf(bf_outfile, df, pointsize=pointsize, verbose=verbose)

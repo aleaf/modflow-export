@@ -1,11 +1,15 @@
+import os
 import time
 import numpy as np
 import pandas as pd
+from flopy.discretization import StructuredGrid
 from flopy.utils.sfroutputfile import SfrFile
 import flopy.utils.binaryfile as bf
+from flopy.utils.mfgrdfile import MfGrdFile
+from .grid import get_kij_from_node3d
 
 
-def aggregate_flow_ja_face(df):
+def aggregate_sfr_flow_ja_face(df):
     """SFR streamflow in/out components are saved in MODFLOW 6
     as FLOW-JA-FACE, where all inflows (positive values) and outflows
     (negative values) are listed for each stream reach (node). This
@@ -129,7 +133,7 @@ def aggregate_mf6_stress_budget(mf6_stress_budget_output,
 
         # aggregate FLOW-JA-FACE values to one Qin, Qout value per reach
         if k == 'FLOW-JA-FACE':
-            agg[k] = aggregate_flow_ja_face(dfs['FLOW-JA-FACE'])
+            agg[k] = aggregate_sfr_flow_ja_face(dfs['FLOW-JA-FACE'])
             index = pd.MultiIndex.from_tuples(list(zip(agg[k].kstpkper,
                                                        agg[k].rno)),
                                               names=['kstpkper', 'node'])
@@ -170,6 +174,64 @@ def aggregate_mf6_stress_budget(mf6_stress_budget_output,
         df['node'] -= 1
     df.index = range(len(df))
     print("finished in {:.2f}s\n".format(time.time() - ta))
+    return df
+
+
+def get_flowja_face(cell_budget_file, binary_grid_file, kstpkper=(0, 0), idx=0,
+                    precision='double'):
+    """Get FLOW-JA-FACE (cell by cell flows) from MODFLOW 6 budget
+    output and binary grid file.
+    TODO: need test for extracted flowja fluxes
+    """
+    if isinstance(cell_budget_file, str):
+        cbb = bf.CellBudgetFile(cell_budget_file)
+        if binary_grid_file is None:
+            binary_grid_file = cell_budget_file[::-4] + '.dis.grb'
+            if not os.path.exists(binary_grid_file):
+                binary_grid_file = None
+    else:
+        cbb = cell_budget_file
+    if binary_grid_file is None:
+        print("Couldn't get FLOW-JA-FACE, need binary grid file for connection information.")
+        return
+    bgf = MfGrdFile(binary_grid_file)
+    # IA array maps cell number to connection number
+    # (one-based index number of first connection at each cell)?
+    # taking the forward difference then yields nconnections per cell
+    ia = bgf._datadict['IA'] - 1
+    # Connections in the JA array correspond directly with the
+    # FLOW-JA-FACE record that is written to the budget file.
+    ja = bgf._datadict['JA'] - 1  # cell connections
+    flowja = cbb.get_data(text='FLOW-JA-FACE')[0][0, 0, :]
+    df = get_intercell_connections(ia, ja, flowja)
+    cols = ['n', 'm', 'q']
+
+    # get the k, i, j locations for plotting the connections
+    if isinstance(bgf.mg, StructuredGrid):
+        nlay, nrow, ncol = bgf.mg.nlay, bgf.mg.nrow, bgf.mg.ncol
+        k, i, j = get_kij_from_node3d(df['n'].values, nrow, ncol)
+        df['kn'], df['in'], df['jn'] = k, i, j
+        k, i, j = get_kij_from_node3d(df['m'].values, nrow, ncol)
+        df['km'], df['im'], df['jm'] = k, i, j
+        df.reset_index()
+        cols += ['kn', 'in', 'jn', 'km', 'im', 'jm']
+    return df[cols].copy()
+
+
+def get_intercell_connections(ia, ja, flowja):
+    print('Making DataFrame of intercell connections...')
+    ta = time.time()
+    all_n = []
+    m = []
+    q = []
+    for n in range(len(ia)-1):
+        for ipos in range(ia[n] + 1, ia[n+1]):
+            all_n.append(n)
+            m.append(ja[ipos])  # m is the cell that n connects to
+            q.append(flowja[ipos])  # flow across the connection
+    df = pd.DataFrame({'n': all_n, 'm': m, 'q': q})
+    et = time.time() - ta
+    print("finished in {:.2f}s\n".format(et))
     return df
 
 

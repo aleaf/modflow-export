@@ -16,8 +16,10 @@ def lpr_output_path(tmpdir):
 
 def check_files(outfiles, variables, kstpkper=None, layers=None):
     replace = [('model_top', 'top')]
+    variables = set(variables)
     if kstpkper is not None and np.isscalar(kstpkper[0]):
         kstpkper = [kstpkper]
+    written = set()
     for f in outfiles:
         assert os.path.getsize(f) > 0
         fname = os.path.split(f)[1]
@@ -25,10 +27,13 @@ def check_files(outfiles, variables, kstpkper=None, layers=None):
             fname = fname.replace(*pair)
         props = parse_fname(fname)
         assert props['var'] in variables
+        written.add(props['var'])
         if kstpkper is not None:
             assert (props['stp'], props['per']) in kstpkper
         if props['lay'] is not None:
             assert props['lay'] in layers
+    # verify that all variables were exported
+    assert len(written.difference(variables)) == 0
 
 
 def parse_fname(fname):
@@ -61,18 +66,24 @@ def compare_polygons(p1, p2, **kwargs):
 def test_cell_budget_export(model):
     m, grid, output_path = model
     precision = 'single'
+    binary_grid_file = None
+    skip = []
     if m.version == 'mf6':
         precision = 'double'
+        binary_grid_file = os.path.join(m.model_ws, '{}.dis.grb'.format(m.name))
+        skip = ['WEL']
     file = os.path.join(m.model_ws, '{}.cbc'.format(m.name))
     #file = 'Examples/data/lpr/lpr_inset.cbc'
     assert os.path.exists(file)
     cbobj = bf.CellBudgetFile(file, precision=precision)
     layers = list(range(cbobj.nlay))
     kstpkper = cbobj.get_kstpkper()[0]
-    variables = [bs.decode().strip() for bs in cbobj.textlist]
+    variables = [bs.decode().strip() for bs in cbobj.textlist
+                 if bs.decode().strip() not in skip]
     nrow, ncol = cbobj.nrow, cbobj.ncol
     cbobj.close()
     outfiles = export_cell_budget(file, grid,
+                                  binary_grid_file=binary_grid_file,
                                   kstpkper=kstpkper,
                                   precision=precision,
                                   output_path=output_path)
