@@ -13,7 +13,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/aleaf/mfexport/issues.
+Report bugs at https://github.com/aleaf/modflow-export/issues.
 
 If you are reporting a bug, please include:
 
@@ -35,14 +35,14 @@ is open to whoever wants to implement it.
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
-MFexport could always use more documentation, whether
-as part of the official MFexport docs, in docstrings,
+modflow-export could always use more documentation, whether
+as part of the official modflow-export docs, in docstrings,
 or even on the web in blog posts, articles, and such.
 
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
-The best way to send feedback is to file an issue at https://github.com/aleaf/mfexport/issues.
+The best way to send feedback is to file an issue at https://github.com/aleaf/modflow-export/issues.
 
 If you are proposing a feature:
 
@@ -54,12 +54,12 @@ If you are proposing a feature:
 Get Started!
 ------------
 
-Ready to contribute? Here's how to set up `mfexport` for local development.
+Ready to contribute? Here's how to set up `modflow-export` for local development.
 
-1. Fork the `mfexport` repo on GitHub.
+1. Fork the `modflow-export` repo on GitHub.
 2. Clone your fork locally::
 
-    $ git clone git@github.com:your_name_here/mfexport.git
+    $ git clone git@github.com:your_name_here/modflow-export.git
 
 3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
 
@@ -99,6 +99,6 @@ Before you submit a pull request, check that it meets these guidelines:
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
 3. The pull request should work for Python 2.7, 3.3, 3.4, 3.5 and for PyPy. Check
-   https://travis-ci.org/aleaf/mfexport/pull_requests
+   https://travis-ci.org/aleaf/modflow-export/pull_requests
    and make sure that the tests pass for all supported Python versions.
 

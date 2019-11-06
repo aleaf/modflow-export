@@ -1,11 +1,11 @@
 
-MFexport
+modflow-export
 -----------------------------------------------
 Fast & easy summarizing of MODFLOW data and export to GIS file formats.
 
 ### Version 0.0.0
-[![Build Status](https://travis-ci.com/aleaf/MFexport.svg?branch=master)](https://travis-ci.com/aleaf/MFexport.svg?branch=master)
-[![Coverage Status](https://codecov.io/github/aleaf/MFexport/coverage.svg?branch=master)](https://codecov.io/github/aleaf/MFexport/coverage.svg?branch=master)
+[![Build Status](https://travis-ci.com/aleaf/modflow-export.svg?branch=master)](https://travis-ci.com/aleaf/modflow-export.svg?branch=master)
+[![Coverage Status](https://codecov.io/github/aleaf/modflow-export/coverage.svg?branch=master)](https://codecov.io/github/aleaf/modflow-export/coverage.svg?branch=master)
 
 
 
@@ -19,7 +19,7 @@ Getting Started
 
 ### Bugs
 
-If you think you have discovered a bug in MFexport in which you feel that the program does not work as intended, then we ask you to submit a [Github issue](https://github.com/aleaf/mfsetup/labels/bug).
+If you think you have discovered a bug in modflow-export in which you feel that the program does not work as intended, then we ask you to submit a [Github issue](https://github.com/aleaf/modflow-export/labels/bug).
 
 
 Installation
@@ -27,7 +27,7 @@ Installation
 
 **Python versions:**
 
-MFsetup requires **Python** 3.6 (or higher)
+modflow-export requires **Python** 3.6 (or higher)
 
 **Dependencies:**  
 pyyaml  

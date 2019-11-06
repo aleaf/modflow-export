@@ -4,4 +4,4 @@ Installation
 
 At the command line::
 
-    $ pip install mfexport
+    $ pip install modflow-export

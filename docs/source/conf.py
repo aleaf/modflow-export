@@ -136,7 +136,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'mfexport'
+htmlhelp_basename = 'modflow-export'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -163,7 +163,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'mfexport.tex', 'MFexport Documentation',
+    (master_doc, 'modflow-export.tex', 'MFexport Documentation',
      'Contributors', 'manual'),
 ]
 
@@ -173,7 +173,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'mfexport', 'MFexport Documentation',
+    (master_doc, 'modflow-export', 'MFexport Documentation',
      [author], 1)
 ]
 
@@ -184,8 +184,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'mfexport', 'MFexport Documentation',
-     author, 'mfexport', 'Fast & easy export of MODFLOW data to GIS file formats',
+    (master_doc, 'modflow-export', 'MFexport Documentation',
+     author, 'modflow-export', 'Fast & easy export of MODFLOW data to GIS file formats',
      'Miscellaneous'),
 ]
 
