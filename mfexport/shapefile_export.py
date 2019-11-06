@@ -4,7 +4,7 @@ import pandas as pd
 from shapely.geometry import Polygon
 from flopy.utils import MfList
 from flopy.mf6.data.mfdatalist import MFTransientList
-from .gis import df2shp
+from gisutils import df2shp
 from .list_export import mftransientlist_to_dataframe
 
 
@@ -51,6 +51,6 @@ def export_shapefile(filename, data, modelgrid, kper=None,
         proj_str = modelgrid.proj_str
     if prj is None:
         prj = modelgrid.prj
-    df2shp(df, filename, epsg=epsg, proj4=proj_str, prj=prj)
+    df2shp(df, filename, epsg=epsg, proj_str=proj_str, prj=prj)
     if verbose:
         print("shapefile export took {:.2f}s".format(time.time() - t0))

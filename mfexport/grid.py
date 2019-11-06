@@ -8,12 +8,12 @@ from .utils import get_input_arguments, load
 class MFexportGrid(StructuredGrid):
 
     def __init__(self, delc, delr, top=None, botm=None, idomain=None,
-                 lenuni=None, epsg=None, proj4=None, prj=None, xoff=0.0,
+                 lenuni=None, epsg=None, proj_str=None, prj=None, xoff=0.0,
                  yoff=0.0, xul=None, yul=None, angrot=0.0):
 
         super(MFexportGrid, self).__init__(np.array(delc), np.array(delr),
                                           top, botm, idomain,
-                                          lenuni, epsg, proj4, prj, xoff,
+                                          lenuni, epsg, proj_str, prj, xoff,
                                           yoff, angrot)
         # properties
         self._vertices = None
@@ -22,7 +22,7 @@ class MFexportGrid(StructuredGrid):
         if xul is not None and yul is not None:
             xll = self._xul_to_xll(xul)
             yll = self._yul_to_yll(yul)
-            self.set_coord_info(xoff=xll, yoff=yll, epsg=epsg, proj4=proj4)
+            self.set_coord_info(xoff=xll, yoff=yll, epsg=epsg, proj4=proj_str)
 
     def __eq__(self, other):
         if not isinstance(other, StructuredGrid):

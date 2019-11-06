@@ -3,7 +3,7 @@ from flopy.utils import binaryfile as bf
 from flopy.utils.postprocessing import get_water_table
 from .array_export import export_array, export_array_contours
 from .budget_output import get_surface_bc_flux, read_sfr_output, get_flowja_face
-from .gis import shp2df
+from gisutils import shp2df
 from .pdf_export import sfr_baseflow_pdf, sfr_qaquifer_pdf
 from .shapefile_export import export_shapefile
 from .units import (convert_length_units, convert_time_units,

@@ -14,7 +14,7 @@ Fast & easy summarizing of MODFLOW data and export to GIS file formats.
 Getting Started
 -----------------------------------------------
 
-[Example Notebook](Examples/example.ipynb)
+[Example Notebook](Examples/modflow_nwt_example.ipynb)
 
 
 ### Bugs
@@ -33,12 +33,26 @@ modflow-export requires **Python** 3.6 (or higher)
 pyyaml  
 numpy  
 pandas  
+gdal   
 fiona  
 rasterio  
 shapely  
 pyproj  
 flopy  
 
+### Install python and dependency packages
+Download and install the [Anaconda python distribution](https://www.anaconda.com/distribution/).
+Open an Anaconda Command Prompt on Windows or a terminal window on OSX.
+From the root folder for the package (that contains `requirements.yml`), install the above packages from `requirements.yml`.
+
+```
+conda env create -f requirements.yml
+```
+activate the environment:
+
+```
+conda activate mfexport
+```
 ### Install to site_packages folder
 ```
 python setup.py install

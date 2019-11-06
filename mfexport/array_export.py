@@ -2,10 +2,9 @@ import time
 import numpy as np
 import pandas as pd
 import rasterio
-from rasterio import Affine
 from shapely.geometry import LineString
 import matplotlib.pyplot as plt
-from .gis import df2shp
+from gisutils import df2shp
 
 
 def export_array(filename, a, modelgrid, nodata=-9999,
@@ -145,7 +144,7 @@ def export_array_contours(filename, a, modelgrid,
     # convert the dictionary to a recarray
     df = pd.DataFrame({'level': level,
                        'geometry': geoms})
-    df2shp(df, filename, epsg=epsg, proj4=proj_str)
+    df2shp(df, filename, epsg=epsg, proj_str=proj_str)
     if verbose:
         print("array contour export took {:.2f}s".format(time.time() - t0))
     return

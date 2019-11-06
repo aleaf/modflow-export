@@ -4,7 +4,7 @@ import fiona
 import rasterio
 from shapely.geometry import box
 import pytest
-from ..gis import shp2df
+from gisutils import shp2df
 from ..list_export import mftransientlist_to_dataframe
 from ..mfexport import export, summarize
 from .test_results_export import check_files, compare_polygons
