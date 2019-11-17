@@ -10,6 +10,7 @@ shapely
 pyproj
 rtree
 flopy
+gis-utils
 codecov
 coverage
 flake8

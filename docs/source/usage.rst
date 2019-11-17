@@ -2,7 +2,7 @@
 Usage
 =====
 
-Start by importing MFexport.
+Start by importing modflow-export.
 
 .. code-block:: python
 

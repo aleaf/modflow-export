@@ -3,10 +3,10 @@ modflow-export
 -----------------------------------------------
 Fast & easy summarizing of MODFLOW data and export to GIS file formats.
 
-### Version 0.0.0
+### Version 0.1
 [![Build Status](https://travis-ci.com/aleaf/modflow-export.svg?branch=master)](https://travis-ci.com/aleaf/modflow-export.svg?branch=master)
 [![Coverage Status](https://codecov.io/github/aleaf/modflow-export/coverage.svg?branch=master)](https://codecov.io/github/aleaf/modflow-export/coverage.svg?branch=master)
-
+[![PyPI version](https://badge.fury.io/py/modflow-export.svg)](https://badge.fury.io/py/modflow-export)
 
 
 
@@ -38,7 +38,8 @@ fiona
 rasterio  
 shapely  
 pyproj  
-flopy  
+flopy
+gis-utils
 
 ### Install python and dependency packages
 Download and install the [Anaconda python distribution](https://www.anaconda.com/distribution/).
