@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# MFexport documentation build configuration file, created by
+# modflow-export documentation build configuration file, created by
 # sphinx-quickstart on Thu Jun 28 12:35:56 2018.
 #
 # This file is execfile()d with the current directory set to its
@@ -67,7 +67,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'MFexport'
+project = 'modflow-export'
 copyright = '2019, Andrew Leaf'
 author = 'Andrew Leaf'
 
