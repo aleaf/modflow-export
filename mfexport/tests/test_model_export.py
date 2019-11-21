@@ -17,12 +17,23 @@ def test_model_export(model):
     assert True
 
 
-def test_package_export(model):
+def test_packages_export(model):
     m, grid, output_path = model
     packages = ['dis'] # 'wel'
     outfiles = export(m, grid, packages[0], output_path=output_path)
     # TODO : add some checks
     assert True
+
+
+def test_package_export(model):
+    # if 'package' is argued instead of 'packages'
+    m, grid, output_path = model
+    variables = ['thickness', 'top', 'botm']
+    layers = list(range(get_nlay(m)))
+    if m.version == 'mf6':
+        variables.append('idomain')
+    outfiles = export(m, grid, package='dis', output_path=output_path)
+    check_files(outfiles, variables, layers=layers)
 
 
 def get_nlay(model):
@@ -44,13 +55,22 @@ def get_nrow_ncol_nlay_nper(model):
     return nrow, ncol, nlay, nper
 
 
-def test_variable_export(model):
+def test_variables_export(model):
     m, grid, output_path = model
     variables = ['top', 'thickness']
     layers = list(range(get_nlay(m)))
     outfiles = export(m, grid,
                       variables=variables,
                       output_path=output_path)
+    check_files(outfiles, variables, layers=layers)
+
+
+def test_variable_export(model):
+    # if 'package' is argued instead of 'packages'
+    m, grid, output_path = model
+    variables = ['botm']
+    layers = list(range(get_nlay(m)))
+    outfiles = export(m, grid, variable='botm', output_path=output_path)
     check_files(outfiles, variables, layers=layers)
 
 

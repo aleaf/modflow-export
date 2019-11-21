@@ -49,7 +49,11 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
 
     context = 'model'
     if packages is None:
-        packages = get_package_list(model)
+        if 'package' in kwargs:
+            packages = [kwargs.pop('package')]
+            context = 'packages'
+        else:
+            packages = get_package_list(model)
     else:
         context = 'packages'
 
@@ -59,6 +63,9 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
     if variables is not None:
         context = 'variables'
         variables = get_variable_list(variables)
+    elif 'variable' in kwargs:
+        context = 'variables'
+        variables = [kwargs.pop('variable')]
 
     if not isinstance(modelgrid, StructuredGrid):
         raise NotImplementedError('Unstructured grids not supported')

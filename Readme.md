@@ -5,7 +5,7 @@ Fast & easy summarizing of MODFLOW data and export to GIS file formats.
 
 ### Version 0.1
 [![Build Status](https://travis-ci.com/aleaf/modflow-export.svg?branch=master)](https://travis-ci.com/aleaf/modflow-export.svg?branch=master)
-[![Coverage Status](https://codecov.io/github/aleaf/modflow-export/coverage.svg?branch=master)](https://codecov.io/github/aleaf/modflow-export/coverage.svg?branch=master)
+[![codecov](https://codecov.io/gh/aleaf/modflow-export/branch/master/graph/badge.svg)](https://codecov.io/gh/aleaf/modflow-export)
 [![PyPI version](https://badge.fury.io/py/modflow-export.svg)](https://badge.fury.io/py/modflow-export)
 
 
