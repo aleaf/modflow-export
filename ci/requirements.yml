@@ -12,7 +12,6 @@ dependencies:
 - rasterio>=1.0
 - shapely
 - pyproj>=2.0
-- flopy
 - codecov
 - coverage
 - flake8
@@ -23,3 +22,7 @@ dependencies:
 - numpydoc
 - sphinx-copybutton
 - sphinx_rtd_theme
+- pip
+- pip:
+    - https://github.com/modflowpy/flopy/zipball/develop
+    - gis-utils

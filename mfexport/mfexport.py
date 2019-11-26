@@ -235,14 +235,15 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
                             for tlv in tl_variables:
                                 print('{}:'.format(tlv))
                                 data_cols = [c for c in df.columns if tlv in c]
-                                array = np.zeros((len(data_cols) + 1,
+                                periods = {int(c.strip(tlv)):c for c in data_cols}
+                                array = np.zeros((max(list(periods.keys())) + 1,
                                                   df['k'].max() + 1,
-                                                  modelgrid.nrow + 1,
-                                                  modelgrid.ncol + 1))
-                                for c in data_cols:
-                                    per = int(c.strip(tlv))
+                                                  modelgrid.nrow,
+                                                  modelgrid.ncol
+                                                  ))
+                                for per, c in periods.items():
                                     array[per, df['k'], df['i'], df['j']] = df[c]
-                                text = '{} package {}'.format(name, tlv)
+                                text = '{}, {}'.format(name, tlv)
                                 export_pdf(filename, array, text,
                                            mfarray_type='transientlist')
                                 filenames.append(filename)
@@ -406,12 +407,14 @@ def summarize(model, packages=None, variables=None, output_path=None,
                             if verbose:
                                 print('{}'.format(tlv))
                             data_cols = [c for c in df.columns if tlv in c]
-                            array = np.zeros((len(data_cols) + 1,
+                            periods = {int(c.strip(tlv)): c for c in data_cols}
+                            array = np.zeros((max(list(periods.keys())) + 1,
                                               df['k'].max() + 1,
-                                              nrow + 1,
-                                              ncol + 1))
-                            for c in data_cols:
-                                per = int(c.strip(tlv))
+                                              nrow,
+                                              ncol
+                                              ))
+                            for per, c in periods.items():
+                                array[per, df['k'], df['i'], df['j']] = df[c]
                                 array[per, df['k'], df['i'], df['j']] = df[c]
                                 summarized.append({'package': package.name[0],
                                                    'variable': tlv,
