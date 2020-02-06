@@ -5,9 +5,9 @@ from ..list_export import mftransientlist_to_dataframe
 
 def get_period_sums(mftransientlist):
     # monkey patch the mf6 version to behave like the mf2005 version
-    if isinstance(mftransientlist,
-                  flopy.mf6.data.mfdatalist.MFTransientList):
-        mftransientlist.data = {per: ra for per, ra in enumerate(mftransientlist.array)}
+    #if isinstance(mftransientlist,
+    #              flopy.mf6.data.mfdatalist.MFTransientList):
+    #    mftransientlist.data = {per: ra for per, ra in enumerate(mftransientlist.array)}
 
     sums = []
     for per in range(mftransientlist.model.nper):
