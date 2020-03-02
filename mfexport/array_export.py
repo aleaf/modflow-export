@@ -1,3 +1,4 @@
+import os
 import time
 import numpy as np
 import pandas as pd
@@ -73,6 +74,11 @@ def export_array(filename, a, modelgrid, nodata=-9999,
                 'compress': 'lzw'
                 }
         meta.update(kwargs)
+
+        # remove file first,
+        # to avoid rasterio._err.CPLE_AppDefinedError: TIFFReadDirectory: errors
+        if os.path.exists(filename):
+            os.remove(filename)
         with rasterio.open(filename, 'w', **meta) as dst:
             dst.write(a)
             if isinstance(a, np.ma.masked_array):
