@@ -36,10 +36,12 @@ def mftransientlist_to_dataframe(mftransientlist, squeeze=True):
 
     # find relevant variable names
     # may have to iterate over the first stress period
+    varnames = []
     for per in range(data.model.nper):
         if hasattr(data.data.get(per), 'dtype'):
             varnames = list([n for n in data.data[per].dtype.names
-                             if n not in ['k', 'i', 'j', 'cellid']])
+                             if n not in ['k', 'i', 'j', 'cellid',
+                                          'rno', 'sfrsetting']])
             break
 
     # create list of dataframes for each stress period
@@ -57,35 +59,82 @@ def mftransientlist_to_dataframe(mftransientlist, squeeze=True):
             dfi = dfi.set_index(names)
         else:
             dfi = pd.DataFrame.from_records(recs)
+            # convert layer, row, column to cellid
+            index_col = 'cellid'  # default index
             if {'k', 'i', 'j'}.issubset(dfi.columns):
                 dfi['cellid'] = list(zip(dfi.k, dfi.i, dfi.j))
                 dfi.drop(['k', 'i', 'j'], axis=1, inplace=True)
-            dfi = dfi.set_index(names)
+            # cell-by-cell connections; id is the cellid (id2 cellid of connected cell)
+            elif 'id' in dfi.columns and 'cellid' not in dfi.columns:
+                index_col = 'id'
+            # map the cellid to the reach number (SFR package data)
+            elif 'rno' in dfi.columns and 'cellid' not in dfi.columns:
+                packagedata = data.package.packagedata
+                cellid = dict(zip(packagedata.array['rno'], packagedata.array['cellid']))
+                dfi['cellid'] = [cellid[rno] for rno in dfi['rno']]
+                cols = ['rno', 'cellid']
+                # rearrange the column order to start with rno, cellid
+                cols = cols + [c for c in dfi.columns if c not in cols]
+                dfi = dfi[cols]
+                # index on reach number, allowing for multiple instances of a cellid
+                # (multiple reaches per cell)
+                index_col = 'rno'
+
+            dfi.set_index(index_col, drop=False, inplace=True)
 
             # aggregate (sum) data to model cells
             # because pd.concat can't handle a non-unique index
             # (and modflow input doesn't have a unique identifier at sub-cell level)
-            dfg = dfi.groupby(names)
-            dfi = dfg.sum()  # aggregate
-            #dfi.columns = names + list(['{}{}'.format(c, per) for c in varnames])
+            if dfi.index.name != 'rno':
+                try:
+                    dfg = dfi.reset_index(drop=True).groupby(index_col)
+                except:
+                    j=2
+                dfi = dfg.sum()  # aggregate
             dfi.columns = ['{}{}'.format(c, per) if c in varnames else c for c in dfi.columns]
         dfs.append(dfi)
     df = pd.concat(dfs, axis=1)
-    if squeeze:
+    # squeeze the dataframe down to the minimum number of columns (stress periods)
+    # to describe changes in stress
+    # keep only columns where the stress changes
+    # (assuming that missing columns represent the same stress as the previous column)
+    # squeeze only the columns with data values
+    if squeeze and len(varnames) > 0:
         keep = []
         for var in varnames:
             diffcols = list([n for n in df.columns if var in n])
-            squeezed = squeeze_columns(df[diffcols])
-            keep.append(squeezed)
-        df = pd.concat(keep, axis=1)
-    data_cols = df.columns.tolist()
-    df['cellid'] = df.index.tolist()
-    idx_cols = ['cellid']
-    if isinstance(df.index.values[0], tuple):
-        df['k'], df['i'], df['j'] = list(zip(*df['cellid']))
-        idx_cols += ['k', 'i', 'j']
-    cols = idx_cols + data_cols
-    df = df[cols]
+            if len(diffcols) > 0:
+                to_squeeze = df[diffcols].T.astype(float).T
+                squeezed = squeeze_columns(to_squeeze)
+                keep.append(squeezed)
+        squeezed = pd.concat(keep, axis=1)
+        squeezed.index = df.index.tolist()
+        # join the squeezed data back to other columns
+        other_cols = []
+        for c in df.columns:
+            name = ''.join((char for char in c if not char.isdigit()))
+            if name not in varnames:
+                other_cols.append(name)
+
+        if len(other_cols) > 0:
+            try:
+                df = df[other_cols].join(squeezed)
+            except:
+                j=2
+        else:
+            df = squeezed
+    # add columns for k, i, j
+    for id in ['cellid', 'id']:
+        if id not in df.columns and isinstance(df.index.values[0], tuple):
+            df['cellid'] = df.index
+        if id in df.columns and isinstance(df[id].values[0], tuple):
+            cols = df.columns.tolist()
+            # get the order right
+            pos = [i for i, c in enumerate(cols) if c == id][0]
+            for c in reversed(['k', 'i', 'j']):
+                cols.insert(pos + 1, c)
+            df['k'], df['i'], df['j'] = list(zip(*df[id]))
+            df = df[cols]
     return df
 
 
@@ -122,8 +171,9 @@ def get_tl_variables(mftransientlist):
     # monkey patch the mf6 version to behave like the mf2005 version
     #if isinstance(mftransientlist, flopy.mf6.data.mfdatalist.MFTransientList):
     #    mftransientlist.data = {per: ra for per, ra in enumerate(mftransientlist.array)}
+    non_data_columns = {'k', 'i', 'j', 'cellid', 'rno', 'sfrsetting'}
 
     for per, recarray in mftransientlist.data.items():
         if recarray is not None:
             return [c for c in recarray.dtype.names
-                    if c not in ['k', 'i', 'j', 'cellid']]
+                    if c not in non_data_columns]

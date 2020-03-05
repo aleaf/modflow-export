@@ -2,7 +2,7 @@ import numpy as np
 from flopy.utils import binaryfile as bf
 from flopy.utils.postprocessing import get_water_table
 from .array_export import export_array, export_array_contours
-from .budget_output import get_surface_bc_flux, read_sfr_output, get_flowja_face
+from .budget_output import get_bc_flux, read_sfr_output, get_flowja_face
 from gisutils import shp2df
 from .pdf_export import sfr_baseflow_pdf, sfr_qaquifer_pdf
 from .shapefile_export import export_shapefile
@@ -62,7 +62,7 @@ def export_cell_budget(cell_budget_file, grid,
                 # export the vertical fluxes as rasters
                 # (in the downward direction; so fluxes between 2 layers
                 # would be represented in the upper layer)
-                if df is not None and 'kn' in df.columns:
+                if df is not None and 'kn' in df.columns and np.any(df['kn'] < df['km']):
                     vflux = df.loc[(df['kn'] < df['km'])]
                     nlay = vflux['km'].max()
                     _, nrow, ncol = grid.shape
@@ -72,7 +72,7 @@ def export_cell_budget(cell_budget_file, grid,
                                 vflux['jn'].values] = vflux.q.values
                     data = vflux_array
             else:
-                data = get_surface_bc_flux(cbbobj, variable, kstpkper=(kstp, kper), idx=idx)
+                data = get_bc_flux(cbbobj, variable, kstpkper=(kstp, kper), idx=idx)
             if data is None:
                 print('{} not exported.'.format(variable))
                 continue

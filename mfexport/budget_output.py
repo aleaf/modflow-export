@@ -235,7 +235,7 @@ def get_intercell_connections(ia, ja, flowja):
     return df
 
 
-def get_surface_bc_flux(cbbobj, txt, kstpkper=(0, 0), idx=0):
+def get_bc_flux(cbbobj, txt, kstpkper=None, idx=None):
     """Read a flow component from MODFLOW binary cell budget output;
 
     Parameters

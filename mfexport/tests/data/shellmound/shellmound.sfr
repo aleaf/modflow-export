@@ -1,9 +1,9 @@
-# MODFLOW-6 SFR input; created by SFRmaker v. 0.1.2+2.ga32c881
+# MODFLOW-6 SFR input; created by SFRmaker v. 0.3.0.post4+ga59127c
 
 BEGIN Options
   save_flows
-  BUDGET FILEOUT shellmound.sfr.cbc
-  STAGE FILEOUT shellmound.sfr.stage.bin
+  BUDGET FILEOUT ./shellmound.sfr.cbc
+  STAGE FILEOUT ./shellmound.sfr.stage.bin
   unit_conversion  86400.0
 END Options
 
@@ -739,3 +739,15 @@ BEGIN Connectiondata
   361 360
   362 334
 END Connectiondata
+
+BEGIN Period 1
+1 inflow 208973.82049089015
+END Period 1
+
+BEGIN Period 2
+1 inflow 208973.82049089015
+END Period 2
+
+BEGIN Period 3
+1 inflow 100
+END Period 3

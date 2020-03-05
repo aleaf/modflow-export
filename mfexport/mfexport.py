@@ -1,6 +1,8 @@
 import os
 import numpy as np
 import pandas as pd
+import flopy
+mf6 = flopy.mf6
 from flopy.datbase import DataType, DataInterface
 from flopy.discretization import StructuredGrid
 from .array_export import export_array, export_array_contours
@@ -226,23 +228,33 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
                             filenames.append(filename)
 
                         if pdfs:
+                            # skip PDF export of head observations for now
+                            if isinstance(package, mf6.ModflowUtlobs):
+                                continue
                             filename = os.path.join(pdfs_dir,
                                                     '{}.pdf'.format(name)).lower()
                             df = mftransientlist_to_dataframe(v, squeeze=True)
-                            #df['k'], df['i'], df['j'] = list(zip(*df['cellid']))
                             tl_variables = get_tl_variables(v)
 
                             for tlv in tl_variables:
                                 print('{}:'.format(tlv))
                                 data_cols = [c for c in df.columns if tlv in c]
-                                periods = {int(c.strip(tlv)):c for c in data_cols}
-                                array = np.zeros((max(list(periods.keys())) + 1,
-                                                  df['k'].max() + 1,
-                                                  modelgrid.nrow,
-                                                  modelgrid.ncol
-                                                  ))
-                                for per, c in periods.items():
-                                    array[per, df['k'], df['i'], df['j']] = df[c]
+                                period_data = any(any(c.isdigit() for c in s) for s in data_cols)
+                                if period_data:
+                                    periods = {int(c.strip(tlv)):c for c in data_cols}
+                                    array = np.zeros((max(list(periods.keys())) + 1,
+                                                      df['k'].max() + 1,
+                                                      modelgrid.nrow,
+                                                      modelgrid.ncol
+                                                      ))
+                                    for per, c in periods.items():
+                                        array[per, df['k'], df['i'], df['j']] = df[c]
+                                else:
+                                    print(('Warning, variable: {}\n'.format(tlv) +
+                                          'Export of non-period data from transientlists not implemented!')
+                                          )
+                                    continue
+
                                 text = '{}, {}'.format(name, tlv)
                                 export_pdf(filename, array, text,
                                            mfarray_type='transientlist')
@@ -320,7 +332,7 @@ def summarize(model, packages=None, variables=None, output_path=None,
         if verbose:
             print('\n{} package...'.format(package.name[0]))
 
-        if package.name[0] == 'SFR':
+        if package.name[0].lower() == 'sfr':
             continue
 
         package_variables = package.data_list
@@ -400,29 +412,42 @@ def summarize(model, packages=None, variables=None, output_path=None,
 
                     elif v.data_type == DataType.transientlist:
                         df = mftransientlist_to_dataframe(v, squeeze=True)
-                        #df['k'], df['i'], df['j'] = list(zip(*df['cellid']))
                         tl_variables = get_tl_variables(v)
+                        if isinstance(package, mf6.ModflowUtlobs):
+                            obstypes = df.obstype.unique()
+                            for obstype in obstypes:
+                                n = len(df.loc[df.obstype == obstype])
+                                summarized.append({'package': package.name[0],
+                                                   'variable': obstype,
+                                                   'count': n
+                                                   })
+                            continue
 
                         for tlv in tl_variables:
+                            # todo: need to handle different sfr settings separately in summary
                             if verbose:
                                 print('{}'.format(tlv))
                             data_cols = [c for c in df.columns if tlv in c]
                             periods = {int(c.strip(tlv)): c for c in data_cols}
-                            array = np.zeros((max(list(periods.keys())) + 1,
-                                              df['k'].max() + 1,
-                                              nrow,
-                                              ncol
-                                              ))
+                            try:
+                                array = np.zeros((max(list(periods.keys())) + 1,
+                                                  df['k'].max() + 1,
+                                                  nrow,
+                                                  ncol
+                                                  ))
+                            except:
+                                j=2
                             for per, c in periods.items():
                                 array[per, df['k'], df['i'], df['j']] = df[c]
                                 array[per, df['k'], df['i'], df['j']] = df[c]
-                                summarized.append({'package': package.name[0],
-                                                   'variable': tlv,
-                                                   'period': per,
-                                                   'min': df[c].min(),
-                                                   'mean': df[c].mean(),
-                                                   'max': df[c].max(),
-                                                   })
+                                summary = {'package': package.name[0],
+                                           'variable': tlv,
+                                           'period': per,
+                                           'min': df[c].min(),
+                                           'mean': df[c].mean(),
+                                           'max': df[c].max(),
+                                           }
+                                summarized.append(summary)
     df = pd.DataFrame(summarized)
     if output_path is not None:
         if not os.path.isdir(output_path):

@@ -1,5 +1,5 @@
 BEGIN options
-  LIST  /users/aleaf/documents/github/mfsetup/mfsetup/tests/tmp/shellmound/shellmound.list
+  LIST  /users/aleaf/documents/github/modflow-setup/mfsetup/tests/tmp/shellmound/shellmound.list
   PRINT_INPUT
   SAVE_FLOWS
   NEWTON
@@ -14,5 +14,6 @@ BEGIN packages
   OC6  shellmound.oc  oc
   SFR6  shellmound.sfr  sfr
   WEL6  shellmound.wel  wel_0
+  OBS6  shellmound.obs  obs_0
 END packages
 

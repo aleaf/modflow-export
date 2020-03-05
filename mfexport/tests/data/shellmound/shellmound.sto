@@ -35,11 +35,3 @@ BEGIN griddata
     OPEN/CLOSE  './external/sy12.dat'  FACTOR  1.0
 END griddata
 
-BEGIN period  1
-  STEADY-STATE
-END period  1
-
-BEGIN period  2
-  TRANSIENT
-END period  2
-
