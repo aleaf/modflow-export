@@ -106,7 +106,6 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
         for v in package_variables:
             if isinstance(v, DataInterface):
                 if v.array is not None:
-
                     if isinstance(v.name, list):
                         name = v.name[0].strip('_')
                     if isinstance(v.name, str):
@@ -116,150 +115,178 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
                             othername.get(name.lower(), name.lower()) not in variables:
                         return
 
-                    if v.data_type == DataType.array2d and len(v.array.shape) == 2 \
-                            and v.array.shape[1] > 0:
-                        print('{}:'.format(name))
-                        array = v.array.copy()
-                        if not include_inactive_cells:
-                            array = np.ma.masked_array(array, mask=inactive_cells[0])
-                        if gis:
-                            filename = os.path.join(rasters_dir, '{}.tif'.format(name))
-                            export_array(filename, array, modelgrid, nodata=-9999,
-                                         **kwargs)
-                            filenames.append(filename)
-                            if contours:
-                                filename = os.path.join(shps_dir, '{}_ctr.shp'.format(name))
-                                export_array_contours(filename, array, modelgrid,
-                                                      **kwargs)
-                                filenames.append(filename)
+                    try:
+                        export_variable(v, package, modelgrid,
+                                        inactive_cells, inactive_cells2d,
+                                        filenames, rasters_dir, shps_dir, pdfs_dir,
+                                        gis=gis, pdfs=pdfs, contours=contours,
+                                        include_inactive_cells=include_inactive_cells,
+                                        **kwargs
+                                        )
+                    except Exception as e:
+                        print('skipped, not implemented yet')
 
-                        if pdfs:
-                            filename = os.path.join(pdfs_dir, '{}.pdf'.format(name))
-                            export_pdf(filename, array, nodata=np.nan, text=name,
-                                       mfarray_type='array2d')
-                            filenames.append(filename)
-
-                    elif v.data_type == DataType.array3d:
-                        # TODO: add option to export 3d arrays as multiband geotiffs
-                        print('{}:'.format(name))
-                        array = v.array.copy()
-                        if not include_inactive_cells:
-                            array = np.ma.masked_array(array, mask=inactive_cells)
-                        for k, array2d in enumerate(array):
-                            if gis:
-                                filename = os.path.join(rasters_dir, '{}_lay{}.tif'.format(name, k))
-                                export_array(filename, array2d, modelgrid, nodata=-9999,
-                                             **kwargs)
-                                filenames.append(filename)
-
-                                if contours:
-                                    filename = os.path.join(shps_dir, '{}_lay{}.tif'.format(name, k))
-                                    export_array_contours(filename, array2d, modelgrid,
-                                                          **kwargs)
-                                    filenames.append(filename)
-
-                            if pdfs:
-                                filename = os.path.join(pdfs_dir, '{}_lay{}.pdf'.format(name, k))
-                                export_pdf(filename, array2d, nodata=np.nan,
-                                           text='Layer {} {}'.format(k, name),
-                                           mfarray_type='array2d')
-                                filenames.append(filename)
-
-                    elif v.data_type == DataType.transient2d:
-                        print('{}:'.format(name))
-                        array = v.array[:, 0, :, :].copy()
-                        if not include_inactive_cells:
-                            array = np.ma.masked_array(array,
-                                                       mask=np.broadcast_to(inactive_cells2d,
-                                                                            array.shape))
-                        for kper, array2d in enumerate(array):
-
-                            if gis:
-                                filename = os.path.join(rasters_dir,
-                                                        '{}_per{}.tif'.format(name, kper))
-                                export_array(filename, array2d, modelgrid, nodata=-9999,
-                                             **kwargs)
-                                filenames.append(filename)
-
-                            if pdfs:
-                                filename = os.path.join(pdfs_dir,
-                                                        '{}_per{}.pdf'.format(name, kper))
-                                export_pdf(filename, array2d, nodata=np.nan,
-                                           text='Period {} {}'.format(kper, name),
-                                           mfarray_type='array2d')
-                                filenames.append(filename)
-
-                    elif v.data_type == DataType.transient3d:
-                        # TODO: need test for transient3d
-                        # squeeze periods to only those that are different
-                        print('{}:'.format(name))
-                        pers = [0] + list(np.where(np.diff(v.array.sum(axis=(1, 2, 3))) != 0)[0])
-                        array = v.array[pers, :, :, :].copy()
-
-                        for kper, array3d in enumerate(array):
-                            if not include_inactive_cells:
-                                array3d = np.ma.masked_array(array3d,
-                                                           mask=np.broadcast_to(inactive_cells2d,
-                                                                                array3d.shape))
-                            for k, array2d in enumerate(array3d):
-                                if gis:
-                                    filename = os.path.join(rasters_dir,
-                                                            '{}_per{}_lay{}.tif'.format(name, kper, k))
-                                    export_array(filename, array2d, modelgrid, nodata=-9999,
-                                                 **kwargs)
-                                    filenames.append(filename)
-
-                                if pdfs:
-                                    filename = os.path.join(pdfs_dir,
-                                                            '{}_per{}_lay{}.pdf'.format(name, kper, k))
-                                    export_pdf(filename, array2d, nodata=np.nan,
-                                               text='Period {} Layer {} {}'.format(kper, k, name),
-                                               mfarray_type='array2d')
-                                    filenames.append(filename)
-
-                    elif v.data_type == DataType.transientlist:
-                        packagename = package.name[0].lower().replace('_', '')
-                        name = '{}_stress_period_data'.format(packagename)
-                        if gis:
-                            filename = os.path.join(shps_dir,
-                                                    '{}.shp'.format(name)).lower()
-                            export_shapefile(filename, v, modelgrid,
-                                             squeeze=True, **kwargs)
-                            filenames.append(filename)
-
-                        if pdfs:
-                            # skip PDF export of head observations for now
-                            if isinstance(package, mf6.ModflowUtlobs):
-                                continue
-                            filename = os.path.join(pdfs_dir,
-                                                    '{}.pdf'.format(name)).lower()
-                            df = mftransientlist_to_dataframe(v, squeeze=True)
-                            tl_variables = get_tl_variables(v)
-
-                            for tlv in tl_variables:
-                                print('{}:'.format(tlv))
-                                data_cols = [c for c in df.columns if tlv in c]
-                                period_data = any(any(c.isdigit() for c in s) for s in data_cols)
-                                if period_data:
-                                    periods = {int(c.strip(tlv)):c for c in data_cols}
-                                    array = np.zeros((max(list(periods.keys())) + 1,
-                                                      df['k'].max() + 1,
-                                                      modelgrid.nrow,
-                                                      modelgrid.ncol
-                                                      ))
-                                    for per, c in periods.items():
-                                        array[per, df['k'], df['i'], df['j']] = df[c]
-                                else:
-                                    print(('Warning, variable: {}\n'.format(tlv) +
-                                          'Export of non-period data from transientlists not implemented!')
-                                          )
-                                    continue
-
-                                text = '{}, {}'.format(name, tlv)
-                                export_pdf(filename, array, text,
-                                           mfarray_type='transientlist')
-                                filenames.append(filename)
     return filenames
+
+
+def export_variable(variable, package, modelgrid,
+                    inactive_cells, inactive_cells2d,
+                    filenames, rasters_dir, shps_dir, pdfs_dir,
+                    gis=True, pdfs=True, contours=False,
+                    include_inactive_cells=False,
+                    **kwargs
+                    ):
+
+    v = variable
+
+    if isinstance(v.name, list):
+        name = v.name[0].strip('_')
+    if isinstance(v.name, str):
+        name = v.name.strip('_')
+
+    if v.data_type == DataType.array2d and len(v.array.shape) == 2 \
+            and v.array.shape[1] > 0:
+        print('{}:'.format(name))
+        array = v.array.copy()
+        if not include_inactive_cells:
+            array = np.ma.masked_array(array, mask=inactive_cells[0])
+        if gis:
+            filename = os.path.join(rasters_dir, '{}.tif'.format(name))
+            export_array(filename, array, modelgrid, nodata=-9999,
+                         **kwargs)
+            filenames.append(filename)
+            if contours:
+                filename = os.path.join(shps_dir, '{}_ctr.shp'.format(name))
+                export_array_contours(filename, array, modelgrid,
+                                      **kwargs)
+                filenames.append(filename)
+
+        if pdfs:
+            filename = os.path.join(pdfs_dir, '{}.pdf'.format(name))
+            export_pdf(filename, array, nodata=np.nan, text=name,
+                       mfarray_type='array2d')
+            filenames.append(filename)
+
+    elif v.data_type == DataType.array3d:
+        # TODO: add option to export 3d arrays as multiband geotiffs
+        print('{}:'.format(name))
+        array = v.array.copy()
+        if not include_inactive_cells:
+            array = np.ma.masked_array(array, mask=inactive_cells)
+        for k, array2d in enumerate(array):
+            if gis:
+                filename = os.path.join(rasters_dir, '{}_lay{}.tif'.format(name, k))
+                export_array(filename, array2d, modelgrid, nodata=-9999,
+                             **kwargs)
+                filenames.append(filename)
+
+                if contours:
+                    filename = os.path.join(shps_dir, '{}_lay{}.tif'.format(name, k))
+                    export_array_contours(filename, array2d, modelgrid,
+                                          **kwargs)
+                    filenames.append(filename)
+
+            if pdfs:
+                filename = os.path.join(pdfs_dir, '{}_lay{}.pdf'.format(name, k))
+                export_pdf(filename, array2d, nodata=np.nan,
+                           text='Layer {} {}'.format(k, name),
+                           mfarray_type='array2d')
+                filenames.append(filename)
+
+    elif v.data_type == DataType.transient2d:
+        print('{}:'.format(name))
+        array = v.array[:, 0, :, :].copy()
+        if not include_inactive_cells:
+            array = np.ma.masked_array(array,
+                                       mask=np.broadcast_to(inactive_cells2d,
+                                                            array.shape))
+        for kper, array2d in enumerate(array):
+
+            if gis:
+                filename = os.path.join(rasters_dir,
+                                        '{}_per{}.tif'.format(name, kper))
+                export_array(filename, array2d, modelgrid, nodata=-9999,
+                             **kwargs)
+                filenames.append(filename)
+
+            if pdfs:
+                filename = os.path.join(pdfs_dir,
+                                        '{}_per{}.pdf'.format(name, kper))
+                export_pdf(filename, array2d, nodata=np.nan,
+                           text='Period {} {}'.format(kper, name),
+                           mfarray_type='array2d')
+                filenames.append(filename)
+
+    elif v.data_type == DataType.transient3d:
+        # TODO: need test for transient3d
+        # squeeze periods to only those that are different
+        print('{}:'.format(name))
+        pers = [0] + list(np.where(np.diff(v.array.sum(axis=(1, 2, 3))) != 0)[0])
+        array = v.array[pers, :, :, :].copy()
+
+        for kper, array3d in enumerate(array):
+            if not include_inactive_cells:
+                array3d = np.ma.masked_array(array3d,
+                                             mask=np.broadcast_to(inactive_cells2d,
+                                                                  array3d.shape))
+            for k, array2d in enumerate(array3d):
+                if gis:
+                    filename = os.path.join(rasters_dir,
+                                            '{}_per{}_lay{}.tif'.format(name, kper, k))
+                    export_array(filename, array2d, modelgrid, nodata=-9999,
+                                 **kwargs)
+                    filenames.append(filename)
+
+                if pdfs:
+                    filename = os.path.join(pdfs_dir,
+                                            '{}_per{}_lay{}.pdf'.format(name, kper, k))
+                    export_pdf(filename, array2d, nodata=np.nan,
+                               text='Period {} Layer {} {}'.format(kper, k, name),
+                               mfarray_type='array2d')
+                    filenames.append(filename)
+
+    elif v.data_type == DataType.transientlist:
+        packagename = package.name[0].lower().replace('_', '')
+        name = '{}_stress_period_data'.format(packagename)
+        if gis:
+            filename = os.path.join(shps_dir,
+                                    '{}.shp'.format(name)).lower()
+            export_shapefile(filename, v, modelgrid,
+                             squeeze=True, **kwargs)
+            filenames.append(filename)
+
+        if pdfs:
+            # skip PDF export of head observations for now
+            if isinstance(package, mf6.ModflowUtlobs):
+                return
+            filename = os.path.join(pdfs_dir,
+                                    '{}.pdf'.format(name)).lower()
+            df = mftransientlist_to_dataframe(v, squeeze=True)
+            tl_variables = get_tl_variables(v)
+
+            for tlv in tl_variables:
+                print('{}:'.format(tlv))
+                data_cols = [c for c in df.columns if tlv in c]
+                period_data = any(any(c.isdigit() for c in s) for s in data_cols)
+                if period_data:
+                    periods = {int(c.strip(tlv)): c for c in data_cols}
+                    array = np.zeros((max(list(periods.keys())) + 1,
+                                      df['k'].max() + 1,
+                                      modelgrid.nrow,
+                                      modelgrid.ncol
+                                      ))
+                    for per, c in periods.items():
+                        array[per, df['k'], df['i'], df['j']] = df[c]
+                else:
+                    print(('Warning, variable: {}\n'.format(tlv) +
+                           'Export of non-period data from transientlists not implemented!')
+                          )
+                    continue
+
+                text = '{}, {}'.format(name, tlv)
+                export_pdf(filename, array, text,
+                           mfarray_type='transientlist')
+                filenames.append(filename)
 
 
 def export_sfr():
@@ -322,7 +349,6 @@ def summarize(model, packages=None, variables=None, output_path=None,
 
     inactive_cells = get_inactive_cells_mask(model)
     inactive_cells2d = np.all(inactive_cells, axis=0)  # ij locations where all layers are inactive
-    nlay, nrow, ncol = inactive_cells.shape
 
     summarized = []
     for package in packages:
@@ -348,109 +374,137 @@ def summarize(model, packages=None, variables=None, output_path=None,
 
                     if variables is not None and name.lower() not in variables:
                         return
-                    if v.data_type == DataType.array2d and len(v.array.shape) == 2 \
-                            and v.array.shape[1] > 0:
-                        if verbose:
-                            print('{}'.format(name))
-                        array = v.array.copy()
-                        if not include_inactive_cells:
-                            array = np.ma.masked_array(array, mask=inactive_cells[0])
-                        summarized.append({'package': package.name[0],
-                                           'variable': name,
-                                           'min': array.min(),
-                                           'mean': array.mean(),
-                                           'max': array.max(),
-                                           })
-                    elif v.data_type == DataType.array3d:
-                        if verbose:
-                            print('{}'.format(name))
-                        array = v.array.copy()
-                        if not include_inactive_cells:
-                            array = np.ma.masked_array(array, mask=inactive_cells)
-                        for k, array2d in enumerate(array):
-                            summarized.append({'package': package.name[0],
-                                               'variable': name,
-                                               'layer': k,
-                                               'min': array2d.min(),
-                                               'mean': array2d.mean(),
-                                               'max': array2d.max(),
-                                               })
 
-                    elif v.data_type == DataType.transient2d:
-                        array = v.array[:, 0, :, :].copy()
-                        if not include_inactive_cells:
-                            array = np.ma.masked_array(array,
-                                                       mask=np.broadcast_to(inactive_cells2d,
-                                                                            array.shape))
-                        for kper, array2d in enumerate(array):
-                            summarized.append({'package': package.name[0],
-                                               'variable': name,
-                                               'period': kper,
-                                               'min': array2d.min(),
-                                               'mean': array2d.mean(),
-                                               'max': array2d.max(),
-                                               })
+                    try:
+                        summarize_variable(v, package,
+                                           inactive_cells, inactive_cells2d,
+                                           summarized,
+                                           include_inactive_cells=include_inactive_cells,
+                                           verbose=verbose,
+                                           **kwargs
+                                           )
+                    except Exception as e:
+                        print('skipped, not implemented yet')
 
-                    elif v.data_type == DataType.transient3d:
-                        pers = [0] + list(np.where(np.diff(v.array.sum(axis=(1, 2, 3))) != 0)[0])
-                        array = v.array[pers, :, :, :].copy()
 
-                        for kper, array3d in enumerate(array):
-                            if not include_inactive_cells:
-                                array3d = np.ma.masked_array(array3d,
-                                                             mask=np.broadcast_to(inactive_cells2d,
-                                                                                  array3d.shape))
-                            for k, array2d in enumerate(array3d):
-                                summarized.append({'package': package.name[0],
-                                                   'variable': name,
-                                                   'period': kper,
-                                                   'layer': k,
-                                                   'min': array2d.min(),
-                                                   'mean': array2d.mean(),
-                                                   'max': array2d.max(),
-                                                   })
-
-                    elif v.data_type == DataType.transientlist:
-                        df = mftransientlist_to_dataframe(v, squeeze=True)
-                        tl_variables = get_tl_variables(v)
-                        if isinstance(package, mf6.ModflowUtlobs):
-                            obstypes = df.obstype.unique()
-                            for obstype in obstypes:
-                                n = len(df.loc[df.obstype == obstype])
-                                summarized.append({'package': package.name[0],
-                                                   'variable': obstype,
-                                                   'count': n
-                                                   })
-                            continue
-
-                        for tlv in tl_variables:
-                            # todo: need to handle different sfr settings separately in summary
-                            if verbose:
-                                print('{}'.format(tlv))
-                            data_cols = [c for c in df.columns if tlv in c]
-                            periods = {int(c.strip(tlv)): c for c in data_cols}
-                            try:
-                                array = np.zeros((max(list(periods.keys())) + 1,
-                                                  df['k'].max() + 1,
-                                                  nrow,
-                                                  ncol
-                                                  ))
-                            except:
-                                j=2
-                            for per, c in periods.items():
-                                array[per, df['k'], df['i'], df['j']] = df[c]
-                                array[per, df['k'], df['i'], df['j']] = df[c]
-                                summary = {'package': package.name[0],
-                                           'variable': tlv,
-                                           'period': per,
-                                           'min': df[c].min(),
-                                           'mean': df[c].mean(),
-                                           'max': df[c].max(),
-                                           }
-                                summarized.append(summary)
     df = pd.DataFrame(summarized)
     if output_path is not None:
         if not os.path.isdir(output_path):
             os.makedirs(output_path)
         df.to_csv('{}/{}_summary.csv'.format(output_path, model.name), index=False)
     return df
+
+
+def summarize_variable(variable, package, inactive_cells, inactive_cells2d,
+                       summarized,
+                       include_inactive_cells=False, verbose=False,
+                       **kwargs):
+
+    v = variable
+    nlay, nrow, ncol = inactive_cells.shape
+
+    if isinstance(v.name, list):
+        name = v.name[0].strip('_')
+    if isinstance(v.name, str):
+        name = v.name.strip('_')
+
+    if v.data_type == DataType.array2d and len(v.array.shape) == 2 \
+            and v.array.shape[1] > 0:
+        if verbose:
+            print('{}'.format(name))
+        array = v.array.copy()
+        if not include_inactive_cells:
+            array = np.ma.masked_array(array, mask=inactive_cells[0])
+        summarized.append({'package': package.name[0],
+                           'variable': name,
+                           'min': array.min(),
+                           'mean': array.mean(),
+                           'max': array.max(),
+                           })
+    elif v.data_type == DataType.array3d:
+        if verbose:
+            print('{}'.format(name))
+        array = v.array.copy()
+        if not include_inactive_cells:
+            array = np.ma.masked_array(array, mask=inactive_cells)
+        for k, array2d in enumerate(array):
+            summarized.append({'package': package.name[0],
+                               'variable': name,
+                               'layer': k,
+                               'min': array2d.min(),
+                               'mean': array2d.mean(),
+                               'max': array2d.max(),
+                               })
+
+    elif v.data_type == DataType.transient2d:
+        array = v.array[:, 0, :, :].copy()
+        if not include_inactive_cells:
+            array = np.ma.masked_array(array,
+                                       mask=np.broadcast_to(inactive_cells2d,
+                                                            array.shape))
+        for kper, array2d in enumerate(array):
+            summarized.append({'package': package.name[0],
+                               'variable': name,
+                               'period': kper,
+                               'min': array2d.min(),
+                               'mean': array2d.mean(),
+                               'max': array2d.max(),
+                               })
+
+    elif v.data_type == DataType.transient3d:
+        pers = [0] + list(np.where(np.diff(v.array.sum(axis=(1, 2, 3))) != 0)[0])
+        array = v.array[pers, :, :, :].copy()
+
+        for kper, array3d in enumerate(array):
+            if not include_inactive_cells:
+                array3d = np.ma.masked_array(array3d,
+                                             mask=np.broadcast_to(inactive_cells2d,
+                                                                  array3d.shape))
+            for k, array2d in enumerate(array3d):
+                summarized.append({'package': package.name[0],
+                                   'variable': name,
+                                   'period': kper,
+                                   'layer': k,
+                                   'min': array2d.min(),
+                                   'mean': array2d.mean(),
+                                   'max': array2d.max(),
+                                   })
+
+    elif v.data_type == DataType.transientlist:
+        df = mftransientlist_to_dataframe(v, squeeze=True)
+        tl_variables = get_tl_variables(v)
+        if isinstance(package, mf6.ModflowUtlobs):
+            obstypes = df.obstype.unique()
+            for obstype in obstypes:
+                n = len(df.loc[df.obstype == obstype])
+                summarized.append({'package': package.name[0],
+                                   'variable': obstype,
+                                   'count': n
+                                   })
+            return
+
+        for tlv in tl_variables:
+            # todo: need to handle different sfr settings separately in summary
+            if verbose:
+                print('{}'.format(tlv))
+            data_cols = [c for c in df.columns if tlv in c]
+            periods = {int(c.strip(tlv)): c for c in data_cols}
+            try:
+                array = np.zeros((max(list(periods.keys())) + 1,
+                                  df['k'].max() + 1,
+                                  nrow,
+                                  ncol
+                                  ))
+            except:
+                j = 2
+            for per, c in periods.items():
+                array[per, df['k'], df['i'], df['j']] = df[c]
+                array[per, df['k'], df['i'], df['j']] = df[c]
+                summary = {'package': package.name[0],
+                           'variable': tlv,
+                           'period': per,
+                           'min': df[c].min(),
+                           'mean': df[c].mean(),
+                           'max': df[c].max(),
+                           }
+                summarized.append(summary)
