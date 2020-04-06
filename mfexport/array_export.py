@@ -77,8 +77,9 @@ def export_array(filename, a, modelgrid, nodata=-9999,
 
         # remove file first,
         # to avoid rasterio._err.CPLE_AppDefinedError: TIFFReadDirectory: errors
-        if os.path.exists(filename):
-            os.remove(filename)
+        for file in [filename, filename + '.msk', filename + '.aux.xml']:
+            if os.path.exists(file):
+                os.remove(file)
         with rasterio.open(filename, 'w', **meta) as dst:
             dst.write(a)
             if isinstance(a, np.ma.masked_array):
@@ -123,6 +124,8 @@ def export_array_contours(filename, a, modelgrid,
 
     if interval is not None:
         kwargs['levels'] = make_levels(a, interval, maxlevels)
+    elif levels is not None:
+        kwargs['levels'] = levels
 
     ax = plt.subplots()[-1]
     contours = ax.contour(modelgrid.xcellcenters,
