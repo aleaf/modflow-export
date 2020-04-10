@@ -441,7 +441,7 @@ def read_sfr_output(mf2005_sfr_outputfile=None,
             rd = pd.DataFrame(model.sfr.packagedata.array.copy())
             assert rd.rno.min() == 0
             assert df.node.min() == 0
-            if isinstance(rd.cellid.values[0], tuple):
+            if not isinstance(rd.cellid.values[0], int):
                 rno_cellid = dict(zip(rd.rno, rd.cellid))
                 for i, dim in enumerate(['k', 'i', 'j']):
                     df[dim] = pd.to_numeric([rno_cellid[rno][i] for rno in df.node.values], errors='coerce')
