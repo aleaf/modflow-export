@@ -73,9 +73,9 @@ def get_dataframe(listfile, model_start_datetime=None,
         return df_flux
 
 
-def export_mf6_list_budget(model=None, sim=None, model_name=None,
-                           model_start_datetime=None,
-                           output_path='postproc'):
+def plot_list_budget(model=None, sim=None, model_name=None,
+                     model_start_datetime=None,
+                     output_path='postproc'):
 
     if model is None:
         if sim is None or model_name is None:
@@ -99,7 +99,11 @@ def export_mf6_list_budget(model=None, sim=None, model_name=None,
                                  model_version=model.version,
                                  budgetkey='SFR BUDGET FOR ENTIRE MODEL')
 
-    pdf_outfile = os.path.join(pdfs_dir, 'listfile_budget.pdf')
+    plot_budget_summary(df_flux, title_prefix=model_name)
+    plt.savefig(os.path.join(pdfs_dir, 'listfile_budget_summary.pdf'))
+    plt.close()
+
+    pdf_outfile = os.path.join(pdfs_dir, 'listfile_budget_by_term.pdf')
     with PdfPages(pdf_outfile) as pdf:
         plotted = set()
         terms = [c for c in df_flux.columns if c not in {'kstp', 'kper'}]
@@ -126,6 +130,39 @@ def export_mf6_list_budget(model=None, sim=None, model_name=None,
                     plot_budget_term(df_flux_sfr, term, title_prefix=title_prefix, plotted=plotted)
                     pdf.savefig()
                     plt.close()
+
+
+def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y-%m'):
+    fig, ax = plt.subplots(figsize=(11, 8.5))
+    in_cols = [c for c in df.columns if '_IN' in c and 'TOTAL' not in c]
+    out_cols = [c for c in df.columns if '_OUT' in c and 'TOTAL' not in c]
+    ax = df[in_cols].plot.bar(stacked=True, ax=ax)
+    ax = (-df[out_cols]).plot.bar(stacked=True, ax=ax)
+    ax.set_ylabel('Flow rate, in model units of $L^3/T$')
+    if isinstance(df.index, pd.DatetimeIndex):
+        ax.set_xticklabels(df.index.strftime(date_index_fmt))
+    else:
+        ax.set_xlabel('Time since the start of the simulation, in model units')
+
+    ax.axhline(0, zorder=-1, lw=0.5, c='k')
+
+    # add stress period info
+    ymin, ymax = ax.get_ylim()
+    xlocs = np.arange(len(df))
+    yloc = np.ones(len(df)) * (ymin + 0.03 * (ymax - ymin))
+    stride = 2
+    kpers = set()
+    for x, y in zip(xlocs[::stride], yloc[::stride]):
+        kper = int(df.iloc[x]['kper'])
+        # only make one line for each stress period
+        if kper not in kpers:
+            ax.axvline(x, lw=0.5, c='k', zorder=-2)
+            ax.text(x, y, f" {kper}", transform=ax.transData, ha='left', va='top')
+            kpers.add(kper)
+    ax.text(min(kpers), y + abs(0.06*y), ' model stress period:', transform=ax.transData, ha='left', va='top')
+    title_text = ' '.join((title_prefix, 'budget summary', title_suffix)).strip()
+    ax.set_title(title_text)
+    return ax
 
 
 def plot_budget_term(df, term, title_prefix='', title_suffix='', plotted=set()):
