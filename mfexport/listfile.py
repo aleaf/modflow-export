@@ -10,40 +10,15 @@ from matplotlib.backends.backend_pdf import PdfPages
 from mfexport.utils import make_output_folders
 
 
-class MF6LakListBudget(flopy.utils.Mf6ListBudget):
-    """Export the Lake Package Budget from the listing file.
-    """
-
-    def set_budget_key(self):
-        self.budgetkey = 'LAK BUDGET FOR ENTIRE MODEL'
-        return
-
-
-class MF6SfrListBudget(flopy.utils.Mf6ListBudget):
-    """Export the SFR Package Budget from the listing file.
-    """
-
-    def set_budget_key(self):
-        self.budgetkey = 'SFR BUDGET FOR ENTIRE MODEL'
-        return
-
-
-class MFLakListBudget(flopy.utils.MfListBudget):
-    """Export the Lake Package Budget from the listing file.
-    """
-
-    def set_budget_key(self):
-        self.budgetkey = 'LAK BUDGET FOR ENTIRE MODEL'
-        return
-
-
-class MFSfrListBudget(flopy.utils.MfListBudget):
-    """Export the SFR Package Budget from the listing file.
-    """
-
-    def set_budget_key(self):
-        self.budgetkey = 'SFR BUDGET FOR ENTIRE MODEL'
-        return
+def get_listfile_model_version(listfile):
+    with open(listfile) as src:
+        firstline = src.readline()
+        if 'MODFLOW 6' in firstline:
+            return 'mf6'
+        elif 'MODFLOW-NWT' in firstline:
+            return 'mfnwt'
+        elif 'MODFLOW-2005' in firstline:
+            return 'mf2005'
 
 
 def get_dataframe(listfile, model_start_datetime=None,
@@ -73,31 +48,25 @@ def get_dataframe(listfile, model_start_datetime=None,
         return df_flux
 
 
-def plot_list_budget(model=None, sim=None, model_name=None,
+def plot_list_budget(listfile, model_name=None,
                      model_start_datetime=None,
                      output_path='postproc'):
 
-    if model is None:
-        if sim is None or model_name is None:
-            raise ValueError('If model=None, must provide simulation and model name!')
-        model = sim.get_model(model_name=model_name.lower())
-    else:
-        model_name = model.name
-
     pdfs_dir, _, _ = make_output_folders(output_path)
-
-    listfile = os.path.join(model.model_ws, model_name + '.list')
+    model_version = get_listfile_model_version(listfile)
+    if model_name is None:
+        model_name, _ = os.path.splitext(listfile)
 
     df_flux = get_dataframe(listfile, model_start_datetime=model_start_datetime,
-                            model_version=model.version)
+                            model_version=model_version)
 
     df_flux_lake = get_dataframe(listfile, model_start_datetime=model_start_datetime,
-                                 model_version=model.version,
+                                 model_version=model_version,
                                  budgetkey='LAK BUDGET FOR ENTIRE MODEL')
 
     df_flux_sfr = get_dataframe(listfile, model_start_datetime=model_start_datetime,
-                                 model_version=model.version,
-                                 budgetkey='SFR BUDGET FOR ENTIRE MODEL')
+                                model_version=model_version,
+                                budgetkey='SFR BUDGET FOR ENTIRE MODEL')
 
     plot_budget_summary(df_flux, title_prefix=model_name)
     plt.savefig(os.path.join(pdfs_dir, 'listfile_budget_summary.pdf'))

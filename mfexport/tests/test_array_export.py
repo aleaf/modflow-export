@@ -15,7 +15,7 @@ def test_make_levels():
     assert len(levels) == 1000
 
 
-def test_int64_export(tmpdir):
+def test_int64_export(test_output_folder):
     arr = np.ones((2, 2), dtype=np.int64)
     mg = MFexportGrid(delr=np.ones(2), delc=np.ones(2))
     export_array('{}/junk.tif'.format(tmpdir),

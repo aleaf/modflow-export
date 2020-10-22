@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import shutil
 import pytest
 import flopy.modflow as fm
@@ -6,12 +7,23 @@ import flopy.mf6 as mf6
 from ..grid import load_modelgrid
 
 
-@pytest.fixture(scope="module", autouse=True)
-def tmpdir():
-    folder = 'mfexport/tests/tmp'
-    if os.path.isdir(folder):
-        shutil.rmtree(folder)
-    os.makedirs(folder)
+@pytest.fixture(scope="session")
+def project_root_path():
+    """Root folder for the project (with setup.py)"""
+    filepath = os.path.split(os.path.abspath(__file__))[0]
+    return Path(os.path.normpath(os.path.join(filepath, '../../')))
+
+
+@pytest.fixture(scope="session", autouse=True)
+def test_output_folder(project_root_path):
+    """(Re)make an output folder for the tests
+    at the begining of each test session."""
+    folder = project_root_path / 'mfexport/tests/tmp'
+    reset = True
+    if reset:
+        if folder.is_dir():
+            shutil.rmtree(folder)
+        folder.mkdir(parents=True)
     return folder
 
 

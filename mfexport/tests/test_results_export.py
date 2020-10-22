@@ -10,8 +10,8 @@ from ..results import export_cell_budget, export_heads, export_drawdown, export_
 
 
 @pytest.fixture(scope='module')
-def lpr_output_path(tmpdir):
-    return os.path.join(tmpdir, 'lpr')
+def lpr_output_path(test_output_folder):
+    return os.path.join(test_output_folder, 'lpr')
 
 
 def check_files(outfiles, variables, kstpkper=None, layers=None):
