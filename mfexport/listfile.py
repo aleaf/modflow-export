@@ -21,6 +21,15 @@ def get_listfile_model_version(listfile):
             return 'mf2005'
 
 
+def get_budget_keys(listfile, key_suffix='BUDGET FOR ENTIRE MODEL'):
+    keys = set()
+    with open(listfile) as src:
+        for line in src:
+            if key_suffix in line:
+                keys.add(line.split(' AT ')[0].strip())
+    return keys
+
+
 def get_dataframe(listfile, model_start_datetime=None,
                   model_version=None,
                   budgetkey=None):
@@ -30,6 +39,15 @@ def get_dataframe(listfile, model_start_datetime=None,
         cls = flopy.utils.Mf6ListBudget
 
     if budgetkey is not None:
+        keys = get_budget_keys(listfile)
+        if budgetkey not in keys:
+            budget_package = budgetkey.replace('BUDGET FOR ENTIRE MODEL', '').strip().split('_')[0]
+            budgetkey = [k for k in keys if budget_package in k]
+            if len(budgetkey) > 0:
+                budgetkey = budgetkey[0]
+            else:
+                return
+
         class PackageBudget(cls):
             """Export the a Package Budget from the listing file.
             """
@@ -69,8 +87,10 @@ def plot_list_budget(listfile, model_name=None,
                                 budgetkey='SFR BUDGET FOR ENTIRE MODEL')
 
     plot_budget_summary(df_flux, title_prefix=model_name)
-    plt.savefig(os.path.join(pdfs_dir, 'listfile_budget_summary.pdf'))
+    out_pdf = os.path.join(pdfs_dir, 'listfile_budget_summary.pdf')
+    plt.savefig(out_pdf)
     plt.close()
+    print(f'wrote {out_pdf}')
 
     pdf_outfile = os.path.join(pdfs_dir, 'listfile_budget_by_term.pdf')
     with PdfPages(pdf_outfile) as pdf:
@@ -99,6 +119,7 @@ def plot_list_budget(listfile, model_name=None,
                     plot_budget_term(df_flux_sfr, term, title_prefix=title_prefix, plotted=plotted)
                     pdf.savefig()
                     plt.close()
+    print(f'wrote {pdf_outfile}')
 
 
 def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y-%m'):
@@ -119,7 +140,8 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
     ymin, ymax = ax.get_ylim()
     xlocs = np.arange(len(df))
     yloc = np.ones(len(df)) * (ymin + 0.03 * (ymax - ymin))
-    stride = 2
+    stride = int(np.round(len(df) / 10, 0))
+    stride = 1 if stride < 1 else stride
     kpers = set()
     for x, y in zip(xlocs[::stride], yloc[::stride]):
         kper = int(df.iloc[x]['kper'])
@@ -165,8 +187,8 @@ def plot_budget_term(df, term, title_prefix='', title_suffix='', plotted=set()):
         fig, axes = plt.subplots(2, 1, sharex=True, figsize=(11, 8.5))
         axes = axes.flat
         ax = axes[0]
+        series.plot(ax=axes[0], c='C0')
         ax.axhline(0, zorder=-1, lw=0.5, c='k')
-        series.plot(ax=ax, c='C0')
         (-out_series).plot(ax=ax, c='C1')
         net_series.plot(ax=ax, c='0.5', zorder=-1)
         h, l = ax.get_legend_handles_labels()
@@ -175,8 +197,8 @@ def plot_budget_term(df, term, title_prefix='', title_suffix='', plotted=set()):
 
         # plot the percentage of total budget on second axis
         ax2 = axes[1]
+        pct_series.plot(ax=axes[1], c='C0')
         ax2.axhline(0, zorder=-1, lw=0.5, c='k')
-        pct_series.plot(ax=ax2, c='C0')
         (-pct_out_series).plot(ax=ax2, c='C1')
         pct_net_series.plot(ax=ax2, c='0.5', zorder=-1)
         ax2.set_ylabel('Fraction of model budget')
@@ -184,7 +206,8 @@ def plot_budget_term(df, term, title_prefix='', title_suffix='', plotted=set()):
         # add stress period info
         ymin, ymax = ax.get_ylim()
         yloc = np.ones(len(df)) * (ymin - 0.02 * (ymax - ymin))
-        stride = 2
+        stride = int(np.round(len(df) / 10, 0))
+        stride = 1 if stride < 1 else stride
         kpers = set()
         for x, y in zip(df.index.values[::stride], yloc[::stride]):
             kper = df.loc[x, 'kper']
@@ -199,8 +222,8 @@ def plot_budget_term(df, term, title_prefix='', title_suffix='', plotted=set()):
 
     else:
         fig, ax = plt.subplots(1, 1, sharex=True, figsize=(11, 8.5))
-        ax.axhline(0, zorder=-1, lw=0.5, c='k')
         series.plot(ax=ax, c='C0')
+        ax.axhline(0, zorder=-1, lw=0.5, c='k')
         ax2 = ax
 
     title_text = ' '.join((title_prefix, term.split('_')[0], title_suffix)).strip()

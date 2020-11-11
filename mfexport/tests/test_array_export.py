@@ -18,7 +18,7 @@ def test_make_levels():
 def test_int64_export(test_output_folder):
     arr = np.ones((2, 2), dtype=np.int64)
     mg = MFexportGrid(delr=np.ones(2), delc=np.ones(2))
-    export_array('{}/junk.tif'.format(tmpdir),
+    export_array('{}/junk.tif'.format(test_output_folder),
                  arr,
                  mg
                  )

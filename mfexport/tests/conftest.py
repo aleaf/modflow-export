@@ -34,13 +34,13 @@ def testdatapath():
 
 
 @pytest.fixture(scope='module')
-def lpr_output_path(tmpdir):
-    return os.path.join(tmpdir, 'lpr')
+def lpr_output_path(test_output_folder):
+    return test_output_folder / 'lpr'
 
 
 @pytest.fixture(scope='module')
-def shellmound_output_path(tmpdir):
-    return os.path.join(tmpdir, 'shellmound')
+def shellmound_output_path(test_output_folder):
+    return test_output_folder / 'shellmound'
 
 
 @pytest.fixture(scope='module')
