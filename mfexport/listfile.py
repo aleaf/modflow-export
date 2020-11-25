@@ -1,6 +1,7 @@
 """
 Functions for exporting results from the MODFLOW listing file
 """
+from pathlib import Path
 import os
 import numpy as np
 import pandas as pd
@@ -30,11 +31,11 @@ def get_budget_keys(listfile, key_suffix='BUDGET FOR ENTIRE MODEL'):
     return keys
 
 
-def get_dataframe(listfile, model_start_datetime=None,
-                  model_version=None,
-                  budgetkey=None):
+def get_listfile_data(listfile, model_start_datetime=None,
+                      budgetkey=None):
 
     cls = flopy.utils.MfListBudget
+    model_version = get_listfile_model_version(listfile)
     if model_version == 'mf6':
         cls = flopy.utils.Mf6ListBudget
 
@@ -71,20 +72,16 @@ def plot_list_budget(listfile, model_name=None,
                      output_path='postproc'):
 
     pdfs_dir, _, _ = make_output_folders(output_path)
-    model_version = get_listfile_model_version(listfile)
     if model_name is None:
-        model_name, _ = os.path.splitext(listfile)
+        model_name = Path(listfile).stem
 
-    df_flux = get_dataframe(listfile, model_start_datetime=model_start_datetime,
-                            model_version=model_version)
+    df_flux = get_listfile_data(listfile, model_start_datetime=model_start_datetime)
 
-    df_flux_lake = get_dataframe(listfile, model_start_datetime=model_start_datetime,
-                                 model_version=model_version,
-                                 budgetkey='LAK BUDGET FOR ENTIRE MODEL')
+    df_flux_lake = get_listfile_data(listfile, model_start_datetime=model_start_datetime,
+                                     budgetkey='LAK BUDGET FOR ENTIRE MODEL')
 
-    df_flux_sfr = get_dataframe(listfile, model_start_datetime=model_start_datetime,
-                                model_version=model_version,
-                                budgetkey='SFR BUDGET FOR ENTIRE MODEL')
+    df_flux_sfr = get_listfile_data(listfile, model_start_datetime=model_start_datetime,
+                                    budgetkey='SFR BUDGET FOR ENTIRE MODEL')
 
     plot_budget_summary(df_flux, title_prefix=model_name)
     out_pdf = os.path.join(pdfs_dir, 'listfile_budget_summary.pdf')
@@ -166,8 +163,10 @@ def plot_budget_term(df, term, title_prefix='', title_suffix='', plotted=set()):
             out_term = [s.replace('_IN', '_OUT') for s in term]
             out_series = df[out_term].sum(axis=1)
         else:
-            out_term = term.replace('_IN', '_OUT')
-            series = df[term]
+            term = term.replace('_IN', '').replace('_OUT', '')
+            in_term = f'{term}_IN'
+            out_term = f'{term}_OUT'
+            series = df[in_term]
             out_series = df[out_term]
 
         # get the net
@@ -187,7 +186,7 @@ def plot_budget_term(df, term, title_prefix='', title_suffix='', plotted=set()):
         fig, axes = plt.subplots(2, 1, sharex=True, figsize=(11, 8.5))
         axes = axes.flat
         ax = axes[0]
-        series.plot(ax=axes[0], c='C0')
+        series.plot(ax=ax, c='C0')
         ax.axhline(0, zorder=-1, lw=0.5, c='k')
         (-out_series).plot(ax=ax, c='C1')
         net_series.plot(ax=ax, c='0.5', zorder=-1)
@@ -228,6 +227,8 @@ def plot_budget_term(df, term, title_prefix='', title_suffix='', plotted=set()):
 
     title_text = ' '.join((title_prefix, term.split('_')[0], title_suffix)).strip()
     ax.set_title(title_text)
+    xmin, xmax = series.index.min(), series.index.max()
+    ax.set_xlim(xmin, xmax)
 
     if not isinstance(df.index, pd.DatetimeIndex):
         ax2.set_xlabel('Time since the start of the simulation, in model units')
