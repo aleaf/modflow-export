@@ -26,7 +26,11 @@ def test_export_list_budget(listfile, test_output_folder,
     model_name = Path(listfile).stem
     output_path = test_output_folder / f'{model_name}_{start_datetime}'
     plot_list_budget(listfile=listfile, output_path=output_path,
-                     model_start_datetime=start_datetime)
+                     model_start_datetime=start_datetime,
+                     model_length_units='meters',
+                     model_time_units='days',
+                     secondary_axis_units='mgal/day'
+                     )
     expected_outfiles = [Path(output_path, f'pdfs/listfile_budget_summary.pdf'),
                          Path(output_path, f'pdfs/listfile_budget_by_term.pdf')
                          ]

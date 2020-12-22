@@ -8,7 +8,22 @@ import pandas as pd
 import flopy
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
+from mfexport.units import (get_figure_label_unit_text, parse_flux_units,
+                            convert_volume_units, convert_time_units)
 from mfexport.utils import make_output_folders
+
+
+# for each MODFLOW-6 listfile budget term
+# get the MF-2005 equivalent
+mf2005_terms = {'STO-SS': 'STORAGE',
+                'STO-SY': 'STORAGE',
+                'WEL': 'WELLS',
+                'RCH': 'RECHARGE',
+                'SFR': 'STREAM_LEAKAGE',
+                'LAK': 'LAKES',
+                'CHD': 'CONSTANT_HEAD',
+                'GHB': 'HEAD DEP BOUNDS'
+                }
 
 
 def get_listfile_model_version(listfile):
@@ -69,7 +84,10 @@ def get_listfile_data(listfile, model_start_datetime=None,
 
 def plot_list_budget(listfile, model_name=None,
                      model_start_datetime=None,
-                     output_path='postproc'):
+                     output_path='postproc',
+                     model_length_units=None,
+                     model_time_units=None,
+                     secondary_axis_units=None):
 
     pdfs_dir, _, _ = make_output_folders(output_path)
     if model_name is None:
@@ -95,7 +113,10 @@ def plot_list_budget(listfile, model_name=None,
         terms = [c for c in df_flux.columns if c not in {'kstp', 'kper'}]
         for term in terms:
             if term not in plotted:
-                plot_budget_term(df_flux, term, title_prefix=model_name, plotted=plotted)
+                plot_budget_term(df_flux, term, title_prefix=model_name, plotted=plotted,
+                                 model_length_units=model_length_units,
+                                 model_time_units=model_time_units,
+                                 secondary_axis_units=secondary_axis_units)
                 pdf.savefig()
                 plt.close()
         if df_flux_lake is not None and len(df_flux_lake) > 0:
@@ -153,7 +174,9 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
     return ax
 
 
-def plot_budget_term(df, term, title_prefix='', title_suffix='', plotted=set()):
+def plot_budget_term(df, term, title_prefix='', title_suffix='', plotted=set(),
+                     model_length_units=None, model_time_units=None,
+                     secondary_axis_units=None):
 
     if term not in {'IN-OUT', 'PERCENT_DISCREPANCY'}:
 
@@ -182,6 +205,12 @@ def plot_budget_term(df, term, title_prefix='', title_suffix='', plotted=set()):
         out_term = None
         out_series = None
 
+    if model_length_units is not None and model_time_units is not None:
+        units_text = get_figure_label_unit_text(model_length_units, model_time_units,
+                                                length_unit_exp=3)
+    else:
+        units_text = '$L^3/T$'
+
     if out_series is not None:
         fig, axes = plt.subplots(2, 1, sharex=True, figsize=(11, 8.5))
         axes = axes.flat
@@ -192,7 +221,24 @@ def plot_budget_term(df, term, title_prefix='', title_suffix='', plotted=set()):
         net_series.plot(ax=ax, c='0.5', zorder=-1)
         h, l = ax.get_legend_handles_labels()
         ax.legend(h, ['In', 'Out', 'Net'])
-        ax.set_ylabel('Flow rate, in model units of $L^3/T$')
+        ax.set_ylabel(f'Flow rate, in model units of {units_text}')
+
+        # optional 2nd y-axis with other units
+        if secondary_axis_units is not None:
+            length_units2, time_units2 = parse_flux_units(secondary_axis_units)
+            vol_conversion = convert_volume_units(model_length_units, length_units2)
+            time_conversion = convert_time_units(model_time_units, time_units2)
+
+            def fconvert(x):
+                return x * vol_conversion * time_conversion
+
+            def rconvert(x):
+                return x / (vol_conversion * time_conversion)
+
+            secondary_axis_unit_text = get_figure_label_unit_text(length_units2, time_units2,
+                                                                  length_unit_exp=3)
+            secax = ax.secondary_yaxis('right', functions=(fconvert, rconvert))
+            secax.set_ylabel(f'Flow rate, in {secondary_axis_unit_text}')
 
         # plot the percentage of total budget on second axis
         ax2 = axes[1]
