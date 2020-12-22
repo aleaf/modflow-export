@@ -213,7 +213,7 @@ def export_variable(variable, package, modelgrid,
         if name not in no_bar:
             filename = pdfs_dir / f'{name}_summary.pdf'
             export_pdf_bar_summary(filename, array, title=f'{name} summary')
-            filenames.append(filename)
+            filenames.append(str(filename))
 
         # squeeze the array
         # to only include periods where the stress changes

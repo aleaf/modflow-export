@@ -117,6 +117,8 @@ def test_package_list_export(model):
     m, grid, output_path = model
     packages = ['dis', 'rch'] #, 'wel']
     variables = ['botm', 'top', 'thickness', 'idomain', 'rech', 'recharge'] #, 'wel']
+    if m.version == 'mf6':
+        variables.append('irch')
     nrow, ncol, nlay, nper = get_nrow_ncol_nlay_nper(m)
     layers = list(range(nlay))
     outfiles = []
