@@ -173,3 +173,28 @@ def make_levels(array, interval, maxlevels=1000):
         print(msg)
         levels = np.round(np.linspace(imin, imax, maxlevels), 6)
     return levels
+
+
+def squeeze_3d(array):
+    """Squeeze a 3D array to only include the (2D) slices
+    along the 0 axis that are different (for example, periods when
+    a stress changes). Include the first slice (period) by default.
+
+    Parameters
+    ----------
+    array : 3D numpy array
+        Original data
+
+    Returns
+    -------
+    squeezed : dict
+        Dictionary of the 2D slices (values), keyed by period, that are
+        different.
+
+    """
+    unique_pers = list(np.where(np.diff(array, axis=0).sum(axis=(1, 2)) != 0)[0] + 1)
+    # include first period by default,
+    # won't show up if second is the same
+    unique_pers = [0] + unique_pers
+    squeezed = {per: array[per] for per in unique_pers}
+    return squeezed

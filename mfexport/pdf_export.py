@@ -59,6 +59,24 @@ def export_pdf(filename, array, text,
         print("pdf export took {:.2f}s".format(time.time() - t0))
 
 
+def export_pdf_bar_summary(filename, array, title=None, xlabel='Stress Period',
+                           method='mean'):
+    period_sums = getattr(np.ma, method)(array.data, axis=tuple(range(1, array.ndim))).data
+    fig, ax = plt.subplots()
+    periods = np.arange(len(period_sums), dtype=int)
+    ax.bar(periods, period_sums)
+    stride = int(np.round(len(period_sums) / 10, 0))
+    stride = 1 if stride < 1 else stride
+    ax.set_xticks(periods[::stride])
+    if title is not None:
+        ax.set_title(title)
+    if xlabel is not None:
+        ax.set_xlabel(xlabel)
+    ax.set_ylabel(f'{method.capitalize()}, in model units')
+    plt.savefig(filename)
+    plt.close()
+
+
 def sfr_baseflow_pdf(outfile, df, pointsize=0.5, verbose=False):
     """make a scatter plot of base flow
     (with point size proportional to Q)

@@ -74,6 +74,26 @@ def test_variable_export(model):
     check_files(outfiles, variables, layers=layers)
 
 
+def test_transient2d_bar_graph(model):
+    # if 'package' is argued instead of 'packages'
+    m, grid, output_path = model
+    variables = ['recharge']
+    layers = list(range(get_nlay(m)))
+    outfiles = export(m, grid, variable=variables, output_path=output_path)
+    check_files(outfiles, variables, layers=layers)
+
+
+def test_export_irch(shellmound):
+    m, grid, output_path = shellmound
+    variables = ['irch']
+    layers = list(range(get_nlay(m)))
+    outfiles = export(m, grid, variable='irch', output_path=output_path)
+    n_unique_pers = len(set(m.rch.irch.array.sum(axis=(1, 2, 3))))
+    # should be a pdf and tif for each unique period
+    assert len(outfiles) == n_unique_pers * 2
+    check_files(outfiles, variables, layers=layers)
+
+
 def test_variable_export_with_package(model):
     m, grid, output_path = model
     variables = ['botm']

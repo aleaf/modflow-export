@@ -1,13 +1,14 @@
 import os
+from pathlib import Path
 import numpy as np
 import pandas as pd
 import flopy
 mf6 = flopy.mf6
 from flopy.datbase import DataType, DataInterface
 from flopy.discretization import StructuredGrid
-from .array_export import export_array, export_array_contours
+from .array_export import export_array, export_array_contours, squeeze_3d
 from .list_export import mftransientlist_to_dataframe, get_tl_variables
-from .pdf_export import export_pdf
+from .pdf_export import export_pdf, export_pdf_bar_summary
 from .shapefile_export import export_shapefile
 from .utils import make_output_folders
 
@@ -67,7 +68,7 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
         variables = get_variable_list(variables)
     elif 'variable' in kwargs:
         context = 'variables'
-        variables = [kwargs.pop('variable')]
+        variables = get_variable_list(kwargs.pop('variable'))
 
     if not isinstance(modelgrid, StructuredGrid):
         raise NotImplementedError('Unstructured grids not supported')
@@ -139,6 +140,11 @@ def export_variable(variable, package, modelgrid,
 
     v = variable
 
+    # cast output folders to Path instances
+    pdfs_dir = Path(pdfs_dir)
+    rasters_dir = Path(rasters_dir)
+    shps_dir = Path(shps_dir)
+
     if isinstance(v.name, list):
         name = v.name[0].strip('_')
     if isinstance(v.name, str):
@@ -200,7 +206,19 @@ def export_variable(variable, package, modelgrid,
             array = np.ma.masked_array(array,
                                        mask=np.broadcast_to(inactive_cells2d,
                                                             array.shape))
-        for kper, array2d in enumerate(array):
+
+        # before squeezing, make a bar graph of sums along the first axis
+        # skip doing this for some variables
+        no_bar = {'irch'}
+        if name not in no_bar:
+            filename = pdfs_dir / f'{name}_summary.pdf'
+            export_pdf_bar_summary(filename, array, title=f'{name} summary')
+            filenames.append(filename)
+
+        # squeeze the array
+        # to only include periods where the stress changes
+        unique_arrays = squeeze_3d(array)
+        for kper, array2d in unique_arrays.items():
 
             if gis:
                 filename = os.path.join(rasters_dir,
