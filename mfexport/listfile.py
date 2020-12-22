@@ -6,6 +6,7 @@ import os
 import numpy as np
 import pandas as pd
 import flopy
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from mfexport.units import (get_figure_label_unit_text, parse_flux_units,
@@ -101,7 +102,10 @@ def plot_list_budget(listfile, model_name=None,
     df_flux_sfr = get_listfile_data(listfile, model_start_datetime=model_start_datetime,
                                     budgetkey='SFR BUDGET FOR ENTIRE MODEL')
 
-    plot_budget_summary(df_flux, title_prefix=model_name)
+    plot_budget_summary(df_flux, title_prefix=model_name,
+                        model_length_units=model_length_units,
+                        model_time_units=model_time_units,
+                        secondary_axis_units=secondary_axis_units)
     out_pdf = os.path.join(pdfs_dir, 'listfile_budget_summary.pdf')
     plt.savefig(out_pdf)
     plt.close()
@@ -125,7 +129,10 @@ def plot_list_budget(listfile, model_name=None,
             for term in terms:
                 if term not in plotted:
                     title_prefix = '{} Lake Package'.format(model_name)
-                    plot_budget_term(df_flux_lake, term, title_prefix=title_prefix, plotted=plotted)
+                    plot_budget_term(df_flux_lake, term, title_prefix=title_prefix, plotted=plotted,
+                                 model_length_units=model_length_units,
+                                 model_time_units=model_time_units,
+                                 secondary_axis_units=secondary_axis_units)
                     pdf.savefig()
                     plt.close()
         if df_flux_sfr is not None and len(df_flux_sfr) > 0:
@@ -134,25 +141,61 @@ def plot_list_budget(listfile, model_name=None,
             for term in terms:
                 if term not in plotted:
                     title_prefix = '{} SFR Package'.format(model_name)
-                    plot_budget_term(df_flux_sfr, term, title_prefix=title_prefix, plotted=plotted)
+                    plot_budget_term(df_flux_sfr, term, title_prefix=title_prefix, plotted=plotted,
+                                 model_length_units=model_length_units,
+                                 model_time_units=model_time_units,
+                                 secondary_axis_units=secondary_axis_units)
                     pdf.savefig()
                     plt.close()
     print(f'wrote {pdf_outfile}')
 
 
-def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y-%m'):
+def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y-%m',
+                        model_length_units=None,
+                        model_time_units=None,
+                        secondary_axis_units=None):
     fig, ax = plt.subplots(figsize=(11, 8.5))
     in_cols = [c for c in df.columns if '_IN' in c and 'TOTAL' not in c]
     out_cols = [c for c in df.columns if '_OUT' in c and 'TOTAL' not in c]
     ax = df[in_cols].plot.bar(stacked=True, ax=ax)
     ax = (-df[out_cols]).plot.bar(stacked=True, ax=ax)
-    ax.set_ylabel('Flow rate, in model units of $L^3/T$')
+
     if isinstance(df.index, pd.DatetimeIndex):
         ax.set_xticklabels(df.index.strftime(date_index_fmt))
     else:
         ax.set_xlabel('Time since the start of the simulation, in model units')
 
     ax.axhline(0, zorder=-1, lw=0.5, c='k')
+
+    # create ylabel with model units, if provided
+    if model_length_units is not None and model_time_units is not None:
+        units_text = get_figure_label_unit_text(model_length_units, model_time_units,
+                                                length_unit_exp=3)
+    else:
+        units_text = '$L^3/T$'
+    ax.set_ylabel(f'Flow rate, in model units of {units_text}')
+
+    # add commas to y axis values
+    formatter = mpl.ticker.FuncFormatter(lambda x, p: format(int(x), ','))
+    ax.get_yaxis().set_major_formatter(formatter)
+
+    # optional 2nd y-axis with other units
+    if secondary_axis_units is not None:
+        length_units2, time_units2 = parse_flux_units(secondary_axis_units)
+        vol_conversion = convert_volume_units(model_length_units, length_units2)
+        time_conversion = convert_time_units(model_time_units, time_units2)
+
+        def fconvert(x):
+            return x * vol_conversion * time_conversion
+
+        def rconvert(x):
+            return x / (vol_conversion * time_conversion)
+
+        secondary_axis_unit_text = get_figure_label_unit_text(length_units2, time_units2,
+                                                              length_unit_exp=3)
+        secax = ax.secondary_yaxis('right', functions=(fconvert, rconvert))
+        secax.set_ylabel(f'Flow rate, in {secondary_axis_unit_text}')
+        secax.get_yaxis().set_major_formatter(formatter)
 
     # add stress period info
     ymin, ymax = ax.get_ylim()
@@ -223,6 +266,10 @@ def plot_budget_term(df, term, title_prefix='', title_suffix='', plotted=set(),
         ax.legend(h, ['In', 'Out', 'Net'])
         ax.set_ylabel(f'Flow rate, in model units of {units_text}')
 
+        # add commas to y axis values
+        formatter = mpl.ticker.FuncFormatter(lambda x, p: format(int(x), ','))
+        ax.get_yaxis().set_major_formatter(formatter)
+
         # optional 2nd y-axis with other units
         if secondary_axis_units is not None:
             length_units2, time_units2 = parse_flux_units(secondary_axis_units)
@@ -239,6 +286,7 @@ def plot_budget_term(df, term, title_prefix='', title_suffix='', plotted=set(),
                                                                   length_unit_exp=3)
             secax = ax.secondary_yaxis('right', functions=(fconvert, rconvert))
             secax.set_ylabel(f'Flow rate, in {secondary_axis_unit_text}')
+            secax.get_yaxis().set_major_formatter(formatter)
 
         # plot the percentage of total budget on second axis
         ax2 = axes[1]
