@@ -214,6 +214,12 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
     ax.text(min(kpers), y + abs(0.06*y), ' model stress period:', transform=ax.transData, ha='left', va='top')
     title_text = ' '.join((title_prefix, 'budget summary', title_suffix)).strip()
     ax.set_title(title_text)
+
+    # reduce x-tick density
+    ticks = ax.xaxis.get_ticklocs()
+    ticklabels = [l.get_text() for l in ax.xaxis.get_ticklabels()]
+    ax.xaxis.set_ticks(ticks[::stride])
+    ax.xaxis.set_ticklabels(ticklabels[::stride])
     return ax
 
 
