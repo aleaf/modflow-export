@@ -85,6 +85,7 @@ def export_cell_budget(cell_budget_file, grid,
 def export_drawdown(heads_file, grid, hdry, hnflo,
                     kstpkper0=None, kstpkper1=None,
                     levels=None, interval=None,
+                    export_water_table=True, export_layers=False,
                     output_path='postproc', suffix=''):
     """Export MODFLOW binary head output to rasters and shapefiles.
 
@@ -109,51 +110,61 @@ def export_drawdown(heads_file, grid, hdry, hnflo,
     print('file: {}'.format(heads_file))
     if kstpkper0 is not None:
         print('from stress period {}, timestep {}'.format(*reversed(kstpkper0)))
+    
     if kstpkper1 is not None:
-        print('to stress period {}, timestep {}'.format(*reversed(kstpkper1)))
-    print('\n')
-
-    if kstpkper1 == (0, 0):
-        print('kstpkper == (0, 0, no drawdown to export')
-        return
-    kstp, kper = kstpkper1
-
+        # convert kstpkper1 to a list of tuples or lists if it isn't
+        if np.isscalar(kstpkper1[0]):
+            kstpkper1 = [kstpkper1]
+            
     pdfs_dir, rasters_dir, shps_dir = make_output_folders(output_path)
 
-    # Heads output
+    # Heads output at drawdown period start
     hdsobj = bf.HeadFile(heads_file)
     hds0 = hdsobj.get_data(kstpkper=kstpkper0)
-    wt0 = get_water_table(hds0, nodata=hdry)
-
-    hds1 = hdsobj.get_data(kstpkper=kstpkper1)
-    wt1 = get_water_table(hds1, nodata=hdry)
-
     hds0[(hds0 > 9999) & (hds0 < 0)] = np.nan
-    hds1[(hds1 > 9999) & (hds1 < 0)] = np.nan
+    
+    if export_water_table:
+        wt0 = get_water_table(hds0, nodata=hdry)
+        
+    for kstp, kper in kstpkper1:
+        print(f'to stress period {kper}, timestep {kstp}')
+        print('\n')
 
-    ddn = hds0 - hds1
-    wt_ddn = wt0 - wt1
+        if (kstp, kper) == (0, 0):
+            print('kstpkper == (0, 0, no drawdown to export')
+            continue
 
-    outfiles = []
-    outfile = '{}/wt-ddn_per{}_stp{}{}.tif'.format(rasters_dir, kper, kstp, suffix)
-    ctr_outfile = '{}/wt-ddn_ctr_per{}_stp{}{}.shp'.format(shps_dir, kper, kstp, suffix)
-    export_array(outfile, wt_ddn, grid, nodata=hnflo)
-    export_array_contours(ctr_outfile, wt_ddn, grid, levels=levels, interval=interval,
-                               )
-    outfiles += [outfile, ctr_outfile]
+        # heads output at drawdown period end
+        hds1 = hdsobj.get_data(kstpkper=(kstp, kper))
+        hds1[(hds1 > 9999) & (hds1 < 0)] = np.nan
+        
+        if export_water_table:
+            wt1 = get_water_table(hds1, nodata=hdry)
+            wt_ddn = wt0 - wt1
 
-    for k, d in enumerate(ddn):
-        outfile = '{}/ddn_lay{}_per{}_stp{}{}.tif'.format(rasters_dir, k, kper, kstp, suffix)
-        ctr_outfile = '{}/ddn_ctr_lay{}_per{}_stp{}{}.shp'.format(shps_dir, k, kper, kstp, suffix)
-        export_array(outfile, d, grid, nodata=hnflo)
-        export_array_contours(ctr_outfile, d, grid, levels=levels
-                                   )
-        outfiles += [outfile, ctr_outfile]
-    return outfiles
+            outfiles = []
+            outfile = '{}/wt-ddn_per{}_stp{}{}.tif'.format(rasters_dir, kper, kstp, suffix)
+            ctr_outfile = '{}/wt-ddn_ctr_per{}_stp{}{}.shp'.format(shps_dir, kper, kstp, suffix)
+            export_array(outfile, wt_ddn, grid, nodata=hnflo)
+            export_array_contours(ctr_outfile, wt_ddn, grid, levels=levels, interval=interval,
+                                    )
+            outfiles += [outfile, ctr_outfile]
+
+        if export_layers:
+            ddn = hds0 - hds1
+            for k, d in enumerate(ddn):
+                outfile = '{}/ddn_lay{}_per{}_stp{}{}.tif'.format(rasters_dir, k, kper, kstp, suffix)
+                ctr_outfile = '{}/ddn_ctr_lay{}_per{}_stp{}{}.shp'.format(shps_dir, k, kper, kstp, suffix)
+                export_array(outfile, d, grid, nodata=hnflo)
+                export_array_contours(ctr_outfile, d, grid, levels=levels
+                                        )
+                outfiles += [outfile, ctr_outfile]
+        return outfiles
 
 
 def export_heads(heads_file, grid, hdry, hnflo,
                  kstpkper=(0, 0), levels=None, interval=None,
+                 export_water_table=True, export_layers=False,
                  output_path='postproc', suffix=''):
     """Export MODFLOW binary head output to rasters and shapefiles.
 
@@ -187,24 +198,27 @@ def export_heads(heads_file, grid, hdry, hnflo,
         # Heads output
         hdsobj = bf.HeadFile(heads_file)
         hds = hdsobj.get_data(kstpkper=(kstp, kper))
-        wt = get_water_table(hds, nodata=hdry)
-        wt[(wt > 9999) | (wt < 0)] = np.nan
+        
+        if export_water_table:
+            wt = get_water_table(hds, nodata=hdry)
+            wt[(wt > 9999) | (wt < 0)] = np.nan
 
-        outfile = '{}/wt_per{}_stp{}{}.tif'.format(rasters_dir, kper, kstp, suffix)
-        ctr_outfile = '{}/wt_ctr_per{}_stp{}{}.shp'.format(shps_dir, kper, kstp, suffix)
-        export_array(outfile, wt, grid, nodata=hnflo)
-        export_array_contours(ctr_outfile, wt, grid, levels=levels, interval=interval)
-        outfiles += [outfile, ctr_outfile]
+            outfile = '{}/wt_per{}_stp{}{}.tif'.format(rasters_dir, kper, kstp, suffix)
+            ctr_outfile = '{}/wt_ctr_per{}_stp{}{}.shp'.format(shps_dir, kper, kstp, suffix)
+            export_array(outfile, wt, grid, nodata=hnflo)
+            export_array_contours(ctr_outfile, wt, grid, levels=levels, interval=interval)
+            outfiles += [outfile, ctr_outfile]
 
         hds[(hds > 9999) | (hds < 0)] = np.nan
 
-        for k, h in enumerate(hds):
-            outfile = '{}/hds_lay{}_per{}_stp{}{}.tif'.format(rasters_dir, k, kper, kstp, suffix)
-            ctr_outfile = '{}/hds_ctr_lay{}_per{}_stp{}{}.shp'.format(shps_dir, k, kper, kstp, suffix)
-            export_array(outfile, h, grid, nodata=hnflo)
-            export_array_contours(ctr_outfile, h, grid, levels=levels, interval=interval,
-                                  )
-            outfiles += [outfile, ctr_outfile]
+        if export_layers:
+            for k, h in enumerate(hds):
+                outfile = '{}/hds_lay{}_per{}_stp{}{}.tif'.format(rasters_dir, k, kper, kstp, suffix)
+                ctr_outfile = '{}/hds_ctr_lay{}_per{}_stp{}{}.shp'.format(shps_dir, k, kper, kstp, suffix)
+                export_array(outfile, h, grid, nodata=hnflo)
+                export_array_contours(ctr_outfile, h, grid, levels=levels, interval=interval,
+                                    )
+                outfiles += [outfile, ctr_outfile]
     return outfiles
 
 
