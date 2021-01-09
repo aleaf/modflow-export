@@ -47,6 +47,7 @@ def mftransientlist_to_dataframe(mftransientlist, squeeze=True):
     # create list of dataframes for each stress period
     # each with index of k, i, j
     dfs = []
+    reconvert_str_index = False
     for per, recs in data.data.items():
 
         if recs is None or recs is 0:
@@ -79,6 +80,12 @@ def mftransientlist_to_dataframe(mftransientlist, squeeze=True):
                 # index on reach number, allowing for multiple instances of a cellid
                 # (multiple reaches per cell)
                 index_col = 'rno'
+            # cast tuple cellids to strings
+            # so that pd.concat works in pandas >=1.2
+            if 'cellid' in dfi.columns:
+                dfi['cellid'] = dfi['cellid'].astype(str)
+                # flag to convert string index back to tuples
+                reconvert_str_index = True
 
             dfi.set_index(index_col, drop=False, inplace=True)
 
@@ -124,6 +131,8 @@ def mftransientlist_to_dataframe(mftransientlist, squeeze=True):
         else:
             df = squeezed
     # add columns for k, i, j
+    if reconvert_str_index:
+        df.index = [eval(s) for s in df.index]
     for id in ['cellid', 'id']:
         if id not in df.columns and isinstance(df.index.values[0], tuple):
             df['cellid'] = df.index
