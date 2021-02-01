@@ -42,7 +42,7 @@ def get_input_arguments(kwargs, function, warn=True):
 def load(filename):
     """Load a configuration file."""
     if filename.endswith('.yml') or filename.endswith('.yaml'):
-        return load_yml(filename)
+        return load_yaml(filename)
     elif filename.endswith('.json'):
         return load_json(filename)
 
@@ -54,7 +54,7 @@ def load_json(jsonfile):
         return json.load(f)
 
 
-def load_yml(yml_file):
+def load_yaml(yml_file):
     """Load yaml file into a dictionary."""
     with open(yml_file) as src:
         cfg = yaml.load(src, Loader=yaml.Loader)
@@ -82,3 +82,31 @@ def print_item(k, v):
     else:
         print(v)
 
+
+def get_water_table(heads, nodata):
+    """
+    Get a 2D array representing
+    the water table elevation for each
+    stress period in heads array.
+
+    Parameters
+    ----------
+    heads : 3 or 4-D np.ndarray
+        Heads array.
+    nodata : real
+        HDRY value indicating dry cells.
+
+    Returns
+    -------
+    wt : 2 or 3-D np.ndarray of water table elevations
+        for each stress period.
+
+    """
+    heads = np.array(heads, ndmin=4)
+
+    k = (heads != nodata).argmax(axis=1)
+    per, i, j = np.indices(k.shape)
+    wt = heads[per.ravel(), k.ravel(), i.ravel(), j.ravel()].reshape(k.shape)
+    wt = np.squeeze(wt)
+    wt = np.ma.masked_array(wt, wt==nodata)
+    return wt
