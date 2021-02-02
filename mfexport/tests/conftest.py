@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+import platform
 import shutil
 import pytest
 import flopy.modflow as fm
@@ -94,3 +95,25 @@ def model(request,
           lpr):
     return {'shellmound': shellmound,
             'lpr': lpr}[request.param]
+
+
+@pytest.fixture(scope="session")
+def bin_path(project_root_path):
+    bin_path = project_root_path / "bin"
+    platform_info = platform.platform().lower()
+    if "linux" in platform_info:
+        bin_path = bin_path / "linux"
+    elif "mac" in platform_info or "darwin" in platform_info:
+        bin_path = bin_path / "mac"
+    else:
+        bin_path = bin_path / "win"
+    return bin_path
+
+
+@pytest.fixture(scope="session")
+def mf6_exe(bin_path):
+    version = bin_path.name
+    exe_name = 'zbud6'
+    if version == "win":
+        exe_name += '.exe'
+    return bin_path / exe_name
