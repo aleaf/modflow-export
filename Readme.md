@@ -4,7 +4,7 @@ modflow-export
 Fast & easy summarizing of MODFLOW data and export to GIS file formats.
 
 ### Version 0.1
-[![Build Status](https://travis-ci.com/aleaf/modflow-export.svg?branch=master)](https://travis-ci.com/aleaf/modflow-export.svg?branch=master)
+![Tests](https://github.com/aleaf/modflow-export/workflows/Tests/badge.svg)
 [![codecov](https://codecov.io/gh/aleaf/modflow-export/branch/master/graph/badge.svg)](https://codecov.io/gh/aleaf/modflow-export)
 [![PyPI version](https://badge.fury.io/py/modflow-export.svg)](https://badge.fury.io/py/modflow-export)
 
@@ -27,7 +27,7 @@ Installation
 
 **Python versions:**
 
-modflow-export requires **Python** 3.6 (or higher)
+modflow-export requires **Python** 3.8 (or higher)
 
 **Dependencies:**  
 pyyaml  
