@@ -1,0 +1,3 @@
+
+rcParams:
+  'figure.figsize' = 11, 8.5

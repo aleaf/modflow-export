@@ -102,10 +102,19 @@ def plot_list_budget(listfile, model_name=None,
     df_flux_sfr = get_listfile_data(listfile, model_start_datetime=model_start_datetime,
                                     budgetkey='SFR BUDGET FOR ENTIRE MODEL')
 
+    # plot summary showing in and out values for all terms
     plot_budget_summary(df_flux, title_prefix=model_name,
                         model_length_units=model_length_units,
                         model_time_units=model_time_units,
                         secondary_axis_units=secondary_axis_units)
+
+    # plot summary with only net values for each term
+    plot_budget_summary(df_flux, title_prefix=model_name,
+                        term_nets=True,
+                        model_length_units=model_length_units,
+                        model_time_units=model_time_units,
+                        secondary_axis_units=secondary_axis_units)
+
     out_pdf = os.path.join(pdfs_dir, 'listfile_budget_summary.pdf')
     plt.savefig(out_pdf)
     plt.close()
@@ -151,14 +160,16 @@ def plot_list_budget(listfile, model_name=None,
 
 
 def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y-%m',
+                        term_nets=False,
                         model_length_units=None,
                         model_time_units=None,
                         secondary_axis_units=None):
     fig, ax = plt.subplots(figsize=(11, 8.5))
-    in_cols = [c for c in df.columns if '_IN' in c and 'TOTAL' not in c]
-    out_cols = [c for c in df.columns if '_OUT' in c and 'TOTAL' not in c]
-    ax = df[in_cols].plot.bar(stacked=True, ax=ax)
-    ax = (-df[out_cols]).plot.bar(stacked=True, ax=ax)
+    if not term_nets:
+        in_cols = [c for c in df.columns if '_IN' in c and 'TOTAL' not in c]
+        out_cols = [c for c in df.columns if '_OUT' in c and 'TOTAL' not in c]
+        ax = df[in_cols].plot.bar(stacked=True, ax=ax)
+        ax = (-df[out_cols]).plot.bar(stacked=True, ax=ax)
 
     if isinstance(df.index, pd.DatetimeIndex):
         ax.set_xticklabels(df.index.strftime(date_index_fmt))
