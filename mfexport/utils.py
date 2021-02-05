@@ -41,9 +41,9 @@ def get_input_arguments(kwargs, function, warn=True):
 
 def load(filename):
     """Load a configuration file."""
-    if filename.endswith('.yml') or filename.endswith('.yaml'):
+    if str(filename).endswith('.yml') or str(filename).endswith('.yaml'):
         return load_yaml(filename)
-    elif filename.endswith('.json'):
+    elif str(filename).endswith('.json'):
         return load_json(filename)
 
 
