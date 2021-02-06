@@ -28,6 +28,8 @@ def test_convert_flux():
 
 
 def test_convert_length_units():
+    assert np.allclose(convert_length_units('centimeters', 'inches'), 1 / 2.54)
+    assert np.allclose(convert_length_units('in', 'cm'), 2.54)
     assert np.allclose(convert_length_units(2, 1), 1/.3048)
     assert np.allclose(convert_length_units(1, 2), .3048)
     assert np.allclose(convert_length_units('meters', 'feet'), 1/.3048)
@@ -40,6 +42,7 @@ def test_convert_length_units():
     assert np.allclose(convert_length_units('meters', 'km'), 0.001)
     assert np.allclose(convert_length_units('kilometers', 'meters'), 1000)
     assert np.allclose(convert_length_units('kilometers', 'cm'), 1000*100)
+    assert np.allclose(convert_length_units('centimeters', 'inches'), 1/2.54)
 
 
 def test_convert_time_units():
