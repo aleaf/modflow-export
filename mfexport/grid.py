@@ -74,7 +74,7 @@ class MFexportGrid(StructuredGrid):
         """
         return Affine(self.delr[0], 0., self.xul,
                       0., -self.delc[0], self.yul) * \
-               Affine.rotation(self.angrot)
+               Affine.rotation(-self.angrot)
 
     @property
     def proj_str(self):
