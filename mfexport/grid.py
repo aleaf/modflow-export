@@ -22,7 +22,7 @@ class MFexportGrid(StructuredGrid):
         if xul is not None and yul is not None:
             xll = self._xul_to_xll(xul)
             yll = self._yul_to_yll(yul)
-            self.set_coord_info(xoff=xll, yoff=yll, epsg=epsg, proj4=proj_str)
+            self.set_coord_info(xoff=xll, yoff=yll, epsg=epsg, angrot=angrot, proj4=proj_str)
 
     def __eq__(self, other):
         if not isinstance(other, StructuredGrid):
@@ -74,7 +74,7 @@ class MFexportGrid(StructuredGrid):
         """
         return Affine(self.delr[0], 0., self.xul,
                       0., -self.delc[0], self.yul) * \
-               Affine.rotation(self.angrot)
+               Affine.rotation(angle=-self.angrot)
 
     @property
     def proj_str(self):
