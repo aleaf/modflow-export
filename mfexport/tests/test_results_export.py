@@ -5,6 +5,7 @@ import numpy as np
 import fiona
 import rasterio
 from shapely.geometry import box
+import pytest
 from ..grid import load_modelgrid
 from ..results import export_cell_budget, export_heads, export_drawdown, export_sfr_results
 
@@ -96,18 +97,32 @@ def test_cell_budget_export(model):
             compare_polygons(grid.bbox, box(*src.bounds))
 
 
-def test_heads_export(model):
+@pytest.mark.parametrize(('export_depth_to_water,export_layers,'
+                         'export_water_table'), 
+                         ((True, False, True),
+                          (False, True, False)
+                          ))
+def test_heads_export(model, export_depth_to_water, export_layers, 
+                      export_water_table):
     m, grid, output_path = model
     file = os.path.join(m.model_ws, '{}.hds'.format(m.name))
     #file = 'Examples/data/lpr/lpr_inset.hds'
-    variables = ['hds', 'wt']
+    variables = ['hds']
+    if export_depth_to_water:
+        variables += ['wt', 'dtw', 'op']
+    if export_water_table and 'wt' not in variables:
+        variables.append('wt')
     hdsobj = bf.HeadFile(file)
     kstpkper = hdsobj.get_kstpkper()[-1:]
     layers = list(range(hdsobj.nlay))
     nrow, ncol = hdsobj.nrow, hdsobj.ncol
     hdsobj.close()
     outfiles = export_heads(file, grid, -1e4, -9999,
-                 kstpkper=kstpkper,
+                 kstpkper=kstpkper, 
+                 export_depth_to_water=export_depth_to_water,
+                 export_water_table=export_water_table, 
+                 export_layers=export_layers,
+                 land_surface_elevations=m.dis.top.array,
                  output_path=output_path)
     check_files(outfiles, variables, kstpkper, layers)
     tifs = [f for f in outfiles if f.endswith('.tif')]

@@ -164,7 +164,8 @@ def export_drawdown(heads_file, grid, hdry, hnflo,
 
 def export_heads(heads_file, grid, hdry, hnflo,
                  kstpkper=(0, 0), levels=None, interval=None,
-                 export_water_table=True, export_layers=False,
+                 export_water_table=True, export_depth_to_water=True,
+                 export_layers=False, land_surface_elevations=None,
                  output_path='postproc', suffix=''):
     """Export MODFLOW binary head output to rasters and shapefiles.
 
@@ -199,15 +200,56 @@ def export_heads(heads_file, grid, hdry, hnflo,
         hdsobj = bf.HeadFile(heads_file)
         hds = hdsobj.get_data(kstpkper=(kstp, kper))
         
-        if export_water_table:
+        if export_water_table or export_depth_to_water:
             wt = get_water_table(hds, nodata=hdry)
             wt[(wt > 9999) | (wt < 0)] = np.nan
-
             outfile = '{}/wt_per{}_stp{}{}.tif'.format(rasters_dir, kper, kstp, suffix)
             ctr_outfile = '{}/wt_ctr_per{}_stp{}{}.shp'.format(shps_dir, kper, kstp, suffix)
             export_array(outfile, wt, grid, nodata=hnflo)
             export_array_contours(ctr_outfile, wt, grid, levels=levels, interval=interval)
             outfiles += [outfile, ctr_outfile]
+            
+        if export_depth_to_water:
+            if land_surface_elevations is None:
+                raise ValueError(('export_heads: export_depth_to_water option '
+                                 'requires specification of the land surface'))
+            if not isinstance(land_surface_elevations, np.ndarray):
+                land_surface_elevations = np.loadtxt(land_surface_elevations)
+            
+            # Depth to water
+            dtw = land_surface_elevations - wt    
+
+            # Overpressurization
+            op = dtw.copy()
+            # For DTW, mask areas of overpressurization;
+            # For Overpressurization, mask areas where water table is below land surface
+            op = np.ma.masked_array(op, mask=op > 0)
+            dtw = np.ma.masked_array(dtw, mask=dtw < 0)
+            
+            if np.max(dtw) > 0:
+                #dtw_levels = None
+                #if interval is not None:
+                #    dtw_levels = np.linspace(0, np.nanmax(dtw), interval)
+                outfile = '{}/dtw_per{}_stp{}{}.tif'.format(rasters_dir, kper, kstp, suffix)
+                ctr_outfile = '{}/dtw_ctr_per{}_stp{}{}.shp'.format(shps_dir, kper, kstp, suffix)
+                export_array(outfile, dtw, grid, nodata=hnflo)
+                export_array_contours(ctr_outfile, dtw, grid, interval=interval)
+                outfiles += [outfile, ctr_outfile]
+            else:
+                print('Water table is above land surface everywhere, skipping depth to water.')
+                
+            if np.nanmin(op) < 0:
+                #op_levels = None
+                #if interval is not None:
+                #    op_levels = np.linspace(0, np.nanmin(op), interval)
+                outfile = '{}/op_per{}_stp{}{}.tif'.format(rasters_dir, kper, kstp, suffix)
+                ctr_outfile = '{}/op_ctr_per{}_stp{}{}.shp'.format(shps_dir, kper, kstp, suffix)
+                export_array(outfile, op, grid, nodata=hnflo)
+                export_array_contours(ctr_outfile, op, grid, interval=interval)
+                outfiles += [outfile, ctr_outfile]
+            else:
+                print('No overpressurization, skipping.')
+            
 
         hds[(hds > 9999) | (hds < 0)] = np.nan
 
