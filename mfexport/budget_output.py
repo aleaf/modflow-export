@@ -439,12 +439,21 @@ def read_sfr_output(mf2005_sfr_outputfile=None,
             df['stage'] = stg['stage']
             df.reset_index(inplace=True)
 
-        # get the row, column location of SFR cells
+        # get the row, column location of SFR cells;
+        # compute stream depths
         if model.sfr is not None:
             rd = pd.DataFrame(model.sfr.packagedata.array.copy())
             assert rd.rno.min() == 0
             assert df.node.min() == 0
             if not isinstance(rd.cellid.values[0], int):
+                
+                rno_strtop = dict(zip(rd.rno, rd.rtp))
+                df['strtop'] = pd.to_numeric([rno_strtop[rno] for rno in df.node.values], errors='coerce')
+                # fill nan stages with their streambed tops
+                isna = df['stage'].isna()
+                df.loc[isna, 'stage'] = df.loc[isna, 'strtop']
+                df['depth'] = df['stage'] - df['strtop']
+                
                 rno_cellid = dict(zip(rd.rno, rd.cellid))
                 for i, dim in enumerate(['k', 'i', 'j']):
                     df[dim] = pd.to_numeric([rno_cellid[rno][i] for rno in df.node.values], errors='coerce')
