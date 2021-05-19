@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import time
 import numpy as np
 import pandas as pd
@@ -49,8 +50,10 @@ def export_array(filename, a, modelgrid, nodata=-9999,
     will have the same number of rows and pixels as the original.
 
     """
+    a = a.copy()
     t0 = time.time()
-    if filename.lower().endswith(".tif"):
+    filename = Path(filename)
+    if filename.suffix == ".tif":
         if len(np.unique(modelgrid.delr)) != len(np.unique(modelgrid.delc)) != 1 \
                 or modelgrid.delr[0] != modelgrid.delc[0]:
             raise ValueError('GeoTIFF export require a uniform grid.')
@@ -62,6 +65,9 @@ def export_array(filename, a, modelgrid, nodata=-9999,
             a = np.reshape(a, (1, a.shape[0], a.shape[1]))
 
         if a.dtype == np.int64:
+            a = a.astype(np.int32)
+
+        if a.dtype == np.bool:
             a = a.astype(np.int32)
         meta = {'count': a.shape[0],
                 'width': a.shape[2],
@@ -77,9 +83,8 @@ def export_array(filename, a, modelgrid, nodata=-9999,
 
         # remove file first,
         # to avoid rasterio._err.CPLE_AppDefinedError: TIFFReadDirectory: errors
-        for file in [filename, filename + '.msk', filename + '.aux.xml']:
-            if os.path.exists(file):
-                os.remove(file)
+        for file in [filename, filename.with_suffix('.tif.msk'), filename.with_suffix('.aux.xml')]:
+            file.unlink(missing_ok=True)
         with rasterio.open(filename, 'w', **meta) as dst:
             dst.write(a)
             if isinstance(a, np.ma.masked_array):
@@ -151,8 +156,7 @@ def export_array_contours(filename, a, modelgrid,
             level += list(np.ones(len(paths)) * levels[i])
 
     # convert the dictionary to a recarray
-    df = pd.DataFrame({'level': level,
-                       'geometry': geoms})
+    df = pd.DataFrame({'level': level, 'geometry': geoms})
     df2shp(df, filename, epsg=epsg, proj_str=proj_str)
     if verbose:
         print("array contour export took {:.2f}s".format(time.time() - t0))

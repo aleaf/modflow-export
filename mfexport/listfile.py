@@ -88,7 +88,8 @@ def plot_list_budget(listfile, model_name=None,
                      output_path='postproc',
                      model_length_units=None,
                      model_time_units=None,
-                     secondary_axis_units=None):
+                     secondary_axis_units=None,
+                     xtick_stride=None, plot_start_date=None, plot_end_date=None):
 
     pdfs_dir, _, _ = make_output_folders(output_path)
     if model_name is None:
@@ -106,14 +107,16 @@ def plot_list_budget(listfile, model_name=None,
     plot_budget_summary(df_flux, title_prefix=model_name,
                         model_length_units=model_length_units,
                         model_time_units=model_time_units,
-                        secondary_axis_units=secondary_axis_units)
+                        secondary_axis_units=secondary_axis_units,
+                        xtick_stride=xtick_stride,
+                        plot_start_date=plot_start_date, plot_end_date=plot_end_date)
 
     # plot summary with only net values for each term
-    plot_budget_summary(df_flux, title_prefix=model_name,
-                        term_nets=True,
-                        model_length_units=model_length_units,
-                        model_time_units=model_time_units,
-                        secondary_axis_units=secondary_axis_units)
+    #plot_budget_summary(df_flux, title_prefix=model_name,
+    #                    term_nets=True,
+    #                    model_length_units=model_length_units,
+    #                    model_time_units=model_time_units,
+    #                    secondary_axis_units=secondary_axis_units)
 
     out_pdf = os.path.join(pdfs_dir, 'listfile_budget_summary.pdf')
     plt.savefig(out_pdf)
@@ -129,7 +132,8 @@ def plot_list_budget(listfile, model_name=None,
                 plot_budget_term(df_flux, term, title_prefix=model_name, plotted=plotted,
                                  model_length_units=model_length_units,
                                  model_time_units=model_time_units,
-                                 secondary_axis_units=secondary_axis_units)
+                                 secondary_axis_units=secondary_axis_units,
+                                 xtick_stride=xtick_stride)
                 pdf.savefig()
                 plt.close()
         if df_flux_lake is not None and len(df_flux_lake) > 0:
@@ -163,13 +167,15 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
                         term_nets=False,
                         model_length_units=None,
                         model_time_units=None,
-                        secondary_axis_units=None):
+                        secondary_axis_units=None, xtick_stride=6,
+                        plot_start_date=None, plot_end_date=None):
     fig, ax = plt.subplots(figsize=(11, 8.5))
+    df = df.copy()
     if not term_nets:
         in_cols = [c for c in df.columns if '_IN' in c and 'TOTAL' not in c]
         out_cols = [c for c in df.columns if '_OUT' in c and 'TOTAL' not in c]
-        ax = df[in_cols].plot.bar(stacked=True, ax=ax)
-        ax = (-df[out_cols]).plot.bar(stacked=True, ax=ax)
+        ax = df[in_cols].plot.bar(stacked=True, ax=ax, width=20)
+        ax = (-df[out_cols]).plot.bar(stacked=True, ax=ax, width=20)
 
     if isinstance(df.index, pd.DatetimeIndex):
         ax.set_xticklabels(df.index.strftime(date_index_fmt))
@@ -212,10 +218,11 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
     ymin, ymax = ax.get_ylim()
     xlocs = np.arange(len(df))
     yloc = np.ones(len(df)) * (ymin + 0.03 * (ymax - ymin))
-    stride = int(np.round(len(df) / 10, 0))
-    stride = 1 if stride < 1 else stride
+    if xtick_stride is None:
+        xtick_stride = int(np.round(len(df) / 10, 0))
+        xtick_stride = 1 if xtick_stride < 1 else xtick_stride
     kpers = set()
-    for x, y in zip(xlocs[::stride], yloc[::stride]):
+    for x, y in zip(xlocs[::xtick_stride], yloc[::xtick_stride]):
         kper = int(df.iloc[x]['kper'])
         # only make one line for each stress period
         if kper not in kpers:
@@ -225,18 +232,28 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
     ax.text(min(kpers), y + abs(0.06*y), ' model stress period:', transform=ax.transData, ha='left', va='top')
     title_text = ' '.join((title_prefix, 'budget summary', title_suffix)).strip()
     ax.set_title(title_text)
+    
+    ax.legend(ncol=2)
 
     # reduce x-tick density
     ticks = ax.xaxis.get_ticklocs()
     ticklabels = [l.get_text() for l in ax.xaxis.get_ticklabels()]
-    ax.xaxis.set_ticks(ticks[::stride])
-    ax.xaxis.set_ticklabels(ticklabels[::stride])
+    ax.xaxis.set_ticks(ticks[::xtick_stride])
+    ax.xaxis.set_ticklabels(ticklabels[::xtick_stride])
+    
+    # set x axis limits
+    xmin, xmax = ax.get_xlim()
+    if plot_start_date is not None:
+        xmin = pd.Timestamp(plot_start_date)
+    if plot_end_date is not None:
+        xmax = pd.Timestamp(plot_end_date)
+    ax.set_xlim(xmin, xmax)
     return ax
 
 
 def plot_budget_term(df, term, title_prefix='', title_suffix='', plotted=set(),
                      model_length_units=None, model_time_units=None,
-                     secondary_axis_units=None):
+                     secondary_axis_units=None, xtick_stride=None):
 
     if term not in {'IN-OUT', 'PERCENT_DISCREPANCY'}:
 
@@ -316,10 +333,11 @@ def plot_budget_term(df, term, title_prefix='', title_suffix='', plotted=set(),
         # add stress period info
         ymin, ymax = ax.get_ylim()
         yloc = np.ones(len(df)) * (ymin - 0.02 * (ymax - ymin))
-        stride = int(np.round(len(df) / 10, 0))
-        stride = 1 if stride < 1 else stride
+        if xtick_stride is None:
+            xtick_stride = int(np.round(len(df) / 10, 0))
+            xtick_stride = 1 if xtick_stride < 1 else xtick_stride
         kpers = set()
-        for x, y in zip(df.index.values[::stride], yloc[::stride]):
+        for x, y in zip(df.index.values[::xtick_stride], yloc[::xtick_stride]):
             kper = df.loc[x, 'kper']
             # only make one line for each stress period
             if kper not in kpers:

@@ -184,7 +184,7 @@ def test_sfr_results_export(lpr_model, lpr_modelgrid, lpr_output_path):
 def test_mf6sfr_results_export(shellmound_model, shellmound_modelgrid, shellmound_output_path):
     mf6_sfr_stage_file = os.path.join(shellmound_model.model_ws, '{}.sfr.stage.bin'
                                       .format(shellmound_model.name))
-    mf6_sfr_budget_file = os.path.join(shellmound_model.model_ws, '{}.sfr.cbc'
+    mf6_sfr_budget_file = os.path.join(shellmound_model.model_ws, '{}.sfr.out.bin'
                                        .format(shellmound_model.name))
     hdsobj = bf.HeadFile(mf6_sfr_stage_file, text='stage')
     kstpkper = hdsobj.get_kstpkper()[:1] + hdsobj.get_kstpkper()[-1:]

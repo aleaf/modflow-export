@@ -365,5 +365,9 @@ def parse_flux_units(text):
     length_units, time_units = text.split(split_char)
     exp = [c for c in length_units if c.isdigit()]
     if exp:
+        if len(exp) > 0:
+            exp = exp[0]
         exp = int(exp)
-    return length_units.strip(), time_units.strip()
+    else:
+        exp = ''
+    return length_units.strip(str(exp)).strip(), time_units.strip()

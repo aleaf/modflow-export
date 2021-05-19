@@ -1,6 +1,8 @@
+from pathlib import Path
 import numpy as np
-from ..array_export import make_levels, export_array
-from ..grid import MFexportGrid
+import pytest
+from mfexport.array_export import make_levels, export_array
+from mfexport.grid import MFexportGrid
 
 
 def test_make_levels():
@@ -15,10 +17,12 @@ def test_make_levels():
     assert len(levels) == 1000
 
 
-def test_int64_export(test_output_folder):
+@pytest.mark.parametrize('pathlib_path', (True, False))
+def test_int64_export(test_output_folder, pathlib_path):
     arr = np.ones((2, 2), dtype=np.int64)
     mg = MFexportGrid(delr=np.ones(2), delc=np.ones(2))
-    export_array('{}/junk.tif'.format(test_output_folder),
-                 arr,
-                 mg
-                 )
+    if pathlib_path:
+        f = test_output_folder / 'junk.tif'
+    else:
+        f = str(test_output_folder / 'junk.tif')
+    export_array(f, arr, mg)

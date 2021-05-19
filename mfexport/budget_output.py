@@ -427,14 +427,17 @@ def read_sfr_output(mf2005_sfr_outputfile=None,
                                                      text='stage')
             df.sort_values(by=['kstpkper', 'node'], inplace=True)
             stg.sort_values(by=['kstpkper', 'node'], inplace=True)
+            df.set_index(['kstpkper', 'node'], inplace=True)
+            stg.set_index(['kstpkper', 'node'], inplace=True)
             na_reaches = np.isnan(df.time.values)
-            df.loc[~na_reaches].to_csv('df.csv')
-            stg.loc[~na_reaches].to_csv('stg.csv')
+            #df.loc[~na_reaches].to_csv('df.csv')
+            #stg.loc[~na_reaches].to_csv('stg.csv')
             #assert np.allclose(df.time.values, stg.time.values)
             assert np.allclose(df.loc[~na_reaches].time.values,
                                stg.loc[~na_reaches].time.values)
-            assert np.array_equal(df.node.values, stg.node.values)
+            assert np.array_equal(df.index, stg.index)
             df['stage'] = stg['stage']
+            df.reset_index(inplace=True)
 
         # get the row, column location of SFR cells
         if model.sfr is not None:
