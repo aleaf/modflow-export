@@ -1,4 +1,6 @@
+import io
 import os
+from pathlib import Path
 import time
 import numpy as np
 import pandas as pd
@@ -412,11 +414,63 @@ def read_sfr_output(mf2005_sfr_outputfile=None,
                     mf2005_SfrFile_instance=None,
                     mf6_sfr_stage_file=None,
                     mf6_sfr_budget_file=None,
-                    model=None):
+                    mf6_package_data=None,
+                    model=None, grid_type='structured'):
     """Read MF-2005 or MF-6 style SFR output; return as DataFrame.
     """
+    model_version = None
+    packagedata = None
+    if model is not None:
+        model_version = model.version
+        if model_version == 'mf6':
+            packagedata = pd.DataFrame(model.sfr.packagedata.array.copy())
+    elif mf6_package_data is not None:
+        model_version = 'mf6'
+        if isinstance(mf6_package_data, str) or isinstance(mf6_package_data, Path):
+            
+            skiprows = 0
+            names = None
+            with open(mf6_package_data) as src:
+                for line in src:
+                    if line.strip().startswith('#'):
+                        names = line.strip().split()
+                        skiprows += 1
+                    else:
+                        ncol = len(line.strip().split())
+                        break
+                        
+            if names is None:
+                if grid_type == 'structured':
+                    names = ['rno', 'k', 'i', 'j', 'rlen', 'rwid', 'rgrd', 'rtp', 'rbth', 'rhk',
+                            'man', 'ncon', 'ustrf', 'ndv']
+                else:
+                    names = ['rno', 'cellid', 'rlen', 'rwid', 'rgrd', 'rtp', 'rbth', 'rhk',
+                            'man', 'ncon', 'ustrf', 'ndv']
+                for i, _ in enumerate(range(len(names), ncol)):
+                    names.append(f'aux_col{i+1}')
+            else:
+                names[0] = names[0].strip('#')
+            
+            # read the packagedata as a string to handle "none" values
+            with open(mf6_package_data) as src:
+                raw_pd = src.read()
+                raw_pd = raw_pd.lower().replace('none', '0 0 0')
+            packagedata = pd.read_csv(io.StringIO(raw_pd), names=names, 
+                                      skiprows=skiprows, delim_whitespace=True)
+            for col in ['rno', 'k', 'i', 'j']:
+                if col in packagedata:
+                    packagedata[col] -= 1
+            if 'cellid' in packagedata.columns:
+                if not isinstance(packagedata['cellid'][0], int):
+                    packagedata['cellid'] = [(c[0]-1, c[1] -1, c[2] -1) for c in packagedata['cellid']]
+                else:
+                    packagedata['cellid'] -=1
+        else:
+            # make the dataframe on the .array attribute for flopy objects
+            # or mf6_package_data is assumed to be array-like
+            packagedata = pd.DataFrame(getattr(mf6_package_data, 'array', mf6_package_data))
 
-    if model.version == 'mf6':
+    if model_version == 'mf6':
 
         # get the budget output
         df = aggregate_mf6_stress_budget(mf6_sfr_budget_file)
@@ -441,27 +495,33 @@ def read_sfr_output(mf2005_sfr_outputfile=None,
 
         # get the row, column location of SFR cells;
         # compute stream depths
-        if model.sfr is not None:
-            rd = pd.DataFrame(model.sfr.packagedata.array.copy())
+        if packagedata is not None:
+            rd = packagedata
+            # convert reach number to zero-based
+            if rd.rno.min() == 1:     
+                rd['rno'] -= 1
             assert rd.rno.min() == 0
             assert df.node.min() == 0
-            if not isinstance(rd.cellid.values[0], int):
                 
-                rno_strtop = dict(zip(rd.rno, rd.rtp))
-                df['strtop'] = pd.to_numeric([rno_strtop[rno] for rno in df.node.values], errors='coerce')
-                # fill nan stages with their streambed tops
-                isna = df['stage'].isna()
-                df.loc[isna, 'stage'] = df.loc[isna, 'strtop']
-                df['depth'] = df['stage'] - df['strtop']
+            rno_strtop = dict(zip(rd.rno, rd.rtp))
+            df['strtop'] = pd.to_numeric([rno_strtop[rno] for rno in df.node.values], errors='coerce')
+            # fill nan stages with their streambed tops
+            isna = df['stage'].isna()
+            df.loc[isna, 'stage'] = df.loc[isna, 'strtop']
+            df['depth'] = df['stage'] - df['strtop']
                 
-                rno_cellid = dict(zip(rd.rno, rd.cellid))
-                for i, dim in enumerate(['k', 'i', 'j']):
-                    df[dim] = pd.to_numeric([rno_cellid[rno][i] for rno in df.node.values], errors='coerce')
-                df.dropna(subset=['k', 'i', 'j'], axis=0, inplace=True)
-                # can't convert to integers if nans are present
-                for dim in ['k', 'i', 'j']:
-                    df[dim] = df[dim].astype(int)
-                    assert 'int' in df[dim].dtype.name
+            if 'cellid' not in rd.columns:
+                rd['cellid'] = list(zip(rd['k'], rd['i'], rd['j']))
+                
+            rno_cellid = dict(zip(rd.rno, rd.cellid))
+            for i, dim in enumerate(['k', 'i', 'j']):
+                df[dim] = pd.to_numeric([rno_cellid[rno][i] for rno in df.node.values], errors='coerce')
+            df.dropna(subset=['k', 'i', 'j'], axis=0, inplace=True)
+            # can't convert to integers if nans are present
+            for dim in ['k', 'i', 'j']:
+                df[dim] = df[dim].astype(int)
+                assert 'int' in df[dim].dtype.name
+
 
     else:
         # SFR output

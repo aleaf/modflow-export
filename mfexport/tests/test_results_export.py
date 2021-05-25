@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import pytest
 from flopy.utils import binaryfile as bf
 import numpy as np
@@ -181,17 +182,27 @@ def test_sfr_results_export(lpr_model, lpr_modelgrid, lpr_output_path):
     check_files(outfiles, variables, kstpkper)
 
 
-def test_mf6sfr_results_export(shellmound_model, shellmound_modelgrid, shellmound_output_path):
+@pytest.mark.parametrize('use_flopy', (False, True))
+def test_mf6sfr_results_export(shellmound_model, shellmound_modelgrid, shellmound_output_path, 
+                               use_flopy):
     mf6_sfr_stage_file = os.path.join(shellmound_model.model_ws, '{}.sfr.stage.bin'
                                       .format(shellmound_model.name))
     mf6_sfr_budget_file = os.path.join(shellmound_model.model_ws, '{}.sfr.out.bin'
                                        .format(shellmound_model.name))
+    model_ws = Path(shellmound_model.model_ws)
+    if use_flopy:
+        model = shellmound_model
+        package_data_file=None
+    else:
+        package_data_file = model_ws / f'external/{shellmound_model.name}_packagedata.dat'
+        model = None
     hdsobj = bf.HeadFile(mf6_sfr_stage_file, text='stage')
     kstpkper = hdsobj.get_kstpkper()[:1] + hdsobj.get_kstpkper()[-1:]
     variables = ['sfrout', 'baseflow', 'qaquifer']
     outfiles = export_sfr_results(mf6_sfr_stage_file=mf6_sfr_stage_file,
                                   mf6_sfr_budget_file=mf6_sfr_budget_file,
-                                  model=shellmound_model,
+                                  model=model,
+                                  mf6_package_data=package_data_file,
                                   grid=shellmound_modelgrid,
                                   kstpkper=kstpkper,
                                   output_length_units='feet',

@@ -268,11 +268,15 @@ def export_sfr_results(mf2005_sfr_outputfile=None,
                        mf2005_SfrFile_instance=None,
                        mf6_sfr_stage_file=None,
                        mf6_sfr_budget_file=None,
+                       mf6_package_data=None,
                        model=None,
+                       model_top=None,
                        grid=None,
                        kstpkper=(0, 0),
                        sfrlinesfile=None,
                        pointsize=0.5,
+                       model_length_units=None,
+                       model_time_units=None,
                        output_length_units='feet',
                        output_time_units='seconds',
                        gis=True, pdfs=True,
@@ -292,10 +296,21 @@ def export_sfr_results(mf2005_sfr_outputfile=None,
                          mf2005_SfrFile_instance=mf2005_SfrFile_instance,
                          mf6_sfr_stage_file=mf6_sfr_stage_file,
                          mf6_sfr_budget_file=mf6_sfr_budget_file,
+                         mf6_package_data=mf6_package_data,
                          model=model)
-    lmult = convert_length_units(get_length_units(m),
+    if model_length_units is None:
+        if model is None:
+            model_length_units = 'meters'
+        else:
+            model_length_units = get_length_units(m)
+    if model_time_units is None:
+        if model is None:
+            model_time_units = 'days'
+        else:
+            model_time_units = get_time_units(m)
+    lmult = convert_length_units(model_length_units,
                                  output_length_units)
-    tmult = convert_time_units(get_time_units(m),
+    tmult = convert_time_units(model_time_units,
                                output_time_units)
     unit_text = get_unit_text(output_length_units,
                               output_time_units, 3)
@@ -310,10 +325,15 @@ def export_sfr_results(mf2005_sfr_outputfile=None,
     df['Qaq_{}'.format(unit_text)] = df.Qaquifer * lmult**3/tmult
 
     # add model top comparison if available
-    if m.dis is not None and 'i' in df.columns and 'j' in df.columns:
-        df['model_top'] = m.dis.top.array[df.i.values, df.j.values]
-    if 'stage' in df.columns:
-        df['above'] = df.stage - df.model_top
+    if isinstance(model_top, str):
+        model_top = np.loadtxt(model_top)
+    elif model_top is None and model is not None:
+        model_top = m.dis.top.array
+    
+    if model_top is not None and 'i' in df.columns and 'j' in df.columns:
+        df['model_top'] = model_top[df.i.values, df.j.values]
+        if 'stage' in df.columns:
+            df['above'] = df.stage - df.model_top
     groups = df.groupby('kstpkper')
 
     outfiles = []
