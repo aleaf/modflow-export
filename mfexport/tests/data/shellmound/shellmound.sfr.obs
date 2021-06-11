@@ -1,0 +1,19 @@
+BEGIN OPTIONS
+  DIGITS 5
+  PRINT_INPUT
+END OPTIONS
+BEGIN CONTINUOUS FILEOUT shellmound.sfr.obs.output.csv
+# obsname  obstype  rno
+  07288555-flow  downstream-flow  40
+  07288570-flow  downstream-flow  143
+  07281600-flow  downstream-flow  151
+  07288580-flow  downstream-flow  236
+  333136090244900-flow  downstream-flow  238
+  07288500-flow  downstream-flow  247
+  07288555-stage  stage  40
+  07288570-stage  stage  143
+  07281600-stage  stage  151
+  07288580-stage  stage  236
+  333136090244900-stage  stage  238
+  07288500-stage  stage  247
+END CONTINUOUS
