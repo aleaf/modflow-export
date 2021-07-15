@@ -7,7 +7,7 @@ import pandas as pd
 from flopy.discretization import StructuredGrid
 from flopy.utils.sfroutputfile import SfrFile
 import flopy.utils.binaryfile as bf
-from flopy.utils.mfgrdfile import MfGrdFile
+from flopy.mf6.utils.binarygrid_util import MfGrdFile
 from .grid import get_kij_from_node3d
 
 
@@ -209,8 +209,8 @@ def get_flowja_face(cell_budget_file, binary_grid_file, kstpkper=(0, 0), idx=0,
     cols = ['n', 'm', 'q']
 
     # get the k, i, j locations for plotting the connections
-    if isinstance(bgf.mg, StructuredGrid):
-        nlay, nrow, ncol = bgf.mg.nlay, bgf.mg.nrow, bgf.mg.ncol
+    if isinstance(bgf.modelgrid, StructuredGrid):
+        nlay, nrow, ncol = bgf.modelgrid.nlay, bgf.modelgrid.nrow, bgf.modelgrid.ncol
         k, i, j = get_kij_from_node3d(df['n'].values, nrow, ncol)
         df['kn'], df['in'], df['jn'] = k, i, j
         k, i, j = get_kij_from_node3d(df['m'].values, nrow, ncol)
