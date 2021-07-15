@@ -1,5 +1,6 @@
 """Functions for working with zone budget.
 """
+import os
 from pathlib import Path
 import numpy as np
 from flopy.utils import binaryfile as bf
@@ -43,10 +44,13 @@ def write_zonebudget6_input(zones, budgetfile,
     output_zone_array_format = outpath
 
     # relative path to budget file from zone budget input
-    budgetfile = budgetfile.relative_to(outpath.absolute())
+    #budgetfile = budgetfile.relative_to(outpath.absolute())
+    # use os.path.relpath because pathlib relative_to() 
+    # only works with strings and therefore doesn't handle two paths that branch
+    budgetfile = os.path.relpath(budgetfile, outpath.absolute())
     # relative path to grb file
     if binary_grid_file is not None:
-        binary_grid_file = Path(binary_grid_file).relative_to(outpath)
+        binary_grid_file = os.path.relpath(binary_grid_file, outpath.absolute())
 
     # write the name file
     with open(output_namefile, 'w') as dest:
