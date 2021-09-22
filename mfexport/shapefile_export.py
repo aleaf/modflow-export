@@ -42,9 +42,17 @@ def export_shapefile(filename, data, modelgrid, kper=None,
         verts = np.array(modelgrid.get_cell_vertices(i, j))
     elif df is not None:
         verts = modelgrid.get_vertices(i, j)
+    # use cell geometries from the model grid
     if 'geometry' not in df.columns:
         polys = np.array([Polygon(v) for v in verts])
         df['geometry'] = polys
+        # unfortunately, reaches through inactive cells 
+        # lose their cellid (k, i, j) location
+        # so there is no way to plot these 
+        # without geometries from another source (such as the sfrlines)
+        # drop such geometries, which are identified by k, i, j == -1
+        invalid_geoms = np.any(df[['k', 'i', 'j']] < 0, axis=1)
+        df = df.loc[~invalid_geoms].copy()
     if epsg is None:
         epsg = modelgrid.epsg
     if proj_str is None:
