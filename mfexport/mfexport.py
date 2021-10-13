@@ -83,9 +83,9 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
             package = getattr(model, package)
         print('\n{} package...'.format(package.name[0]))
 
-        if package.name[0].lower() == 'sfr':
-            export_sfr()
-            continue
+        if 'sfr' in package.name[0].lower():
+            export_sfr(package, modelgrid, gis=gis, pdfs=pdfs, 
+               shapefile_outfolder=shps_dir, pdf_outfolder=pdfs_dir)
 
         if model.version == 'mf6':
             if package.name[0].lower() == 'dis':
@@ -105,7 +105,7 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
             package_variables = package.data_list
 
         for v in package_variables:
-            if isinstance(v, DataInterface):
+            if isinstance(v, DataInterface):                    
                 if v.array is not None:
                     if isinstance(v.name, list):
                         name = v.name[0].strip('_')
@@ -307,9 +307,52 @@ def export_variable(variable, package, modelgrid,
                 filenames.append(filename)
 
 
-def export_sfr():
-    """Not implemented yet"""
-    print('skipped, not implemented yet')
+def export_sfr(package, modelgrid, gis=True, pdfs=False, 
+               shapefile_outfolder='.', pdf_outfolder='.'):
+    """Export an SFR package"""
+    
+    pdfs_dir = Path(pdf_outfolder)
+    shps_dir = Path(shapefile_outfolder)
+    out_shapefile = shps_dir / (package.filename + '.shp')
+    out_pdf = out_shapefile.with_suffix('.pdf')
+    
+    if package.parent.version == 'mf6':
+        df = pd.DataFrame(package.packagedata.array)
+        
+        # drop reaches that have no k, i, j info
+        df = df.loc[df['cellid'] != 'none']
+        
+        cols = df.columns.tolist()
+        # drop cellid column
+        cols = cols[:1] + ['k', 'i', 'j'] + cols[2:]
+        k, i, j = zip(*df['cellid'])
+        df['k'] = np.array(k, dtype=int)
+        df['i'] = np.array(i, dtype=int)
+        df['j'] = np.array(j, dtype=int)
+        df = df[cols].copy()
+        
+        # add connections
+        out_rno = []
+        for row in package.connectiondata.array:
+            rno = row[0]
+            if rno in df['rno']:
+                downstream = [c for c in list(row)[1:] if c < 0]
+                if any(downstream):
+                    out_rno.append(-downstream[0])
+                else:
+                    out_rno.append(0)
+        df['out_rno'] = np.array(out_rno, dtype=int)
+        
+        if gis:
+            export_shapefile(out_shapefile, df, modelgrid)
+        if pdfs:
+            # PDF export not implemented yet
+            pass
+        
+    else:
+        # mf-2005 not implemented yet
+        return
+    j=2
     return
 
 

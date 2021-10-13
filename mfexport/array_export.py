@@ -156,6 +156,9 @@ def export_array_contours(filename, a, modelgrid,
             level += list(np.ones(len(paths)) * levels[i])
 
     # convert the dictionary to a recarray
+    if len(level) == 0:
+        print('No contours! Try adjusting the levels or interval.')
+        return
     df = pd.DataFrame({'level': level, 'geometry': geoms})
     df2shp(df, filename, epsg=epsg, proj_str=proj_str)
     if verbose:
