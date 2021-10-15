@@ -67,7 +67,7 @@ def export_array(filename, a, modelgrid, nodata=-9999,
         if a.dtype == np.int64:
             a = a.astype(np.int32)
 
-        if a.dtype == np.bool:
+        if a.dtype == bool:
             a = a.astype(np.int32)
         meta = {'count': a.shape[0],
                 'width': a.shape[2],
