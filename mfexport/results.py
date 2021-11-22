@@ -1,6 +1,5 @@
 import numpy as np
 from flopy.utils import binaryfile as bf
-from flopy.utils.postprocessing import get_water_table
 from .array_export import export_array, export_array_contours
 from .budget_output import get_bc_flux, read_sfr_output, get_flowja_face
 from gisutils import shp2df
@@ -8,7 +7,7 @@ from .pdf_export import sfr_baseflow_pdf, sfr_qaquifer_pdf
 from .shapefile_export import export_shapefile
 from .units import (convert_length_units, convert_time_units,
                     get_length_units, get_time_units, get_unit_text)
-from .utils import make_output_folders
+from .utils import get_water_table, make_output_folders
 
 # TODO: update docstrings
 

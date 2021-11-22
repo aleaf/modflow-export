@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import pandas as pd
 import fiona
 import rasterio
 from shapely.geometry import box
@@ -151,3 +152,29 @@ def test_transient_list_export(model):
     df2 = shp2df(outfiles[0]).drop('geometry', axis=1)
     assert np.allclose(df.drop('cellid', axis=1),
                        df2.drop('cellid', axis=1))
+
+
+def test_export_sfr(model):
+    m, grid, output_path = model
+    # mf2005 style SFR export not implemented yet
+    # TODO: implement mf2005 sfr package export
+    if m.version != 'mf6':
+        return
+    outfiles = export(m, grid, 'sfr', output_path=output_path)
+    # TODO: finish this test
+    variables = ['shellmound.sfr']
+    if m.version != 'mf6':
+        variables = ['wel_stress_period_data']
+        df = pd.DataFrame(m.sfr.reach_data.array)
+        compare_cols = ['strtop']
+    else:
+        df = pd.DataFrame(m.sfr.packagedata.array)
+        compare_cols = ['rlen', 'rwid', 'rgrd', 'rtp', 'rbth', 'rhk']
+    check_files(outfiles, variables=variables)
+    df.index = range(len(df))
+    if 'cellid' in df.columns:
+        df['cellid'] = df['cellid'].astype(str)
+    df2 = shp2df(outfiles[0]).drop('geometry', axis=1)
+    df2['cellid'] = list(zip(df2['k'], df2['i'], df2['j']))
+    df2['cellid'] = df2['cellid'].astype(str)
+    assert np.allclose(df[compare_cols], df2[compare_cols])

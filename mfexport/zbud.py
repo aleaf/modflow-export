@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 import numpy as np
-from flopy.utils import binaryfile as bf
+from flopy.mf6.utils.binarygrid_util import MfGrdFile
 
 
 def write_zonebudget6_input(zones, budgetfile,
@@ -12,8 +12,8 @@ def write_zonebudget6_input(zones, budgetfile,
                             outname=None):
 
     # make sure zones is the right shape
-    with bf.CellBudgetFile(budgetfile) as cbobj:
-        nlay, nrow, ncol = cbobj.nlay, cbobj.nrow, cbobj.ncol
+    bgf = MfGrdFile(binary_grid_file)
+    nlay, nrow, ncol = bgf.modelgrid.nlay, bgf.modelgrid.nrow, bgf.modelgrid.ncol
     layered = False
     if len(zones.shape) == 3:
         layered = True
@@ -27,9 +27,7 @@ def write_zonebudget6_input(zones, budgetfile,
             zones = np.broadcast_to(zones, (nlay, nrow, ncol))
     else:
         assert len(zones) == nlay * nrow * ncol
-
-    cbobj = bf.CellBudgetFile(budgetfile)
-    assert zones.shape[-2:] == (cbobj.nrow, cbobj.ncol)
+    assert zones.shape[-2:] == (nrow, ncol)
 
     budgetfile = Path(budgetfile)
     if outname is None:

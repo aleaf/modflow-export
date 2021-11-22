@@ -10,7 +10,7 @@ from .array_export import export_array, export_array_contours, squeeze_3d
 from .list_export import mftransientlist_to_dataframe, get_tl_variables
 from .pdf_export import export_pdf, export_pdf_bar_summary
 from .shapefile_export import export_shapefile
-from .utils import make_output_folders
+from .utils import get_flopy_package_fname, make_output_folders
 
 
 othername = {'model_top': 'top'}
@@ -81,11 +81,19 @@ def export(model, modelgrid, packages=None, variables=None, output_path='postpro
 
         if isinstance(package, str):
             package = getattr(model, package)
-        print('\n{} package...'.format(package.name[0]))
+        package_name = package.name[0]
+        print('\n{} package...'.format(package_name))
 
-        if 'sfr' in package.name[0].lower():
-            export_sfr(package, modelgrid, gis=gis, pdfs=pdfs, 
-               shapefile_outfolder=shps_dir, pdf_outfolder=pdfs_dir)
+        if variables is None and 'sfr' in package_name.lower():
+            if 'obs' not in package_name.lower():
+                export_sfr(package, modelgrid, gis=gis, pdfs=pdfs,
+                        shapefile_outfolder=shps_dir, 
+                        pdf_outfolder=pdfs_dir,
+                        filenames=filenames)
+            # TODO: add SFR obs export
+            else:
+                print('skipping; not implemented')
+            
 
         if model.version == 'mf6':
             if package.name[0].lower() == 'dis':
@@ -308,13 +316,17 @@ def export_variable(variable, package, modelgrid,
 
 
 def export_sfr(package, modelgrid, gis=True, pdfs=False, 
-               shapefile_outfolder='.', pdf_outfolder='.'):
+               shapefile_outfolder='.', pdf_outfolder='.',
+               filenames=None):
     """Export an SFR package"""
     
     pdfs_dir = Path(pdf_outfolder)
     shps_dir = Path(shapefile_outfolder)
-    out_shapefile = shps_dir / (package.filename + '.shp')
+    package_fname = get_flopy_package_fname(package)
+    out_shapefile = shps_dir / (package_fname + '.shp')
     out_pdf = out_shapefile.with_suffix('.pdf')
+    if filenames is None:
+        filenames = []
     
     if package.parent.version == 'mf6':
         df = pd.DataFrame(package.packagedata.array)
@@ -345,6 +357,7 @@ def export_sfr(package, modelgrid, gis=True, pdfs=False,
         
         if gis:
             export_shapefile(out_shapefile, df, modelgrid)
+            filenames.append(out_shapefile)
         if pdfs:
             # PDF export not implemented yet
             pass

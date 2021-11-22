@@ -46,7 +46,8 @@ def get_water_table2(heads, nodata, per_idx=None):
         assert len(wt_per) == nrow * ncol
         wt.append(np.reshape(wt_per, (nrow, ncol)))
     wt = np.squeeze(wt)
-    wt = np.ma.masked_array(wt, wt==nodata)
+    mask = (wt == nodata)
+    wt = np.ma.masked_array(wt, mask)
     return wt
 
 
@@ -68,4 +69,12 @@ def test_get_water_table(model):
     wt2_3d = get_water_table2(heads[0], nodata=1e30)
     wt_3d = get_water_table(heads[0], nodata=1e30)
     assert np.allclose(wt2_3d, wt_3d)
+    
+    # get valid min/max
+    heads[:, 0] = 1e30
+    wt3 = get_water_table(heads[0], nodata=-9999)
+    # having the top layer all invalid 
+    # shouldn't make the whole water table invalid
+    assert wt3.data.min() < 1e4
+    assert not np.all(wt3.mask)
 

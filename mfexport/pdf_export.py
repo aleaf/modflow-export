@@ -10,6 +10,13 @@ def export_pdf(filename, array, text,
                nodata=None, mfarray_type='array2d',
                float_fmt='{:.2f}', verbose=False):
     t0 = time.time()
+    if isinstance(array, np.ma.masked_array) and array.mask.all():
+        print(f"{filename}: no data to export!")
+        return
+    elif np.all(np.isnan(array)):
+        print(f"{filename}: no data to export!")
+        return
+    
     if array.min() < 0.01:
         float_fmt = '{:.6e}'
     elif 'int' in array.dtype.name:

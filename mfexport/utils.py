@@ -1,5 +1,6 @@
 import os
 import inspect
+from pathlib import Path
 import pprint
 import yaml
 import json
@@ -83,7 +84,8 @@ def print_item(k, v):
         print(v)
 
 
-def get_water_table(heads, nodata):
+def get_water_table(heads, nodata, 
+                     valid_min=-1e-4, valid_max=3e4):
     """
     Get a 2D array representing
     the water table elevation for each
@@ -95,6 +97,12 @@ def get_water_table(heads, nodata):
         Heads array.
     nodata : real
         HDRY value indicating dry cells.
+    valid_min : float (optional)
+        The lowest value regarded as valid, regardless of nodata value.
+        By default, -1e4
+    valid_max : float (optional)
+        The highest value regarded as valid, regardless of nodata value.
+        By default, 3e4
 
     Returns
     -------
@@ -103,10 +111,24 @@ def get_water_table(heads, nodata):
 
     """
     heads = np.array(heads, ndmin=4)
-
-    k = (heads != nodata).argmax(axis=1)
+    mask = (heads == nodata) | (heads < valid_min) | (heads > valid_max)
+    k = (~mask).argmax(axis=1)
     per, i, j = np.indices(k.shape)
     wt = heads[per.ravel(), k.ravel(), i.ravel(), j.ravel()].reshape(k.shape)
     wt = np.squeeze(wt)
-    wt = np.ma.masked_array(wt, wt==nodata)
+    mask = (wt == nodata) | (wt < valid_min) | (wt > valid_max)
+    wt = np.ma.masked_array(wt, mask)
     return wt
+
+
+def get_flopy_package_fname(package):
+    if getattr(package, 'filename', None) is not None:
+        return getattr(package, 'filename')
+    elif getattr(package, 'file_name') is not None:
+        file_name = getattr(package, 'file_name', None)
+        return file_name[0]
+    elif getattr(package, 'fn_path', None) is not None:
+        fn_path = getattr(package, 'fn_path', None)
+        return Path(fn_path).name
+    else:
+        raise AttributeError(f"Can't get filename for package:\n{package}")
