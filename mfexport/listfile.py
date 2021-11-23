@@ -25,7 +25,7 @@ mf2005_terms = {'STO-SS': 'STORAGE',
                 'CHD': 'CONSTANT_HEAD',
                 'GHB': 'HEAD DEP BOUNDS'
                 }
-
+plotted = set()
 
 def get_listfile_model_version(listfile):
     with open(listfile) as src:
@@ -58,7 +58,8 @@ def get_listfile_data(listfile, model_start_datetime=None,
     if budgetkey is not None:
         keys = get_budget_keys(listfile)
         if budgetkey not in keys:
-            budget_package = budgetkey.replace('BUDGET FOR ENTIRE MODEL', '').strip().split('_')[0]
+            #budget_package = budgetkey.replace('BUDGET FOR ENTIRE MODEL', '').strip().split('_')[0]
+            budget_package = budgetkey.strip().split(' ')[0].split('_')[0]
             budgetkey = [k for k in keys if budget_package in k]
             if len(budgetkey) > 0:
                 budgetkey = budgetkey[0]
@@ -89,11 +90,14 @@ def plot_list_budget(listfile, model_name=None,
                      model_length_units=None,
                      model_time_units=None,
                      secondary_axis_units=None,
-                     xtick_stride=None, plot_start_date=None, plot_end_date=None):
+                     xtick_stride=None, plot_start_date=None, plot_end_date=None,
+                     datetime_xaxis=True):
 
     pdfs_dir, _, _ = make_output_folders(output_path)
     if model_name is None:
         model_name = Path(listfile).stem
+    if model_start_datetime is None:
+        datetime_xaxis=False
 
     df_flux = get_listfile_data(listfile, model_start_datetime=model_start_datetime)
 
@@ -103,37 +107,44 @@ def plot_list_budget(listfile, model_name=None,
     df_flux_sfr = get_listfile_data(listfile, model_start_datetime=model_start_datetime,
                                     budgetkey='SFR BUDGET FOR ENTIRE MODEL')
 
-    # plot summary showing in and out values for all terms
-    plot_budget_summary(df_flux, title_prefix=model_name,
-                        model_length_units=model_length_units,
-                        model_time_units=model_time_units,
-                        secondary_axis_units=secondary_axis_units,
-                        xtick_stride=xtick_stride)
-
-    # plot summary with only net values for each term
-    #plot_budget_summary(df_flux, title_prefix=model_name,
-    #                    term_nets=True,
-    #                    model_length_units=model_length_units,
-    #                    model_time_units=model_time_units,
-    #                    secondary_axis_units=secondary_axis_units)
-
-    out_pdf = os.path.join(pdfs_dir, 'listfile_budget_summary.pdf')
-    plt.savefig(out_pdf)
-    plt.close()
+    out_pdf = pdfs_dir / 'listfile_budget_summary.pdf'
+    with PdfPages(out_pdf) as pdf:
+        # plot summary with only net values for each term
+        plot_budget_summary(df_flux, title_prefix=model_name,
+                            term_nets=True,
+                            model_length_units=model_length_units,
+                            model_time_units=model_time_units,
+                            secondary_axis_units=secondary_axis_units,
+                            xtick_stride=xtick_stride,
+                            plot_start_date=plot_start_date, 
+                            plot_end_date=plot_end_date)
+        pdf.savefig()
+        plt.close()
+        # plot summary showing in and out values for all terms
+        plot_budget_summary(df_flux, title_prefix=model_name,
+                            model_length_units=model_length_units,
+                            model_time_units=model_time_units,
+                            secondary_axis_units=secondary_axis_units,
+                            xtick_stride=xtick_stride,
+                            plot_start_date=plot_start_date, 
+                            plot_end_date=plot_end_date)
+        pdf.savefig()
+        plt.close()    
     print(f'wrote {out_pdf}')
 
-    pdf_outfile = os.path.join(pdfs_dir, 'listfile_budget_by_term.pdf')
+    pdf_outfile = pdfs_dir / 'listfile_budget_by_term.pdf'
     with PdfPages(pdf_outfile) as pdf:
         plotted = set()
         terms = [c for c in df_flux.columns if c not in {'kstp', 'kper'}]
         for term in terms:
             if term not in plotted:
-                plot_budget_term(df_flux, term, title_prefix=model_name, plotted=plotted,
+                plot_budget_term(df_flux, term, title_prefix=model_name, #plotted=plotted,
                                  model_length_units=model_length_units,
                                  model_time_units=model_time_units,
                                  secondary_axis_units=secondary_axis_units,
                                  xtick_stride=xtick_stride, 
-                                 plot_start_date=plot_start_date, plot_end_date=plot_end_date)
+                                 plot_start_date=plot_start_date, plot_end_date=plot_end_date,
+                                 datetime_xaxis=datetime_xaxis)
                 pdf.savefig()
                 plt.close()
         if df_flux_lake is not None and len(df_flux_lake) > 0:
@@ -142,11 +153,12 @@ def plot_list_budget(listfile, model_name=None,
             for term in terms:
                 if term not in plotted:
                     title_prefix = '{} Lake Package'.format(model_name)
-                    plot_budget_term(df_flux_lake, term, title_prefix=title_prefix, plotted=plotted,
+                    plot_budget_term(df_flux_lake, term, title_prefix=title_prefix, #plotted=plotted,
                                  model_length_units=model_length_units,
                                  model_time_units=model_time_units,
                                  secondary_axis_units=secondary_axis_units, 
-                                 plot_start_date=plot_start_date, plot_end_date=plot_end_date)
+                                 plot_start_date=plot_start_date, plot_end_date=plot_end_date,
+                                 datetime_xaxis=datetime_xaxis)
                     pdf.savefig()
                     plt.close()
         if df_flux_sfr is not None and len(df_flux_sfr) > 0:
@@ -155,11 +167,12 @@ def plot_list_budget(listfile, model_name=None,
             for term in terms:
                 if term not in plotted:
                     title_prefix = '{} SFR Package'.format(model_name)
-                    plot_budget_term(df_flux_sfr, term, title_prefix=title_prefix, plotted=plotted,
+                    plot_budget_term(df_flux_sfr, term, title_prefix=title_prefix, #plotted=plotted,
                                  model_length_units=model_length_units,
                                  model_time_units=model_time_units,
                                  secondary_axis_units=secondary_axis_units, 
-                                 plot_start_date=plot_start_date, plot_end_date=plot_end_date)
+                                 plot_start_date=plot_start_date, plot_end_date=plot_end_date,
+                                 datetime_xaxis=datetime_xaxis)
                     pdf.savefig()
                     plt.close()
     print(f'wrote {pdf_outfile}')
@@ -169,16 +182,90 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
                         term_nets=False,
                         model_length_units=None,
                         model_time_units=None,
-                        secondary_axis_units=None, xtick_stride=6):
-    fig, ax = plt.subplots(figsize=(11, 8.5))
+                        secondary_axis_units=None, xtick_stride=6,
+                        plot_start_date=None, plot_end_date=None
+                        ):
+    """Plot a stacked bar chart summary of a MODFLOW listing file budget dataframe.
+
+    Parameters
+    ----------
+    df : DataFrame
+        Table of listing file budget results produced by flopy; typically the flux 
+        (not volume) terms (see example below).
+    title_prefix : str, optional
+        Prefix to insert at the begining of the title, for example the model name.
+        by default ''
+    title_suffix : str, optional
+        Suffix to insert at the end of the title, by default ''
+    date_index_fmt : str, optional
+        Date format for the plot x-axis, by default '%Y-%m'
+    term_nets : bool, optional
+        Option to only plot net quantities for each stress period.
+        For example if the inflows and outflows for the WEL package 
+        were +10 and -10, a bar of zero height would be plotted.
+        by default False
+    model_length_units : str, optional
+        Length units of the model, for labeling and conversion 
+        to secondary_axis_units, 
+        by default None
+    model_time_units : str, optional
+        Time units of the model, for labeling and conversion 
+        to secondary_axis_units, 
+        by default None
+    secondary_axis_units : str, optional
+        Option to include a secondary y-axis on the right with
+        another unit, for example 'mgal/day' for million gallons per day.
+        Requires `model_length_units` and `model_time_units`.
+        by default None
+    xtick_stride : int, optional
+        Spacing between x-ticks. May be useful for models with many stress periods.
+        by default 6
+    plot_start_date : str, optional
+        Minimum date to plot on the x-axis, in a string format 
+        recognizable by pandas (if `df` has a datetime index) or
+        a numeric value (if `df` has a numeric index).
+        by default None (plot all dates)
+    plot_end_date : str, optional
+        Maximum date to plot on the x-axis, in a string format 
+        recognizable by pandas (if `df` has a datetime index) or
+        a numeric value (if `df` has a numeric index).
+        by default None (plot all dates)
+
+    Returns
+    -------
+    ax : matplotlib axes subplot instance
+        
+    Examples
+    --------
+        ```python
+        from mfexport.listfile import get_listfile_data, plot_budget_summary
+        
+        df = get_listfile_data(listfile='model.list', model_start_datetime='2000-01-01')
+        plot_budget_summary(df)
+        ```
+    """    
+
+    # slice the dataframe to the specified time range (if any)
     df = df.copy()
+    df = df.loc[slice(plot_start_date, plot_end_date)]
+    
+    fig, ax = plt.subplots(figsize=(11, 8.5))
+    in_cols = [c for c in df.columns if '_IN' in c and 'TOTAL' not in c]
+    out_cols = [c for c in df.columns if '_OUT' in c and 'TOTAL' not in c]
     if not term_nets:
-        in_cols = [c for c in df.columns if '_IN' in c and 'TOTAL' not in c]
-        out_cols = [c for c in df.columns if '_OUT' in c and 'TOTAL' not in c]
         ax = df[in_cols].plot.bar(stacked=True, ax=ax,# width=20
                                   )
         ax = (-df[out_cols]).plot.bar(stacked=True, ax=ax,# width=20
                                       )
+    else:
+        pairs = list(zip(in_cols, out_cols))
+        net_cols = []
+        for in_col, out_col in pairs:
+            net_col = f"{in_col.split('_')[0]} (net)"
+            df[net_col] = df[in_col] - df[out_col]
+            net_cols.append(net_col)
+        ax = df[net_cols].plot.bar(stacked=True, ax=ax,# width=20
+        )
 
     if isinstance(df.index, pd.DatetimeIndex):
         ax.set_xticklabels(df.index.strftime(date_index_fmt))
@@ -233,7 +320,10 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
             ax.text(x, y, f" {kper}", transform=ax.transData, ha='left', va='top')
             kpers.add(kper)
     ax.text(min(kpers), y + abs(0.06*y), ' model stress period:', transform=ax.transData, ha='left', va='top')
-    title_text = ' '.join((title_prefix, 'budget summary', title_suffix)).strip()
+    title_text = 'budget summary' 
+    if term_nets:
+        title_text += ' (net fluxes)'
+    title_text = ' '.join((title_prefix, title_text, title_suffix)).strip()
     ax.set_title(title_text)
     
     ax.legend(ncol=2)
@@ -247,11 +337,77 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
     return ax
 
 
-def plot_budget_term(df, term, title_prefix='', title_suffix='', plotted=set(),
+def plot_budget_term(df, term, title_prefix='', title_suffix='',
                      model_length_units=None, model_time_units=None,
                      secondary_axis_units=None, xtick_stride=None,
-                        plot_start_date=None, plot_end_date=None):
+                     plot_start_date=None, plot_end_date=None,
+                     datetime_xaxis=True):
+    """Make a timeseries plot of an individual MODFLOW listing file 
+    budget term.
 
+    Parameters
+    ----------
+    df : DataFrame
+        Table of listing file budget results produced by flopy; typically the flux 
+        (not volume) terms (see example below).
+    title_prefix : str, optional
+        Prefix to insert at the begining of the title, for example the model name.
+        by default ''
+    title_suffix : str, optional
+        Suffix to insert at the end of the title, by default ''
+    model_length_units : str, optional
+        Length units of the model, for labeling and conversion 
+        to secondary_axis_units, 
+        by default None
+    model_time_units : str, optional
+        Time units of the model, for labeling and conversion 
+        to secondary_axis_units, 
+        by default None
+    secondary_axis_units : str, optional
+        Option to include a secondary y-axis on the right with
+        another unit, for example 'mgal/day' for million gallons per day.
+        Requires `model_length_units` and `model_time_units`.
+        by default None
+    xtick_stride : int, optional
+        Spacing between x-ticks. May be useful for models with many stress periods.
+        by default 6
+    plot_start_date : str, optional
+        Minimum date to plot on the x-axis, in a string format 
+        recognizable by pandas (if `df` has a datetime index) or
+        a numeric value (if `df` has a numeric index). May be
+        useful if the model has long spinup period(s) that
+        would obscure later periods of interest when datetime_xaxis=True.
+        by default None (plot all dates)
+    plot_end_date : str, optional
+        Maximum date to plot on the x-axis, in a string format 
+        recognizable by pandas (if `df` has a datetime index) or
+        a numeric value (if `df` has a numeric index).
+        by default None (plot all dates)
+    datetime_xaxis : bool
+        Plot budget values as a function of time. If False,
+        plot as a function of stress period.
+        by default, True
+
+    Returns
+    -------
+    ax : matplotlib axes subplot instance
+        
+    Examples
+    --------
+        ```python
+        from mfexport.listfile import get_listfile_data, plot_budget_term
+        
+        df = get_listfile_data(listfile='model.list', model_start_datetime='2000-01-01')
+        plot_budget_term(df)
+        ```
+    """    
+    # slice the dataframe to the specified time range (if any)
+    df = df.copy()
+    df = df.loc[slice(plot_start_date, plot_end_date)]
+    
+    if not datetime_xaxis and 'datetime' in df.index.dtype.name:
+        df['datetime'] = df.index
+        df.index = df['kper']
     if term not in {'IN-OUT', 'PERCENT_DISCREPANCY'}:
 
         # get the absolute quantity for the term
@@ -325,31 +481,54 @@ def plot_budget_term(df, term, title_prefix='', title_suffix='', plotted=set(),
         ax2.axhline(0, zorder=-1, lw=0.5, c='k')
         (-pct_out_series).plot(ax=ax2, c='C1')
         pct_net_series.plot(ax=ax2, c='0.5', zorder=-1)
-        ax2.set_ylabel('Fraction of model budget')
-
+        ax2.set_ylabel('Fraction of budget')
+        single_subplot = False
         # add stress period info
-        ymin, ymax = ax.get_ylim()
-        yloc = np.ones(len(df)) * (ymin - 0.02 * (ymax - ymin))
-        if xtick_stride is None:
-            xtick_stride = int(np.round(len(df) / 10, 0))
-            xtick_stride = 1 if xtick_stride < 1 else xtick_stride
-        kpers = set()
-        for x, y in zip(df.index.values[::xtick_stride], yloc[::xtick_stride]):
-            kper = df.loc[x, 'kper']
-            # only make one line for each stress period
-            if kper not in kpers:
-                ax.axvline(x, lw=0.5, c='k', zorder=-2)
-                ax2.axvline(x, lw=0.5, c='k', zorder=-2)
-                ax2.text(x, y, kper, transform=ax.transData, ha='center', va='top')
-                kpers.add(kper)
+        #ymin, ymax = ax.get_ylim()
+        #yloc = np.ones(len(df)) * (ymin - 0.02 * (ymax - ymin))
+        #if xtick_stride is None:
+        #    xtick_stride = int(np.round(len(df) / 10, 0))
+        #    xtick_stride = 1 if xtick_stride < 1 else xtick_stride
+        #kpers = set()
+        #for x, y in zip(df.index.values[::xtick_stride], yloc[::xtick_stride]):
+        #    kper = int(df.loc[x, 'kper'])
+        #    # only make one line for each stress period
+        #    if kper not in kpers:
+        #        ax.axvline(x, lw=0.5, c='k', zorder=-2)
+        #        ax2.axvline(x, lw=0.5, c='k', zorder=-2)
+        #        ax2.text(x, y, kper, transform=ax.transData, ha='center', va='top')
+        #        kpers.add(kper)
 
-        ax2.text(0.5, -0.07, 'Model Stress Period', ha='center', va='top', transform=ax.transAxes)
+        #ax2.text(0.5, -0.07, 'Model Stress Period', ha='center', va='top', transform=ax.transAxes)
 
     else:
         fig, ax = plt.subplots(1, 1, sharex=True, figsize=(11, 8.5))
         series.plot(ax=ax, c='C0')
         ax.axhline(0, zorder=-1, lw=0.5, c='k')
         ax2 = ax
+        single_subplot = True
+
+    # add stress period info
+    ymin, ymax = ax.get_ylim()
+    pad = 0.02
+    if single_subplot:
+        pad = 0.1
+    yloc = np.ones(len(df)) * (ymin - pad * (ymax - ymin))
+    if xtick_stride is None:
+        xtick_stride = int(np.round(len(df) / 10, 0))
+        xtick_stride = 1 if xtick_stride < 1 else xtick_stride
+    kpers = set()
+    for x, y in zip(df.index.values[::xtick_stride], yloc[::xtick_stride]):
+        kper = int(df.loc[x, 'kper'])
+        # only make one line for each stress period
+        if kper not in kpers:
+            ax.axvline(x, lw=0.5, c='k', zorder=-2)
+            ax2.axvline(x, lw=0.5, c='k', zorder=-2)
+            ax2.text(x, y, kper, transform=ax.transData, ha='center', va='top')
+            kpers.add(kper)
+
+        ax2.text(0.5, -0.07, 'Model Stress Period', ha='center', va='top', transform=ax.transAxes)
+
 
     title_text = ' '.join((title_prefix, term.split('_')[0], title_suffix)).strip()
     ax.set_title(title_text)
@@ -358,11 +537,26 @@ def plot_budget_term(df, term, title_prefix='', title_suffix='', plotted=set(),
     xmin, xmax = series.index.min(), series.index.max()
         
     if plot_start_date is not None:
-        xmin = pd.Timestamp(plot_start_date)
+        if not datetime_xaxis:
+            loc = df.datetime >= plot_start_date
+            xmin = df.datetime.loc[loc].index[0]
+        else: 
+            xmin = pd.Timestamp(plot_start_date)
     if plot_end_date is not None:
-        xmax = pd.Timestamp(plot_end_date)
+        if not datetime_xaxis:
+            loc = df.datetime <= plot_end_date
+            xmax = df.datetime.loc[loc].index[-1]
+        else:
+            xmax = pd.Timestamp(plot_end_date)
     ax.set_xlim(xmin, xmax)
 
+    if not datetime_xaxis:
+        if 'datetime' in df.columns:
+            xticks = ax2.get_xticks()
+            datetime_labels = [df['datetime'].loc[int(i)].strftime('%Y-%m-%d') 
+                               for i in xticks if i <= df.index.max()]
+            ax2.set_xticklabels(datetime_labels, rotation=90)
+            
     if not isinstance(df.index, pd.DatetimeIndex):
         ax2.set_xlabel('Time since the start of the simulation, in model units')
 

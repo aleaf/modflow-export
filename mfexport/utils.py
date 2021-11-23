@@ -63,13 +63,14 @@ def load_yaml(yml_file):
 
 
 def make_output_folders(output_path='postproc'):
-    pdfs_dir = os.path.join(output_path, 'pdfs')
-    rasters_dir = os.path.join(output_path, 'rasters')
-    shps_dir = os.path.join(output_path, 'shps')
+    output_path = Path(output_path)
+    pdfs_dir = output_path / 'pdfs'
+    rasters_dir = output_path / 'rasters'
+    shps_dir = output_path / 'shps'
     for path in [pdfs_dir, shps_dir, rasters_dir]:
-        if not os.path.isdir(path):
+        if not path.is_dir():
             print('creating {}...'.format(path))
-            os.makedirs(path)
+            path.mkdir(parents=True)
     return pdfs_dir, rasters_dir, shps_dir
 
 

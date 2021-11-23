@@ -7,6 +7,7 @@ COMPACT BUDGET AUX
 period 1 step 5 
   save head
   save budget
+  print budget
 
 period 2 step 5 
   save head
