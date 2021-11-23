@@ -3,6 +3,7 @@
 pyyaml
 numpy
 pandas
+xarray
 gdal
 fiona
 rasterio
