@@ -17,8 +17,8 @@ def test_get_listfile_model_version(listfile, expected):
 
 
 @pytest.mark.parametrize('listfile,model_start_date,budgetkey,expected_len',
-                         (('examples/data/lpr/lpr_inset.list', '2011-01-01', 'SFR BUDGET', 0),
-                          ('examples/data/lpr/lpr_inset.list', '2011-01-01', None, 12),
+                         (('Examples/data/lpr/lpr_inset.list', '2011-01-01', 'SFR BUDGET', 0),
+                          ('Examples/data/lpr/lpr_inset.list', '2011-01-01', None, 12),
                           ('mfexport/tests/data/shellmound/shellmound.list', '1998-04-01', 'SFR BUDGET', 19),
                           )
                          )
