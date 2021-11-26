@@ -7,8 +7,8 @@ import fiona
 import rasterio
 from shapely.geometry import box
 import pytest
-from ..grid import load_modelgrid
-from ..results import export_cell_budget, export_heads, export_drawdown, export_sfr_results
+from mfexport.grid import load_modelgrid
+from mfexport.results import export_cell_budget, export_heads, export_drawdown, export_sfr_results
 
 
 @pytest.fixture(scope='module')

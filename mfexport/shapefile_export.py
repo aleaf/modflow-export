@@ -5,7 +5,7 @@ from shapely.geometry import Polygon
 from flopy.utils import MfList
 from flopy.mf6.data.mfdatalist import MFTransientList
 from gisutils import df2shp
-from .list_export import mftransientlist_to_dataframe
+from mfexport.list_export import mftransientlist_to_dataframe
 
 
 def export_shapefile(filename, data, modelgrid, kper=None,

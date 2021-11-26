@@ -2,7 +2,7 @@ import numpy as np
 from rasterio import Affine
 from shapely.geometry import Polygon
 from flopy.discretization import StructuredGrid
-from .utils import get_input_arguments, load
+from mfexport.utils import get_input_arguments, load
 
 
 class MFexportGrid(StructuredGrid):

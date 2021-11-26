@@ -1,13 +1,13 @@
 import numpy as np
 from flopy.utils import binaryfile as bf
-from .array_export import export_array, export_array_contours
-from .budget_output import get_bc_flux, read_sfr_output, get_flowja_face
+from mfexport.array_export import export_array, export_array_contours
+from mfexport.budget_output import get_bc_flux, read_sfr_output, get_flowja_face
 from gisutils import shp2df
-from .pdf_export import sfr_baseflow_pdf, sfr_qaquifer_pdf
-from .shapefile_export import export_shapefile
-from .units import (convert_length_units, convert_time_units,
+from mfexport.pdf_export import sfr_baseflow_pdf, sfr_qaquifer_pdf
+from mfexport.shapefile_export import export_shapefile
+from mfexport.units import (convert_length_units, convert_time_units,
                     get_length_units, get_time_units, get_unit_text)
-from .utils import get_water_table, make_output_folders
+from mfexport.utils import get_water_table, make_output_folders
 
 # TODO: update docstrings
 
@@ -163,7 +163,7 @@ def export_drawdown(heads_file, grid, hdry, hnflo,
 
 def export_heads(heads_file, grid, hdry, hnflo,
                  kstpkper=(0, 0), levels=None, interval=None,
-                 export_water_table=True, export_depth_to_water=True,
+                 export_water_table=True, export_depth_to_water=False,
                  export_layers=False, land_surface_elevations=None,
                  output_path='postproc', suffix=''):
     """Export MODFLOW binary head output to rasters and shapefiles.

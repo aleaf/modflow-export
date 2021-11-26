@@ -6,11 +6,11 @@ import flopy
 mf6 = flopy.mf6
 from flopy.datbase import DataType, DataInterface
 from flopy.discretization import StructuredGrid
-from .array_export import export_array, export_array_contours, squeeze_3d
-from .list_export import mftransientlist_to_dataframe, get_tl_variables
-from .pdf_export import export_pdf, export_pdf_bar_summary
-from .shapefile_export import export_shapefile
-from .utils import get_flopy_package_fname, make_output_folders
+from mfexport.array_export import export_array, export_array_contours, squeeze_3d
+from mfexport.list_export import mftransientlist_to_dataframe, get_tl_variables
+from mfexport.pdf_export import export_pdf, export_pdf_bar_summary
+from mfexport.shapefile_export import export_shapefile
+from mfexport.utils import get_flopy_package_fname, make_output_folders
 
 
 othername = {'model_top': 'top'}

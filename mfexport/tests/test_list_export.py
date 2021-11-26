@@ -1,6 +1,5 @@
 import numpy as np
-import flopy
-from ..list_export import mftransientlist_to_dataframe
+from mfexport.list_export import mftransientlist_to_dataframe
 
 
 def get_period_sums(mftransientlist):

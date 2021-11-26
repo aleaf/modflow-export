@@ -1,0 +1,30 @@
+name: mfexport_dev
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python
+  - pyyaml
+  - numpy
+  - pandas
+  - xarray
+  - gdal
+  - fiona
+  - rasterio
+  - shapely
+  - pyproj>=2.0
+  - codecov
+  - coverage
+  - flake8
+  - pytest
+  - sphinx
+  - numpydoc
+  - nbsphinx  # for rendering notebooks in sphinx-generated docs
+  - sphinx-copybutton
+  - sphinx_rtd_theme
+  - pip
+  - pip:
+    - pytest-timeout
+    - git+git://github.com/modflowpy/flopy@develop
+    - git+git://github.com/aleaf/gis-utils@develop
+

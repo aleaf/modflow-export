@@ -237,12 +237,12 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
         
     Examples
     --------
-        ```python
+    .. code-block:: python
+
         from mfexport.listfile import get_listfile_data, plot_budget_summary
-        
         df = get_listfile_data(listfile='model.list', model_start_datetime='2000-01-01')
         plot_budget_summary(df)
-        ```
+
     """    
 
     # slice the dataframe to the specified time range (if any)
@@ -394,12 +394,11 @@ def plot_budget_term(df, term, title_prefix='', title_suffix='',
         
     Examples
     --------
-        ```python
-        from mfexport.listfile import get_listfile_data, plot_budget_term
-        
+    .. code-block:: python
+
+        from mfexport.listfile import get_listfile_data, plot_budget_summary
         df = get_listfile_data(listfile='model.list', model_start_datetime='2000-01-01')
-        plot_budget_term(df)
-        ```
+        plot_budget_term(df, 'WELLS')
     """    
     # slice the dataframe to the specified time range (if any)
     df = df.copy()

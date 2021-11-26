@@ -8,7 +8,7 @@ from flopy.discretization import StructuredGrid
 from flopy.utils.sfroutputfile import SfrFile
 import flopy.utils.binaryfile as bf
 from flopy.mf6.utils.binarygrid_util import MfGrdFile
-from .grid import get_kij_from_node3d
+from mfexport.grid import get_kij_from_node3d
 
 
 def aggregate_sfr_flow_ja_face(df):

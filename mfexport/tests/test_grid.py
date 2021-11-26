@@ -1,6 +1,6 @@
 import copy
 import numpy as np
-from ..grid import get_kij_from_node3d
+from mfexport.grid import get_kij_from_node3d
 
 
 def test_grid_eq(lpr_modelgrid):

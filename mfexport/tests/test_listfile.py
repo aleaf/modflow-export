@@ -1,7 +1,6 @@
 """
 Tests for listfile module
 """
-import os
 from pathlib import Path
 import pytest
 from mfexport import plot_list_budget
