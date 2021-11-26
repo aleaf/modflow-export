@@ -3,68 +3,20 @@ modflow-export
 -----------------------------------------------
 Fast & easy summarizing of MODFLOW data and export to GIS file formats.
 
-### Version 0.1
+### Version 0.2
 ![Tests](https://github.com/aleaf/modflow-export/workflows/Tests/badge.svg)
 [![codecov](https://codecov.io/gh/aleaf/modflow-export/branch/master/graph/badge.svg)](https://codecov.io/gh/aleaf/modflow-export)
 [![PyPI version](https://badge.fury.io/py/modflow-export.svg)](https://badge.fury.io/py/modflow-export)
 
 
-
-
 Getting Started
------------------------------------------------
-
-[Example Notebook](Examples/modflow_nwt_example.ipynb)
-
-
-### Bugs
-
-If you think you have discovered a bug in modflow-export in which you feel that the program does not work as intended, then we ask you to submit a [Github issue](https://github.com/aleaf/modflow-export/labels/bug).
+----------------------------------------------- 
+See the [Modflow-export documentation](https://aleaf.github.io/modflow-export/index.html)
 
 
 Installation
 -----------------------------------------------
-
-**Python versions:**
-
-modflow-export requires **Python** 3.8 (or higher)
-
-**Dependencies:**  
-pyyaml  
-numpy  
-pandas  
-gdal   
-fiona  
-rasterio  
-shapely  
-pyproj  
-flopy  
-gis-utils
-
-### Install python and dependency packages
-Download and install the [Anaconda python distribution](https://www.anaconda.com/distribution/).
-Open an Anaconda Command Prompt on Windows or a terminal window on OSX.
-From the root folder for the package (that contains `requirements.yml`), install the above packages from `requirements.yml`.
-
-```
-conda env create -f requirements.yml
-```
-activate the environment:
-
-```
-conda activate mfexport
-```
-### Install to site_packages folder
-```
-python setup.py install
-```
-### Install in current location (to current python path)
-(i.e., for development)  
-
-```  
-pip install -e .
-```
-
+See the [Installation Instructions](https://aleaf.github.io/modflow-export/latest/installation.html)
 
 
 MODFLOW Resources
@@ -72,6 +24,8 @@ MODFLOW Resources
 
 + [MODFLOW Online Guide](https://water.usgs.gov/ogw/modflow-nwt/MODFLOW-NWT-Guide/index.html?nwt_newton_solver.htm)
 + [MODFLOW 6](https://www.usgs.gov/software/modflow-6-usgs-modular-hydrologic-model)
++ [Modflow-setup](https://github.com/aleaf/modflow-setup)
++ [SFRmaker](https://github.com/usgs/sfrmaker)
 
 
 

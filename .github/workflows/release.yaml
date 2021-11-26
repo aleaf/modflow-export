@@ -62,7 +62,7 @@ jobs:
       with:
         auto-update-conda: true
         activate-environment: mfexport_ci
-        environment-file: ci/requirements.yml
+        environment-file: ci/requirements.yaml
         python-version: '3.9'
         auto-activate-base: false
         # must be false in most cases
