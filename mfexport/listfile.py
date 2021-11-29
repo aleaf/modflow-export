@@ -91,7 +91,7 @@ def plot_list_budget(listfile, model_name=None,
                      model_time_units=None,
                      secondary_axis_units=None,
                      xtick_stride=6, plot_start_date=None, plot_end_date=None,
-                     plot_pcts=True,
+                     plot_pcts=False,
                      datetime_xaxis=True):
 
     pdfs_dir, _, _ = make_output_folders(output_path)
@@ -144,7 +144,8 @@ def plot_list_budget(listfile, model_name=None,
                             xtick_stride=xtick_stride,
                             plot_start_date=plot_start_date, 
                             plot_end_date=plot_end_date,
-                            annual_sums=True)
+                            annual_sums=True,
+                            plot_pcts=plot_pcts)
         if ax is not None:
             pdf.savefig()
             plt.close()
@@ -624,9 +625,15 @@ def plot_budget_term(df, term, title_prefix='', title_suffix='',
     if not datetime_xaxis:
         if 'datetime' in df.columns:
             xticks = ax2.get_xticks()
-            datetime_labels = [df['datetime'].loc[int(i)].strftime('%Y-%m-%d') 
-                               for i in xticks if i <= df.index.max()]
+            datetime_labels = []
+            for i in xticks:
+                if i in df.index:
+                    dt_label = df['datetime'].loc[int(i)].strftime('%Y-%m-%d')
+                else:
+                    dt_label = ''
+                datetime_labels.append(dt_label)
             ax2.set_xticklabels(datetime_labels, rotation=90)
+            ax2.set_xlabel(None)
             
     if not isinstance(df.index, pd.DatetimeIndex):
         ax2.set_xlabel('Time since the start of the simulation, in model units')
