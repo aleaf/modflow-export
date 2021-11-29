@@ -278,7 +278,7 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
     df = df.loc[slice(plot_start_date, plot_end_date)]
     if annual_sums:
         if isinstance(df.index, pd.DatetimeIndex):
-            dfa = df.groupby(df.index.year).sum()
+            dfa = df.groupby(df.index.year).mean()
             dfa['kper'] = df.groupby(df.index.year).last()['kper']
             dfa['kstp'] = df.groupby(df.index.year).last()['kstp']
             df = dfa
@@ -366,7 +366,10 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
             ax.axvline(x, lw=0.5, c='k', zorder=-2)
             ax.text(x, y, f" {kper}", transform=ax.transData, ha='left', va='top')
             kpers.add(kper)
-    ax.text(min(kpers), y + abs(0.06*y), ' model stress period:', transform=ax.transData, ha='left', va='top')
+    ax.text(0, # min(kpers), # (the x loc of the first bar is always 0)
+            y + abs(0.06*y), 
+            ' model stress period:', 
+            transform=ax.transData, ha='left', va='top')
     title_text = 'budget summary' 
     if term_nets:
         title_text += ' (net fluxes)'
