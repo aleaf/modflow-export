@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mfexport.results &mdash; modflow-export 0.post65+g0f476d7 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> modflow-export
+          </a>
+              <div class="version">
+                0.post65+g0f476d7
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html"> Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html"> Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html"> Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html"> Code reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release-history.html"> Release History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html"> Contributing to Modflow-export</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">modflow-export</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>mfexport.results</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mfexport.results</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">flopy.utils</span> <span class="kn">import</span> <span class="n">binaryfile</span> <span class="k">as</span> <span class="n">bf</span>
+<span class="kn">from</span> <span class="nn">mfexport.array_export</span> <span class="kn">import</span> <span class="n">export_array</span><span class="p">,</span> <span class="n">export_array_contours</span>
+<span class="kn">from</span> <span class="nn">mfexport.budget_output</span> <span class="kn">import</span> <span class="n">get_bc_flux</span><span class="p">,</span> <span class="n">read_sfr_output</span><span class="p">,</span> <span class="n">get_flowja_face</span>
+<span class="kn">from</span> <span class="nn">gisutils</span> <span class="kn">import</span> <span class="n">shp2df</span>
+<span class="kn">from</span> <span class="nn">mfexport.pdf_export</span> <span class="kn">import</span> <span class="n">sfr_baseflow_pdf</span><span class="p">,</span> <span class="n">sfr_qaquifer_pdf</span>
+<span class="kn">from</span> <span class="nn">mfexport.shapefile_export</span> <span class="kn">import</span> <span class="n">export_shapefile</span>
+<span class="kn">from</span> <span class="nn">mfexport.units</span> <span class="kn">import</span> <span class="p">(</span><span class="n">convert_length_units</span><span class="p">,</span> <span class="n">convert_time_units</span><span class="p">,</span>
+                    <span class="n">get_length_units</span><span class="p">,</span> <span class="n">get_time_units</span><span class="p">,</span> <span class="n">get_unit_text</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">mfexport.utils</span> <span class="kn">import</span> <span class="n">get_water_table</span><span class="p">,</span> <span class="n">make_output_folders</span>
+
+<span class="c1"># TODO: update docstrings</span>
+
+
+<div class="viewcode-block" id="export_cell_budget"><a class="viewcode-back" href="../../api/index.html#mfexport.results.export_cell_budget">[docs]</a><span class="k">def</span> <span class="nf">export_cell_budget</span><span class="p">(</span><span class="n">cell_budget_file</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span>
+                       <span class="n">binary_grid_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">kstpkper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                       <span class="n">precision</span><span class="o">=</span><span class="s1">&#39;single&#39;</span><span class="p">,</span>
+                       <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;postproc&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Read a flow component from MODFLOW binary cell budget output;</span>
+<span class="sd">    write to raster.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cell_budget_file : modflow binary cell budget output</span>
+<span class="sd">    grid : rOpen.modflow.grid instance</span>
+<span class="sd">    text : cell budget record to read (e.g. &#39;STREAM LEAKAGE&#39;)</span>
+<span class="sd">    kstpkper : tuple</span>
+<span class="sd">        (timestep, stress period) to read</span>
+<span class="sd">    idx : index of list returned by cbbobj (usually 0)</span>
+<span class="sd">    outfolder : where to write raster</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Exporting cell budget info...&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;file: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cell_budget_file</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;binary grid file: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">binary_grid_file</span><span class="p">))</span>
+
+    <span class="n">cbbobj</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">CellBudgetFile</span><span class="p">(</span><span class="n">cell_budget_file</span><span class="p">,</span> <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">kstpkper</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">kstpkper</span> <span class="o">=</span> <span class="n">cbbobj</span><span class="o">.</span><span class="n">get_times</span><span class="p">()[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">kstpkper</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">kstpkper</span> <span class="o">=</span> <span class="p">[</span><span class="n">kstpkper</span><span class="p">]</span>
+
+    <span class="n">pdfs_dir</span><span class="p">,</span> <span class="n">rasters_dir</span><span class="p">,</span> <span class="n">shps_dir</span> <span class="o">=</span> <span class="n">make_output_folders</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="p">[</span><span class="n">text</span><span class="p">]</span>
+
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">cbbobj</span><span class="o">.</span><span class="n">get_unique_record_names</span><span class="p">()]</span>
+    <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">names</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> not found in </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">text</span><span class="p">),</span> <span class="n">cell_budget_file</span><span class="p">))</span>
+
+    <span class="n">outfiles</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">kper</span> <span class="ow">in</span> <span class="n">kstpkper</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;stress period </span><span class="si">{}</span><span class="s1">, timestep </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">variable</span> <span class="o">==</span> <span class="s1">&#39;FLOW-JA-FACE&#39;</span><span class="p">:</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">get_flowja_face</span><span class="p">(</span><span class="n">cbbobj</span><span class="p">,</span> <span class="n">binary_grid_file</span><span class="o">=</span><span class="n">binary_grid_file</span><span class="p">,</span>
+                                       <span class="n">kstpkper</span><span class="o">=</span><span class="p">(</span><span class="n">kstp</span><span class="p">,</span> <span class="n">kper</span><span class="p">),</span> <span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span>
+                                       <span class="n">precision</span><span class="o">=</span><span class="n">precision</span><span class="p">)</span>
+                <span class="c1"># export the vertical fluxes as rasters</span>
+                <span class="c1"># (in the downward direction; so fluxes between 2 layers</span>
+                <span class="c1"># would be represented in the upper layer)</span>
+                <span class="k">if</span> <span class="n">df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;kn&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;kn&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;km&#39;</span><span class="p">]):</span>
+                    <span class="n">vflux</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;kn&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;km&#39;</span><span class="p">])]</span>
+                    <span class="n">nlay</span> <span class="o">=</span> <span class="n">vflux</span><span class="p">[</span><span class="s1">&#39;km&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+                    <span class="n">_</span><span class="p">,</span> <span class="n">nrow</span><span class="p">,</span> <span class="n">ncol</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">shape</span>
+                    <span class="n">vflux_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nlay</span><span class="p">,</span> <span class="n">nrow</span><span class="p">,</span> <span class="n">ncol</span><span class="p">))</span>
+                    <span class="n">vflux_array</span><span class="p">[</span><span class="n">vflux</span><span class="p">[</span><span class="s1">&#39;kn&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                                <span class="n">vflux</span><span class="p">[</span><span class="s1">&#39;in&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                                <span class="n">vflux</span><span class="p">[</span><span class="s1">&#39;jn&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">]</span> <span class="o">=</span> <span class="n">vflux</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">values</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="n">vflux_array</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">get_bc_flux</span><span class="p">(</span><span class="n">cbbobj</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">kstpkper</span><span class="o">=</span><span class="p">(</span><span class="n">kstp</span><span class="p">,</span> <span class="n">kper</span><span class="p">),</span> <span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> not exported.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">variable</span><span class="p">))</span>
+                <span class="k">continue</span>
+            <span class="n">outfile</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">_per</span><span class="si">{}</span><span class="s1">_stp</span><span class="si">{}{}</span><span class="s1">.tif&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rasters_dir</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+            <span class="n">export_array</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">outfiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">outfiles</span></div>
+
+
+<div class="viewcode-block" id="export_drawdown"><a class="viewcode-back" href="../../api/index.html#mfexport.results.export_drawdown">[docs]</a><span class="k">def</span> <span class="nf">export_drawdown</span><span class="p">(</span><span class="n">heads_file</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">hdry</span><span class="p">,</span> <span class="n">hnflo</span><span class="p">,</span>
+                    <span class="n">kstpkper0</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">kstpkper1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">levels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">export_water_table</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">export_layers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;postproc&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Export MODFLOW binary head output to rasters and shapefiles.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    modelname : str</span>
+<span class="sd">        model base name</span>
+<span class="sd">    grid : rOpen.modflow.grid instance</span>
+<span class="sd">    hdry : hdry value from UPW package</span>
+<span class="sd">    hnflo : hnflo value from BAS package</span>
+<span class="sd">    levels : 1D numpy array</span>
+<span class="sd">        Values of equal interval contours to write.</span>
+<span class="sd">    shps_outfolder : where to write shapefiles</span>
+<span class="sd">    rasters_outfolder : where to write rasters</span>
+
+<span class="sd">    Writes</span>
+<span class="sd">    ------</span>
+<span class="sd">    * A raster of heads for each layer and a raster of the water table elevation</span>
+<span class="sd">    * Shapefiles of head contours for each layer and the water table.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Exporting drawdown...&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;file: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">heads_file</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">kstpkper0</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;from stress period </span><span class="si">{}</span><span class="s1">, timestep </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="o">*</span><span class="nb">reversed</span><span class="p">(</span><span class="n">kstpkper0</span><span class="p">)))</span>
+    
+    <span class="k">if</span> <span class="n">kstpkper1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># convert kstpkper1 to a list of tuples or lists if it isn&#39;t</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">kstpkper1</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">kstpkper1</span> <span class="o">=</span> <span class="p">[</span><span class="n">kstpkper1</span><span class="p">]</span>
+            
+    <span class="n">pdfs_dir</span><span class="p">,</span> <span class="n">rasters_dir</span><span class="p">,</span> <span class="n">shps_dir</span> <span class="o">=</span> <span class="n">make_output_folders</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+
+    <span class="c1"># Heads output at drawdown period start</span>
+    <span class="n">hdsobj</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">HeadFile</span><span class="p">(</span><span class="n">heads_file</span><span class="p">)</span>
+    <span class="n">hds0</span> <span class="o">=</span> <span class="n">hdsobj</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">kstpkper</span><span class="o">=</span><span class="n">kstpkper0</span><span class="p">)</span>
+    <span class="n">hds0</span><span class="p">[(</span><span class="n">hds0</span> <span class="o">&gt;</span> <span class="mi">9999</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">hds0</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    
+    <span class="k">if</span> <span class="n">export_water_table</span><span class="p">:</span>
+        <span class="n">wt0</span> <span class="o">=</span> <span class="n">get_water_table</span><span class="p">(</span><span class="n">hds0</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="n">hdry</span><span class="p">)</span>
+        
+    <span class="k">for</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">kper</span> <span class="ow">in</span> <span class="n">kstpkper1</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;to stress period </span><span class="si">{</span><span class="n">kper</span><span class="si">}</span><span class="s1">, timestep </span><span class="si">{</span><span class="n">kstp</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">kstp</span><span class="p">,</span> <span class="n">kper</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;kstpkper == (0, 0, no drawdown to export&#39;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># heads output at drawdown period end</span>
+        <span class="n">hds1</span> <span class="o">=</span> <span class="n">hdsobj</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">kstpkper</span><span class="o">=</span><span class="p">(</span><span class="n">kstp</span><span class="p">,</span> <span class="n">kper</span><span class="p">))</span>
+        <span class="n">hds1</span><span class="p">[(</span><span class="n">hds1</span> <span class="o">&gt;</span> <span class="mi">9999</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">hds1</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        
+        <span class="k">if</span> <span class="n">export_water_table</span><span class="p">:</span>
+            <span class="n">wt1</span> <span class="o">=</span> <span class="n">get_water_table</span><span class="p">(</span><span class="n">hds1</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="n">hdry</span><span class="p">)</span>
+            <span class="n">wt_ddn</span> <span class="o">=</span> <span class="n">wt0</span> <span class="o">-</span> <span class="n">wt1</span>
+
+            <span class="n">outfiles</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">outfile</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/wt-ddn_per</span><span class="si">{}</span><span class="s1">_stp</span><span class="si">{}{}</span><span class="s1">.tif&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rasters_dir</span><span class="p">,</span> <span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+            <span class="n">ctr_outfile</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/wt-ddn_ctr_per</span><span class="si">{}</span><span class="s1">_stp</span><span class="si">{}{}</span><span class="s1">.shp&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shps_dir</span><span class="p">,</span> <span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+            <span class="n">export_array</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">wt_ddn</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="n">hnflo</span><span class="p">)</span>
+            <span class="n">export_array_contours</span><span class="p">(</span><span class="n">ctr_outfile</span><span class="p">,</span> <span class="n">wt_ddn</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span>
+                                    <span class="p">)</span>
+            <span class="n">outfiles</span> <span class="o">+=</span> <span class="p">[</span><span class="n">outfile</span><span class="p">,</span> <span class="n">ctr_outfile</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">export_layers</span><span class="p">:</span>
+            <span class="n">ddn</span> <span class="o">=</span> <span class="n">hds0</span> <span class="o">-</span> <span class="n">hds1</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ddn</span><span class="p">):</span>
+                <span class="n">outfile</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/ddn_lay</span><span class="si">{}</span><span class="s1">_per</span><span class="si">{}</span><span class="s1">_stp</span><span class="si">{}{}</span><span class="s1">.tif&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rasters_dir</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+                <span class="n">ctr_outfile</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/ddn_ctr_lay</span><span class="si">{}</span><span class="s1">_per</span><span class="si">{}</span><span class="s1">_stp</span><span class="si">{}{}</span><span class="s1">.shp&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shps_dir</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+                <span class="n">export_array</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="n">hnflo</span><span class="p">)</span>
+                <span class="n">export_array_contours</span><span class="p">(</span><span class="n">ctr_outfile</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span>
+                                        <span class="p">)</span>
+                <span class="n">outfiles</span> <span class="o">+=</span> <span class="p">[</span><span class="n">outfile</span><span class="p">,</span> <span class="n">ctr_outfile</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">outfiles</span></div>
+
+
+<div class="viewcode-block" id="export_heads"><a class="viewcode-back" href="../../api/index.html#mfexport.results.export_heads">[docs]</a><span class="k">def</span> <span class="nf">export_heads</span><span class="p">(</span><span class="n">heads_file</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">hdry</span><span class="p">,</span> <span class="n">hnflo</span><span class="p">,</span>
+                 <span class="n">kstpkper</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">levels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">export_water_table</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">export_depth_to_water</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">export_layers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">land_surface_elevations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;postproc&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Export MODFLOW binary head output to rasters and shapefiles.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    modelname : str</span>
+<span class="sd">        model base name</span>
+<span class="sd">    grid : rOpen.modflow.grid instance</span>
+<span class="sd">    hdry : hdry value from UPW package</span>
+<span class="sd">    hnflo : hnflo value from BAS package</span>
+<span class="sd">    levels : 1D numpy array</span>
+<span class="sd">        Values of equal interval contours to write.</span>
+<span class="sd">    shps_outfolder : where to write shapefiles</span>
+<span class="sd">    rasters_outfolder : where to write rasters</span>
+
+<span class="sd">    Writes</span>
+<span class="sd">    ------</span>
+<span class="sd">    * A raster of heads for each layer and a raster of the water table elevation</span>
+<span class="sd">    * Shapefiles of head contours for each layer and the water table.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">kstpkper</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">kstpkper</span> <span class="o">=</span> <span class="p">[</span><span class="n">kstpkper</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Exporting heads...&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;file: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">heads_file</span><span class="p">))</span>
+
+    <span class="n">pdfs_dir</span><span class="p">,</span> <span class="n">rasters_dir</span><span class="p">,</span> <span class="n">shps_dir</span> <span class="o">=</span> <span class="n">make_output_folders</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+
+    <span class="n">outfiles</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">kper</span> <span class="ow">in</span> <span class="n">kstpkper</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;stress period </span><span class="si">{}</span><span class="s1">, timestep </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">))</span>
+        <span class="c1"># Heads output</span>
+        <span class="n">hdsobj</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">HeadFile</span><span class="p">(</span><span class="n">heads_file</span><span class="p">)</span>
+        <span class="n">hds</span> <span class="o">=</span> <span class="n">hdsobj</span><span class="o">.</span><span class="n">get_data</span><span class="p">(</span><span class="n">kstpkper</span><span class="o">=</span><span class="p">(</span><span class="n">kstp</span><span class="p">,</span> <span class="n">kper</span><span class="p">))</span>
+        
+        <span class="k">if</span> <span class="n">export_water_table</span> <span class="ow">or</span> <span class="n">export_depth_to_water</span><span class="p">:</span>
+            <span class="n">wt</span> <span class="o">=</span> <span class="n">get_water_table</span><span class="p">(</span><span class="n">hds</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="n">hdry</span><span class="p">)</span>
+            <span class="n">wt</span><span class="p">[(</span><span class="n">wt</span> <span class="o">&gt;</span> <span class="mi">9999</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">wt</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+            <span class="n">outfile</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/wt_per</span><span class="si">{}</span><span class="s1">_stp</span><span class="si">{}{}</span><span class="s1">.tif&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rasters_dir</span><span class="p">,</span> <span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+            <span class="n">ctr_outfile</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/wt_ctr_per</span><span class="si">{}</span><span class="s1">_stp</span><span class="si">{}{}</span><span class="s1">.shp&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shps_dir</span><span class="p">,</span> <span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+            <span class="n">export_array</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">wt</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="n">hnflo</span><span class="p">)</span>
+            <span class="n">export_array_contours</span><span class="p">(</span><span class="n">ctr_outfile</span><span class="p">,</span> <span class="n">wt</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">)</span>
+            <span class="n">outfiles</span> <span class="o">+=</span> <span class="p">[</span><span class="n">outfile</span><span class="p">,</span> <span class="n">ctr_outfile</span><span class="p">]</span>
+            
+        <span class="k">if</span> <span class="n">export_depth_to_water</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">land_surface_elevations</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">((</span><span class="s1">&#39;export_heads: export_depth_to_water option &#39;</span>
+                                 <span class="s1">&#39;requires specification of the land surface&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">land_surface_elevations</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="n">land_surface_elevations</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">land_surface_elevations</span><span class="p">)</span>
+            
+            <span class="c1"># Depth to water</span>
+            <span class="n">dtw</span> <span class="o">=</span> <span class="n">land_surface_elevations</span> <span class="o">-</span> <span class="n">wt</span>    
+
+            <span class="c1"># Overpressurization</span>
+            <span class="n">op</span> <span class="o">=</span> <span class="n">dtw</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="c1"># For DTW, mask areas of overpressurization;</span>
+            <span class="c1"># For Overpressurization, mask areas where water table is below land surface</span>
+            <span class="n">op</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span><span class="n">op</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">op</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">dtw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span><span class="n">dtw</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">dtw</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+            
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">dtw</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1">#dtw_levels = None</span>
+                <span class="c1">#if interval is not None:</span>
+                <span class="c1">#    dtw_levels = np.linspace(0, np.nanmax(dtw), interval)</span>
+                <span class="n">outfile</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/dtw_per</span><span class="si">{}</span><span class="s1">_stp</span><span class="si">{}{}</span><span class="s1">.tif&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rasters_dir</span><span class="p">,</span> <span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+                <span class="n">ctr_outfile</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/dtw_ctr_per</span><span class="si">{}</span><span class="s1">_stp</span><span class="si">{}{}</span><span class="s1">.shp&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shps_dir</span><span class="p">,</span> <span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+                <span class="n">export_array</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">dtw</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="n">hnflo</span><span class="p">)</span>
+                <span class="n">export_array_contours</span><span class="p">(</span><span class="n">ctr_outfile</span><span class="p">,</span> <span class="n">dtw</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">)</span>
+                <span class="n">outfiles</span> <span class="o">+=</span> <span class="p">[</span><span class="n">outfile</span><span class="p">,</span> <span class="n">ctr_outfile</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Water table is above land surface everywhere, skipping depth to water.&#39;</span><span class="p">)</span>
+                
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">op</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1">#op_levels = None</span>
+                <span class="c1">#if interval is not None:</span>
+                <span class="c1">#    op_levels = np.linspace(0, np.nanmin(op), interval)</span>
+                <span class="n">outfile</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/op_per</span><span class="si">{}</span><span class="s1">_stp</span><span class="si">{}{}</span><span class="s1">.tif&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rasters_dir</span><span class="p">,</span> <span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+                <span class="n">ctr_outfile</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/op_ctr_per</span><span class="si">{}</span><span class="s1">_stp</span><span class="si">{}{}</span><span class="s1">.shp&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shps_dir</span><span class="p">,</span> <span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+                <span class="n">export_array</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="n">hnflo</span><span class="p">)</span>
+                <span class="n">export_array_contours</span><span class="p">(</span><span class="n">ctr_outfile</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">)</span>
+                <span class="n">outfiles</span> <span class="o">+=</span> <span class="p">[</span><span class="n">outfile</span><span class="p">,</span> <span class="n">ctr_outfile</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No overpressurization, skipping.&#39;</span><span class="p">)</span>
+            
+
+        <span class="n">hds</span><span class="p">[(</span><span class="n">hds</span> <span class="o">&gt;</span> <span class="mi">9999</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">hds</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+        <span class="k">if</span> <span class="n">export_layers</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">h</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">hds</span><span class="p">):</span>
+                <span class="n">outfile</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/hds_lay</span><span class="si">{}</span><span class="s1">_per</span><span class="si">{}</span><span class="s1">_stp</span><span class="si">{}{}</span><span class="s1">.tif&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rasters_dir</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+                <span class="n">ctr_outfile</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/hds_ctr_lay</span><span class="si">{}</span><span class="s1">_per</span><span class="si">{}</span><span class="s1">_stp</span><span class="si">{}{}</span><span class="s1">.shp&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shps_dir</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+                <span class="n">export_array</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="n">hnflo</span><span class="p">)</span>
+                <span class="n">export_array_contours</span><span class="p">(</span><span class="n">ctr_outfile</span><span class="p">,</span> <span class="n">h</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span>
+                                    <span class="p">)</span>
+                <span class="n">outfiles</span> <span class="o">+=</span> <span class="p">[</span><span class="n">outfile</span><span class="p">,</span> <span class="n">ctr_outfile</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">outfiles</span></div>
+
+
+<div class="viewcode-block" id="export_sfr_results"><a class="viewcode-back" href="../../api/index.html#mfexport.results.export_sfr_results">[docs]</a><span class="k">def</span> <span class="nf">export_sfr_results</span><span class="p">(</span><span class="n">mf2005_sfr_outputfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">mf2005_SfrFile_instance</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">mf6_sfr_stage_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">mf6_sfr_budget_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">mf6_package_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">model_top</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">grid</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">kstpkper</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                       <span class="n">sfrlinesfile</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">pointsize</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+                       <span class="n">model_length_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">model_time_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                       <span class="n">output_length_units</span><span class="o">=</span><span class="s1">&#39;feet&#39;</span><span class="p">,</span>
+                       <span class="n">output_time_units</span><span class="o">=</span><span class="s1">&#39;seconds&#39;</span><span class="p">,</span>
+                       <span class="n">gis</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pdfs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                       <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;postproc&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                       <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+    <span class="n">pdfs_dir</span><span class="p">,</span> <span class="n">rasters_dir</span><span class="p">,</span> <span class="n">shps_dir</span> <span class="o">=</span> <span class="n">make_output_folders</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">model</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kstpkper</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">kstpkper</span> <span class="o">=</span> <span class="p">[</span><span class="n">kstpkper</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Exporting SFR results...&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="p">[</span><span class="n">mf2005_sfr_outputfile</span><span class="p">,</span> <span class="n">mf6_sfr_stage_file</span><span class="p">,</span> <span class="n">mf6_sfr_budget_file</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">f</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;file: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">f</span><span class="p">))</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">read_sfr_output</span><span class="p">(</span><span class="n">mf2005_sfr_outputfile</span><span class="o">=</span><span class="n">mf2005_sfr_outputfile</span><span class="p">,</span>
+                         <span class="n">mf2005_SfrFile_instance</span><span class="o">=</span><span class="n">mf2005_SfrFile_instance</span><span class="p">,</span>
+                         <span class="n">mf6_sfr_stage_file</span><span class="o">=</span><span class="n">mf6_sfr_stage_file</span><span class="p">,</span>
+                         <span class="n">mf6_sfr_budget_file</span><span class="o">=</span><span class="n">mf6_sfr_budget_file</span><span class="p">,</span>
+                         <span class="n">mf6_package_data</span><span class="o">=</span><span class="n">mf6_package_data</span><span class="p">,</span>
+                         <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">model_length_units</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">model_length_units</span> <span class="o">=</span> <span class="s1">&#39;meters&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model_length_units</span> <span class="o">=</span> <span class="n">get_length_units</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">model_time_units</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">model_time_units</span> <span class="o">=</span> <span class="s1">&#39;days&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model_time_units</span> <span class="o">=</span> <span class="n">get_time_units</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+    <span class="n">lmult</span> <span class="o">=</span> <span class="n">convert_length_units</span><span class="p">(</span><span class="n">model_length_units</span><span class="p">,</span>
+                                 <span class="n">output_length_units</span><span class="p">)</span>
+    <span class="n">tmult</span> <span class="o">=</span> <span class="n">convert_time_units</span><span class="p">(</span><span class="n">model_time_units</span><span class="p">,</span>
+                               <span class="n">output_time_units</span><span class="p">)</span>
+    <span class="n">unit_text</span> <span class="o">=</span> <span class="n">get_unit_text</span><span class="p">(</span><span class="n">output_length_units</span><span class="p">,</span>
+                              <span class="n">output_time_units</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;GWF&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Qaquifer&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">df</span><span class="o">.</span><span class="n">GWF</span> <span class="c1"># for consistency with MF2005</span>
+    <span class="k">if</span> <span class="s1">&#39;Qmean&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Qmean&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;Qin&#39;</span><span class="p">,</span> <span class="s1">&#39;Qout&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># write columns in the output units</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Qmean_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">unit_text</span><span class="p">)]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Qmean</span> <span class="o">*</span> <span class="n">lmult</span><span class="o">**</span><span class="mi">3</span><span class="o">/</span><span class="n">tmult</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Qaq_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">unit_text</span><span class="p">)]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Qaquifer</span> <span class="o">*</span> <span class="n">lmult</span><span class="o">**</span><span class="mi">3</span><span class="o">/</span><span class="n">tmult</span>
+
+    <span class="c1"># add model top comparison if available</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">model_top</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">model_top</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">model_top</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">model_top</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">model_top</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">dis</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">array</span>
+    
+    <span class="k">if</span> <span class="n">model_top</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;i&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="s1">&#39;j&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;model_top&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">model_top</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">i</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">j</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s1">&#39;stage&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;above&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">stage</span> <span class="o">-</span> <span class="n">df</span><span class="o">.</span><span class="n">model_top</span>
+    <span class="n">groups</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;kstpkper&#39;</span><span class="p">)</span>
+
+    <span class="n">outfiles</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">gis</span><span class="p">:</span>
+        <span class="n">prj_file</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">sfrlinesfile</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">sfrlines</span> <span class="o">=</span> <span class="n">shp2df</span><span class="p">(</span><span class="n">sfrlinesfile</span><span class="p">)</span>
+            <span class="n">prj_file</span> <span class="o">=</span> <span class="n">sfrlines</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;.prj&#39;</span>
+            <span class="n">sfrlines</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;iseg&#39;</span><span class="p">,</span> <span class="s1">&#39;ireach&#39;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">geoms</span> <span class="o">=</span> <span class="n">sfrlines</span><span class="o">.</span><span class="n">geometry</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1">#assert sr is not None, \</span>
+            <span class="c1">#    &#39;need SpatialReference instance to locate model grid cells&#39;</span>
+            <span class="c1">#dfp = groups.get_group((0, 0)).copy()</span>
+            <span class="n">geoms</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="c1">#vertices = sr.get_vertices(dfp.i, dfp.j)</span>
+            <span class="c1">#geoms = [Polygon(vrt) for vrt in vertices]</span>
+
+        <span class="k">for</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">kper</span> <span class="ow">in</span> <span class="n">kstpkper</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;stress period </span><span class="si">{}</span><span class="s1">, timestep </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">))</span>
+            <span class="n">dfp</span> <span class="o">=</span> <span class="n">groups</span><span class="o">.</span><span class="n">get_group</span><span class="p">((</span><span class="n">kstp</span><span class="p">,</span> <span class="n">kper</span><span class="p">))</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">geoms</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">dfp</span><span class="p">[</span><span class="s1">&#39;geometry&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">geoms</span>
+            <span class="c1">#dfp = gp.GeoDataFrame(dfp)</span>
+            <span class="c1">#dfp.crs = sr.proj4_str</span>
+            <span class="c1"># to use cell polygons instead of lines</span>
+            <span class="c1"># verts = m.sr.get_vertices(df.i.values, df.j.values)</span>
+            <span class="c1">#df[&#39;geometry&#39;] = [Polygon(v) for v in verts]</span>
+            <span class="n">dfp</span><span class="p">[</span><span class="s1">&#39;stp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">dfp</span><span class="p">[</span><span class="s1">&#39;kstpkper&#39;</span><span class="p">]]</span>
+            <span class="n">dfp</span><span class="p">[</span><span class="s1">&#39;per&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">dfp</span><span class="p">[</span><span class="s1">&#39;kstpkper&#39;</span><span class="p">]]</span>
+            <span class="n">dfp</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s1">&#39;kstpkper&#39;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>  <span class="c1"># geopandas doesn&#39;t like tuples</span>
+            <span class="n">outfile</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/sfrout_per</span><span class="si">{}</span><span class="s1">_stp</span><span class="si">{}{}</span><span class="s1">.shp&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">shps_dir</span><span class="p">,</span> <span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+
+            <span class="n">export_shapefile</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">dfp</span><span class="p">,</span> <span class="n">modelgrid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span> <span class="n">prj</span><span class="o">=</span><span class="n">prj_file</span><span class="p">)</span>
+            <span class="n">outfiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span>
+            <span class="c1">#dfp.to_file(outfile)</span>
+            <span class="c1">#print(&#39;wrote {}&#39;.format(outfile))</span>
+
+    <span class="k">if</span> <span class="n">pdfs</span><span class="p">:</span>
+        <span class="c1"># need to add a scale that addresses units</span>
+        <span class="k">for</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">kper</span> <span class="ow">in</span> <span class="n">kstpkper</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;stress period </span><span class="si">{}</span><span class="s1">, timestep </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">))</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">groups</span><span class="o">.</span><span class="n">get_group</span><span class="p">((</span><span class="n">kstp</span><span class="p">,</span> <span class="n">kper</span><span class="p">))</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">bf_outfile</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/baseflow_per</span><span class="si">{}</span><span class="s1">_stp</span><span class="si">{}{}</span><span class="s1">.pdf&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pdfs_dir</span><span class="p">,</span> <span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+            <span class="n">sfr_baseflow_pdf</span><span class="p">(</span><span class="n">bf_outfile</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">pointsize</span><span class="o">=</span><span class="n">pointsize</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+            <span class="n">qaq_outfile</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/qaquifer_per</span><span class="si">{}</span><span class="s1">_stp</span><span class="si">{}</span><span class="s1">.pdf&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pdfs_dir</span><span class="p">,</span> <span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
+            <span class="n">sfr_qaquifer_pdf</span><span class="p">(</span><span class="n">qaq_outfile</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">pointsize</span><span class="o">=</span><span class="n">pointsize</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+            <span class="n">outfiles</span> <span class="o">+=</span> <span class="p">[</span><span class="n">bf_outfile</span><span class="p">,</span> <span class="n">qaq_outfile</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">outfiles</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2019, Andrew Leaf.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mfexport.inputs &mdash; modflow-export 0.post65+g0f476d7 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> modflow-export
+          </a>
+              <div class="version">
+                0.post65+g0f476d7
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html"> Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html"> Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html"> Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html"> Code reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release-history.html"> Release History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html"> Contributing to Modflow-export</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">modflow-export</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>mfexport.inputs</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mfexport.inputs</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">flopy</span>
+<span class="n">mf6</span> <span class="o">=</span> <span class="n">flopy</span><span class="o">.</span><span class="n">mf6</span>
+<span class="kn">from</span> <span class="nn">flopy.datbase</span> <span class="kn">import</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">DataInterface</span>
+<span class="kn">from</span> <span class="nn">flopy.discretization</span> <span class="kn">import</span> <span class="n">StructuredGrid</span>
+<span class="kn">from</span> <span class="nn">mfexport.array_export</span> <span class="kn">import</span> <span class="n">export_array</span><span class="p">,</span> <span class="n">export_array_contours</span><span class="p">,</span> <span class="n">squeeze_3d</span>
+<span class="kn">from</span> <span class="nn">mfexport.list_export</span> <span class="kn">import</span> <span class="n">mftransientlist_to_dataframe</span><span class="p">,</span> <span class="n">get_tl_variables</span>
+<span class="kn">from</span> <span class="nn">mfexport.pdf_export</span> <span class="kn">import</span> <span class="n">export_pdf</span><span class="p">,</span> <span class="n">export_pdf_bar_summary</span>
+<span class="kn">from</span> <span class="nn">mfexport.shapefile_export</span> <span class="kn">import</span> <span class="n">export_shapefile</span>
+<span class="kn">from</span> <span class="nn">mfexport.utils</span> <span class="kn">import</span> <span class="n">get_flopy_package_fname</span><span class="p">,</span> <span class="n">make_output_folders</span>
+
+
+<span class="n">othername</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;model_top&#39;</span><span class="p">:</span> <span class="s1">&#39;top&#39;</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="get_package_list"><a class="viewcode-back" href="../../api/index.html#mfexport.inputs.get_package_list">[docs]</a><span class="k">def</span> <span class="nf">get_package_list</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+    <span class="n">skip_packages</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;OC&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">version</span> <span class="o">==</span> <span class="s1">&#39;mf6&#39;</span><span class="p">:</span>
+        <span class="n">packages</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">packagelist</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">packages</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">get_package_list</span><span class="p">()</span>
+    <span class="n">packages</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">packages</span> <span class="k">if</span> <span class="n">p</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skip_packages</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">packages</span></div>
+
+
+<div class="viewcode-block" id="get_variable_list"><a class="viewcode-back" href="../../api/index.html#mfexport.inputs.get_variable_list">[docs]</a><span class="k">def</span> <span class="nf">get_variable_list</span><span class="p">(</span><span class="n">variables</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">variables</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">variables</span></div>
+
+
+<div class="viewcode-block" id="get_inactive_cells_mask"><a class="viewcode-back" href="../../api/index.html#mfexport.inputs.get_inactive_cells_mask">[docs]</a><span class="k">def</span> <span class="nf">get_inactive_cells_mask</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">version</span> <span class="o">==</span> <span class="s1">&#39;mf6&#39;</span><span class="p">:</span>
+        <span class="n">inactive_cells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">model</span><span class="o">.</span><span class="n">dis</span><span class="o">.</span><span class="n">nlay</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">dis</span><span class="o">.</span><span class="n">nrow</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">dis</span><span class="o">.</span><span class="n">ncol</span><span class="o">.</span><span class="n">array</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">inactive_cells</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">dis</span><span class="o">.</span><span class="n">idomain</span><span class="o">.</span><span class="n">array</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">inactive_cells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">model</span><span class="o">.</span><span class="n">dis</span><span class="o">.</span><span class="n">nlay</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">dis</span><span class="o">.</span><span class="n">nrow</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">dis</span><span class="o">.</span><span class="n">ncol</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="n">inactive_cells</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">bas6</span><span class="o">.</span><span class="n">ibound</span><span class="o">.</span><span class="n">array</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">inactive_cells</span></div>
+
+
+<div class="viewcode-block" id="export"><a class="viewcode-back" href="../../api/index.html#mfexport.inputs.export">[docs]</a><span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span> <span class="n">packages</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;postproc&#39;</span><span class="p">,</span>
+           <span class="n">contours</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_inactive_cells</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+           <span class="n">gis</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pdfs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+    <span class="n">pdfs_dir</span><span class="p">,</span> <span class="n">rasters_dir</span><span class="p">,</span> <span class="n">shps_dir</span> <span class="o">=</span> <span class="n">make_output_folders</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+
+    <span class="n">context</span> <span class="o">=</span> <span class="s1">&#39;model&#39;</span>
+    <span class="k">if</span> <span class="n">packages</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;package&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">packages</span> <span class="o">=</span> <span class="p">[</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;package&#39;</span><span class="p">)]</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="s1">&#39;packages&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">packages</span> <span class="o">=</span> <span class="n">get_package_list</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="s1">&#39;packages&#39;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">packages</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">packages</span> <span class="o">=</span> <span class="p">[</span><span class="n">packages</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="s1">&#39;variables&#39;</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="n">get_variable_list</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="s1">&#39;variable&#39;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="n">context</span> <span class="o">=</span> <span class="s1">&#39;variables&#39;</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="n">get_variable_list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;variable&#39;</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">modelgrid</span><span class="p">,</span> <span class="n">StructuredGrid</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Unstructured grids not supported&#39;</span><span class="p">)</span>
+
+    <span class="n">inactive_cells</span> <span class="o">=</span> <span class="n">get_inactive_cells_mask</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="n">inactive_cells2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">inactive_cells</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># ij locations where all layers are inactive</span>
+
+    <span class="n">filenames</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">packages</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">package</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">package</span><span class="p">)</span>
+        <span class="n">package_name</span> <span class="o">=</span> <span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="si">{}</span><span class="s1"> package...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">package_name</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s1">&#39;sfr&#39;</span> <span class="ow">in</span> <span class="n">package_name</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s1">&#39;obs&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">package_name</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">export_sfr</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span> <span class="n">gis</span><span class="o">=</span><span class="n">gis</span><span class="p">,</span> <span class="n">pdfs</span><span class="o">=</span><span class="n">pdfs</span><span class="p">,</span>
+                        <span class="n">shapefile_outfolder</span><span class="o">=</span><span class="n">shps_dir</span><span class="p">,</span> 
+                        <span class="n">pdf_outfolder</span><span class="o">=</span><span class="n">pdfs_dir</span><span class="p">,</span>
+                        <span class="n">filenames</span><span class="o">=</span><span class="n">filenames</span><span class="p">)</span>
+            <span class="c1"># TODO: add SFR obs export</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;skipping; not implemented&#39;</span><span class="p">)</span>
+            
+
+        <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">version</span> <span class="o">==</span> <span class="s1">&#39;mf6&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;dis&#39;</span><span class="p">:</span>
+                <span class="n">variable_context</span> <span class="o">=</span> <span class="n">context</span> <span class="o">==</span> <span class="s1">&#39;variables&#39;</span> <span class="ow">and</span> <span class="s1">&#39;thickness&#39;</span> <span class="ow">in</span> <span class="n">variables</span>
+                <span class="k">if</span> <span class="n">context</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;model&#39;</span><span class="p">,</span> <span class="s1">&#39;packages&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="n">variable_context</span><span class="p">:</span>
+                    <span class="n">export_thickness</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">package</span><span class="o">.</span><span class="n">botm</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span>
+                                     <span class="n">filenames</span><span class="p">,</span> <span class="n">rasters_dir</span><span class="p">,</span> <span class="n">shps_dir</span><span class="p">,</span> <span class="n">pdfs_dir</span><span class="p">,</span>
+                                     <span class="n">gis</span><span class="o">=</span><span class="n">gis</span><span class="p">,</span> <span class="n">pdfs</span><span class="o">=</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">contours</span><span class="o">=</span><span class="n">contours</span><span class="p">,</span>
+                                     <span class="n">include_inactive_cells</span><span class="o">=</span><span class="n">include_inactive_cells</span><span class="p">,</span>
+                                     <span class="n">inactive_cells</span><span class="o">=</span><span class="n">inactive_cells</span><span class="p">,</span>
+                                     <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">package_variables</span> <span class="o">=</span> <span class="p">[</span><span class="nb">getattr</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">]</span>
+            <span class="n">package_variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">package_variables</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">package_variables</span> <span class="o">=</span> <span class="n">package</span><span class="o">.</span><span class="n">data_list</span>
+
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">package_variables</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">DataInterface</span><span class="p">):</span>                    
+                <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">array</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                        <span class="n">name</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="n">name</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> \
+                            <span class="n">othername</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+                        <span class="k">return</span>
+
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">export_variable</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span>
+                                        <span class="n">inactive_cells</span><span class="p">,</span> <span class="n">inactive_cells2d</span><span class="p">,</span>
+                                        <span class="n">filenames</span><span class="p">,</span> <span class="n">rasters_dir</span><span class="p">,</span> <span class="n">shps_dir</span><span class="p">,</span> <span class="n">pdfs_dir</span><span class="p">,</span>
+                                        <span class="n">gis</span><span class="o">=</span><span class="n">gis</span><span class="p">,</span> <span class="n">pdfs</span><span class="o">=</span><span class="n">pdfs</span><span class="p">,</span> <span class="n">contours</span><span class="o">=</span><span class="n">contours</span><span class="p">,</span>
+                                        <span class="n">include_inactive_cells</span><span class="o">=</span><span class="n">include_inactive_cells</span><span class="p">,</span>
+                                        <span class="o">**</span><span class="n">kwargs</span>
+                                        <span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;skipped, not implemented yet&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">filenames</span></div>
+
+
+<div class="viewcode-block" id="export_variable"><a class="viewcode-back" href="../../api/index.html#mfexport.inputs.export_variable">[docs]</a><span class="k">def</span> <span class="nf">export_variable</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span>
+                    <span class="n">inactive_cells</span><span class="p">,</span> <span class="n">inactive_cells2d</span><span class="p">,</span>
+                    <span class="n">filenames</span><span class="p">,</span> <span class="n">rasters_dir</span><span class="p">,</span> <span class="n">shps_dir</span><span class="p">,</span> <span class="n">pdfs_dir</span><span class="p">,</span>
+                    <span class="n">gis</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pdfs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">contours</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="n">include_inactive_cells</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span>
+                    <span class="p">):</span>
+
+    <span class="n">v</span> <span class="o">=</span> <span class="n">variable</span>
+
+    <span class="c1"># cast output folders to Path instances</span>
+    <span class="n">pdfs_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">pdfs_dir</span><span class="p">)</span>
+    <span class="n">rasters_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">rasters_dir</span><span class="p">)</span>
+    <span class="n">shps_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">shps_dir</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="n">DataType</span><span class="o">.</span><span class="n">array2d</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> \
+            <span class="ow">and</span> <span class="n">v</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">:&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">include_inactive_cells</span><span class="p">:</span>
+            <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">inactive_cells</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">gis</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rasters_dir</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.tif&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+            <span class="n">export_array</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">9999</span><span class="p">,</span>
+                         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">contours</span><span class="p">:</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">shps_dir</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_ctr.shp&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+                <span class="n">export_array_contours</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span>
+                                      <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">pdfs</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pdfs_dir</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.pdf&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+            <span class="n">export_pdf</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                       <span class="n">mfarray_type</span><span class="o">=</span><span class="s1">&#39;array2d&#39;</span><span class="p">)</span>
+            <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">v</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="n">DataType</span><span class="o">.</span><span class="n">array3d</span><span class="p">:</span>
+        <span class="c1"># TODO: add option to export 3d arrays as multiband geotiffs</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">:&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">include_inactive_cells</span><span class="p">:</span>
+            <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">inactive_cells</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">array2d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">gis</span><span class="p">:</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rasters_dir</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_lay</span><span class="si">{}</span><span class="s1">.tif&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+                <span class="n">export_array</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">array2d</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">9999</span><span class="p">,</span>
+                             <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">contours</span><span class="p">:</span>
+                    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">shps_dir</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_lay</span><span class="si">{}</span><span class="s1">.tif&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+                    <span class="n">export_array_contours</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">array2d</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span>
+                                          <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                    <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">pdfs</span><span class="p">:</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pdfs_dir</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_lay</span><span class="si">{}</span><span class="s1">.pdf&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+                <span class="n">export_pdf</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">array2d</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                           <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Layer </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span>
+                           <span class="n">mfarray_type</span><span class="o">=</span><span class="s1">&#39;array2d&#39;</span><span class="p">)</span>
+                <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">v</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="n">DataType</span><span class="o">.</span><span class="n">transient2d</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">:&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">array</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">include_inactive_cells</span><span class="p">:</span>
+            <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span><span class="n">array</span><span class="p">,</span>
+                                       <span class="n">mask</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">inactive_cells2d</span><span class="p">,</span>
+                                                            <span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+
+        <span class="c1"># before squeezing, make a bar graph of sums along the first axis</span>
+        <span class="c1"># skip doing this for some variables</span>
+        <span class="n">no_bar</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;irch&#39;</span><span class="p">}</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">no_bar</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">pdfs_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">_summary.pdf&#39;</span>
+            <span class="n">export_pdf_bar_summary</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1"> summary&#39;</span><span class="p">)</span>
+            <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+
+        <span class="c1"># squeeze the array</span>
+        <span class="c1"># to only include periods where the stress changes</span>
+        <span class="n">unique_arrays</span> <span class="o">=</span> <span class="n">squeeze_3d</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">kper</span><span class="p">,</span> <span class="n">array2d</span> <span class="ow">in</span> <span class="n">unique_arrays</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+            <span class="k">if</span> <span class="n">gis</span><span class="p">:</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rasters_dir</span><span class="p">,</span>
+                                        <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_per</span><span class="si">{}</span><span class="s1">.tif&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">kper</span><span class="p">))</span>
+                <span class="n">export_array</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">array2d</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">9999</span><span class="p">,</span>
+                             <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">pdfs</span><span class="p">:</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pdfs_dir</span><span class="p">,</span>
+                                        <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_per</span><span class="si">{}</span><span class="s1">.pdf&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">kper</span><span class="p">))</span>
+                <span class="n">export_pdf</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">array2d</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                           <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Period </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kper</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span>
+                           <span class="n">mfarray_type</span><span class="o">=</span><span class="s1">&#39;array2d&#39;</span><span class="p">)</span>
+                <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">v</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="n">DataType</span><span class="o">.</span><span class="n">transient3d</span><span class="p">:</span>
+        <span class="c1"># TODO: need test for transient3d</span>
+        <span class="c1"># squeeze periods to only those that are different</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">:&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">pers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">array</span><span class="p">[</span><span class="n">pers</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">kper</span><span class="p">,</span> <span class="n">array3d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">include_inactive_cells</span><span class="p">:</span>
+                <span class="n">array3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span><span class="n">array3d</span><span class="p">,</span>
+                                             <span class="n">mask</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">inactive_cells2d</span><span class="p">,</span>
+                                                                  <span class="n">array3d</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">array2d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">array3d</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">gis</span><span class="p">:</span>
+                    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rasters_dir</span><span class="p">,</span>
+                                            <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_per</span><span class="si">{}</span><span class="s1">_lay</span><span class="si">{}</span><span class="s1">.tif&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">kper</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+                    <span class="n">export_array</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">array2d</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">9999</span><span class="p">,</span>
+                                 <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                    <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">pdfs</span><span class="p">:</span>
+                    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pdfs_dir</span><span class="p">,</span>
+                                            <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_per</span><span class="si">{}</span><span class="s1">_lay</span><span class="si">{}</span><span class="s1">.pdf&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">kper</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+                    <span class="n">export_pdf</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">array2d</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                               <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Period </span><span class="si">{}</span><span class="s1"> Layer </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kper</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span>
+                               <span class="n">mfarray_type</span><span class="o">=</span><span class="s1">&#39;array2d&#39;</span><span class="p">)</span>
+                    <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">v</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="n">DataType</span><span class="o">.</span><span class="n">transientlist</span><span class="p">:</span>
+        <span class="n">packagename</span> <span class="o">=</span> <span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_stress_period_data&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">packagename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">gis</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">shps_dir</span><span class="p">,</span>
+                                    <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.shp&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="n">export_shapefile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span>
+                             <span class="n">squeeze</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">pdfs</span><span class="p">:</span>
+            <span class="c1"># skip PDF export of head observations for now</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">mf6</span><span class="o">.</span><span class="n">ModflowUtlobs</span><span class="p">):</span>
+                <span class="k">return</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pdfs_dir</span><span class="p">,</span>
+                                    <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">.pdf&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">mftransientlist_to_dataframe</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">squeeze</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">tl_variables</span> <span class="o">=</span> <span class="n">get_tl_variables</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">tlv</span> <span class="ow">in</span> <span class="n">tl_variables</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">:&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tlv</span><span class="p">))</span>
+                <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">tlv</span> <span class="ow">in</span> <span class="n">c</span><span class="p">]</span>
+                <span class="n">period_data</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="nb">any</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">data_cols</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">period_data</span><span class="p">:</span>
+                    <span class="n">periods</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="n">tlv</span><span class="p">)):</span> <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">data_cols</span><span class="p">}</span>
+                    <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">max</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">periods</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                                      <span class="n">df</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                                      <span class="n">modelgrid</span><span class="o">.</span><span class="n">nrow</span><span class="p">,</span>
+                                      <span class="n">modelgrid</span><span class="o">.</span><span class="n">ncol</span>
+                                      <span class="p">))</span>
+                    <span class="k">for</span> <span class="n">per</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">periods</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="n">array</span><span class="p">[</span><span class="n">per</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;i&#39;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;j&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">((</span><span class="s1">&#39;Warning, variable: </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tlv</span><span class="p">)</span> <span class="o">+</span>
+                           <span class="s1">&#39;Export of non-period data from transientlists not implemented!&#39;</span><span class="p">)</span>
+                          <span class="p">)</span>
+                    <span class="k">continue</span>
+
+                <span class="n">text</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">, </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">tlv</span><span class="p">)</span>
+                <span class="n">export_pdf</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span>
+                           <span class="n">mfarray_type</span><span class="o">=</span><span class="s1">&#39;transientlist&#39;</span><span class="p">)</span>
+                <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="export_sfr"><a class="viewcode-back" href="../../api/index.html#mfexport.inputs.export_sfr">[docs]</a><span class="k">def</span> <span class="nf">export_sfr</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span> <span class="n">gis</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pdfs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+               <span class="n">shapefile_outfolder</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">pdf_outfolder</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span>
+               <span class="n">filenames</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Export an SFR package&quot;&quot;&quot;</span>
+    
+    <span class="n">pdfs_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">pdf_outfolder</span><span class="p">)</span>
+    <span class="n">shps_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">shapefile_outfolder</span><span class="p">)</span>
+    <span class="n">package_fname</span> <span class="o">=</span> <span class="n">get_flopy_package_fname</span><span class="p">(</span><span class="n">package</span><span class="p">)</span>
+    <span class="n">out_shapefile</span> <span class="o">=</span> <span class="n">shps_dir</span> <span class="o">/</span> <span class="p">(</span><span class="n">package_fname</span> <span class="o">+</span> <span class="s1">&#39;.shp&#39;</span><span class="p">)</span>
+    <span class="n">out_pdf</span> <span class="o">=</span> <span class="n">out_shapefile</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.pdf&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">filenames</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">filenames</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">if</span> <span class="n">package</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">version</span> <span class="o">==</span> <span class="s1">&#39;mf6&#39;</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">packagedata</span><span class="o">.</span><span class="n">array</span><span class="p">)</span>
+        
+        <span class="c1"># drop reaches that have no k, i, j info</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;cellid&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;none&#39;</span><span class="p">]</span>
+        
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="c1"># drop cellid column</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="s1">&#39;j&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">cols</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+        <span class="n">k</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;cellid&#39;</span><span class="p">])</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;i&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;j&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        
+        <span class="c1"># add connections</span>
+        <span class="n">out_rno</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">package</span><span class="o">.</span><span class="n">connectiondata</span><span class="o">.</span><span class="n">array</span><span class="p">:</span>
+            <span class="n">rno</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">rno</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;rno&#39;</span><span class="p">]:</span>
+                <span class="n">downstream</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">row</span><span class="p">)[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="n">c</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">downstream</span><span class="p">):</span>
+                    <span class="n">out_rno</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">-</span><span class="n">downstream</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">out_rno</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;out_rno&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">out_rno</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">gis</span><span class="p">:</span>
+            <span class="n">export_shapefile</span><span class="p">(</span><span class="n">out_shapefile</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">)</span>
+            <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">out_shapefile</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pdfs</span><span class="p">:</span>
+            <span class="c1"># PDF export not implemented yet</span>
+            <span class="k">pass</span>
+        
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># mf-2005 not implemented yet</span>
+        <span class="k">return</span>
+    <span class="n">j</span><span class="o">=</span><span class="mi">2</span>
+    <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="export_thickness"><a class="viewcode-back" href="../../api/index.html#mfexport.inputs.export_thickness">[docs]</a><span class="k">def</span> <span class="nf">export_thickness</span><span class="p">(</span><span class="n">top_array</span><span class="p">,</span> <span class="n">botm_array</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span>
+                     <span class="n">filenames</span><span class="p">,</span> <span class="n">rasters_dir</span><span class="p">,</span> <span class="n">shps_dir</span><span class="p">,</span> <span class="n">pdfs_dir</span><span class="p">,</span>
+                     <span class="n">gis</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pdfs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">contours</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                     <span class="n">include_inactive_cells</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inactive_cells</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;thickness&#39;</span>
+    <span class="n">nlay</span><span class="p">,</span> <span class="n">nrow</span><span class="p">,</span> <span class="n">ncol</span> <span class="o">=</span> <span class="n">botm_array</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">all_layers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nlay</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nrow</span><span class="p">,</span> <span class="n">ncol</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">all_layers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">top_array</span>
+    <span class="n">all_layers</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">botm_array</span>
+    <span class="n">array</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">all_layers</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">include_inactive_cells</span><span class="p">:</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">inactive_cells</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">array2d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">gis</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rasters_dir</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_lay</span><span class="si">{}</span><span class="s1">.tif&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+            <span class="n">export_array</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">array2d</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">9999</span><span class="p">,</span>
+                         <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">contours</span><span class="p">:</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">shps_dir</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_lay</span><span class="si">{}</span><span class="s1">.tif&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+                <span class="n">export_array_contours</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">array2d</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span>
+                                      <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">pdfs</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">pdfs_dir</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">_lay</span><span class="si">{}</span><span class="s1">.pdf&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">k</span><span class="p">))</span>
+            <span class="n">export_pdf</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">array2d</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                       <span class="n">text</span><span class="o">=</span><span class="s1">&#39;Layer </span><span class="si">{}</span><span class="s1"> </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">name</span><span class="p">),</span>
+                       <span class="n">mfarray_type</span><span class="o">=</span><span class="s1">&#39;array2d&#39;</span><span class="p">)</span>
+            <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="summarize"><a class="viewcode-back" href="../../api/index.html#mfexport.inputs.summarize">[docs]</a><span class="k">def</span> <span class="nf">summarize</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">packages</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">include_inactive_cells</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+              <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+              <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;summarizing </span><span class="si">{}</span><span class="s1"> input...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">packages</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">packages</span> <span class="o">=</span> <span class="n">get_package_list</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">packages</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">packages</span> <span class="o">=</span> <span class="p">[</span><span class="n">packages</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">variables</span> <span class="o">=</span> <span class="n">get_variable_list</span><span class="p">(</span><span class="n">variables</span><span class="p">)</span>
+
+    <span class="n">inactive_cells</span> <span class="o">=</span> <span class="n">get_inactive_cells_mask</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="n">inactive_cells2d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">inactive_cells</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>  <span class="c1"># ij locations where all layers are inactive</span>
+
+    <span class="n">summarized</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">packages</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">package</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">package</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="si">{}</span><span class="s1"> package...&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+        <span class="k">if</span> <span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;sfr&#39;</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">package_variables</span> <span class="o">=</span> <span class="n">package</span><span class="o">.</span><span class="n">data_list</span>
+
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">package_variables</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">DataInterface</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">array</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                        <span class="n">name</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="n">name</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">variables</span><span class="p">:</span>
+                        <span class="k">return</span>
+
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">summarize_variable</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span>
+                                           <span class="n">inactive_cells</span><span class="p">,</span> <span class="n">inactive_cells2d</span><span class="p">,</span>
+                                           <span class="n">summarized</span><span class="p">,</span>
+                                           <span class="n">include_inactive_cells</span><span class="o">=</span><span class="n">include_inactive_cells</span><span class="p">,</span>
+                                           <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                                           <span class="o">**</span><span class="n">kwargs</span>
+                                           <span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;skipped, not implemented yet&#39;</span><span class="p">)</span>
+
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">summarized</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">output_path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">output_path</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">_summary.csv&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="summarize_variable"><a class="viewcode-back" href="../../api/index.html#mfexport.inputs.summarize_variable">[docs]</a><span class="k">def</span> <span class="nf">summarize_variable</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">inactive_cells</span><span class="p">,</span> <span class="n">inactive_cells2d</span><span class="p">,</span>
+                       <span class="n">summarized</span><span class="p">,</span>
+                       <span class="n">include_inactive_cells</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                       <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+    <span class="n">v</span> <span class="o">=</span> <span class="n">variable</span>
+    <span class="n">nlay</span><span class="p">,</span> <span class="n">nrow</span><span class="p">,</span> <span class="n">ncol</span> <span class="o">=</span> <span class="n">inactive_cells</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="n">DataType</span><span class="o">.</span><span class="n">array2d</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> \
+            <span class="ow">and</span> <span class="n">v</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">include_inactive_cells</span><span class="p">:</span>
+            <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">inactive_cells</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">summarized</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;package&#39;</span><span class="p">:</span> <span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                           <span class="s1">&#39;variable&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                           <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="n">array</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+                           <span class="s1">&#39;mean&#39;</span><span class="p">:</span> <span class="n">array</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+                           <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="n">array</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
+                           <span class="p">})</span>
+    <span class="k">elif</span> <span class="n">v</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="n">DataType</span><span class="o">.</span><span class="n">array3d</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">include_inactive_cells</span><span class="p">:</span>
+            <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="n">inactive_cells</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">array2d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+            <span class="n">summarized</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;package&#39;</span><span class="p">:</span> <span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                               <span class="s1">&#39;variable&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                               <span class="s1">&#39;layer&#39;</span><span class="p">:</span> <span class="n">k</span><span class="p">,</span>
+                               <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="n">array2d</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+                               <span class="s1">&#39;mean&#39;</span><span class="p">:</span> <span class="n">array2d</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+                               <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="n">array2d</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
+                               <span class="p">})</span>
+
+    <span class="k">elif</span> <span class="n">v</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="n">DataType</span><span class="o">.</span><span class="n">transient2d</span><span class="p">:</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">array</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">include_inactive_cells</span><span class="p">:</span>
+            <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span><span class="n">array</span><span class="p">,</span>
+                                       <span class="n">mask</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">inactive_cells2d</span><span class="p">,</span>
+                                                            <span class="n">array</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">kper</span><span class="p">,</span> <span class="n">array2d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+            <span class="n">summarized</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;package&#39;</span><span class="p">:</span> <span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                               <span class="s1">&#39;variable&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                               <span class="s1">&#39;period&#39;</span><span class="p">:</span> <span class="n">kper</span><span class="p">,</span>
+                               <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="n">array2d</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+                               <span class="s1">&#39;mean&#39;</span><span class="p">:</span> <span class="n">array2d</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+                               <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="n">array2d</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
+                               <span class="p">})</span>
+
+    <span class="k">elif</span> <span class="n">v</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="n">DataType</span><span class="o">.</span><span class="n">transient3d</span><span class="p">:</span>
+        <span class="n">pers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">array</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">array</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">array</span><span class="p">[</span><span class="n">pers</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">kper</span><span class="p">,</span> <span class="n">array3d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">include_inactive_cells</span><span class="p">:</span>
+                <span class="n">array3d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">(</span><span class="n">array3d</span><span class="p">,</span>
+                                             <span class="n">mask</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">broadcast_to</span><span class="p">(</span><span class="n">inactive_cells2d</span><span class="p">,</span>
+                                                                  <span class="n">array3d</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">array2d</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">array3d</span><span class="p">):</span>
+                <span class="n">summarized</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;package&#39;</span><span class="p">:</span> <span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                   <span class="s1">&#39;variable&#39;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+                                   <span class="s1">&#39;period&#39;</span><span class="p">:</span> <span class="n">kper</span><span class="p">,</span>
+                                   <span class="s1">&#39;layer&#39;</span><span class="p">:</span> <span class="n">k</span><span class="p">,</span>
+                                   <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="n">array2d</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+                                   <span class="s1">&#39;mean&#39;</span><span class="p">:</span> <span class="n">array2d</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+                                   <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="n">array2d</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
+                                   <span class="p">})</span>
+
+    <span class="k">elif</span> <span class="n">v</span><span class="o">.</span><span class="n">data_type</span> <span class="o">==</span> <span class="n">DataType</span><span class="o">.</span><span class="n">transientlist</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">mftransientlist_to_dataframe</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">squeeze</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">tl_variables</span> <span class="o">=</span> <span class="n">get_tl_variables</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">mf6</span><span class="o">.</span><span class="n">ModflowUtlobs</span><span class="p">):</span>
+            <span class="n">obstypes</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">obstype</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">obstype</span> <span class="ow">in</span> <span class="n">obstypes</span><span class="p">:</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">obstype</span> <span class="o">==</span> <span class="n">obstype</span><span class="p">])</span>
+                <span class="n">summarized</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">&#39;package&#39;</span><span class="p">:</span> <span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                                   <span class="s1">&#39;variable&#39;</span><span class="p">:</span> <span class="n">obstype</span><span class="p">,</span>
+                                   <span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="n">n</span>
+                                   <span class="p">})</span>
+            <span class="k">return</span>
+
+        <span class="k">for</span> <span class="n">tlv</span> <span class="ow">in</span> <span class="n">tl_variables</span><span class="p">:</span>
+            <span class="c1"># todo: need to handle different sfr settings separately in summary</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">tlv</span><span class="p">))</span>
+            <span class="n">data_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">tlv</span> <span class="ow">in</span> <span class="n">c</span><span class="p">]</span>
+            <span class="n">periods</span> <span class="o">=</span> <span class="p">{</span><span class="nb">int</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="n">tlv</span><span class="p">)):</span> <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">data_cols</span><span class="p">}</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">max</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">periods</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                                  <span class="n">df</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                                  <span class="n">nrow</span><span class="p">,</span>
+                                  <span class="n">ncol</span>
+                                  <span class="p">))</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="mi">2</span>
+            <span class="k">for</span> <span class="n">per</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">periods</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">array</span><span class="p">[</span><span class="n">per</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;i&#39;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;j&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
+                <span class="n">array</span><span class="p">[</span><span class="n">per</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;i&#39;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;j&#39;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
+                <span class="n">summary</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;package&#39;</span><span class="p">:</span> <span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                           <span class="s1">&#39;variable&#39;</span><span class="p">:</span> <span class="n">tlv</span><span class="p">,</span>
+                           <span class="s1">&#39;period&#39;</span><span class="p">:</span> <span class="n">per</span><span class="p">,</span>
+                           <span class="s1">&#39;min&#39;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span>
+                           <span class="s1">&#39;mean&#39;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+                           <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
+                           <span class="p">}</span>
+                <span class="n">summarized</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2019, Andrew Leaf.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

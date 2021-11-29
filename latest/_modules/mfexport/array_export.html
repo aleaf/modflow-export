@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mfexport.array_export &mdash; modflow-export 0.post65+g0f476d7 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> modflow-export
+          </a>
+              <div class="version">
+                0.post65+g0f476d7
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html"> Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html"> Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html"> Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html"> Code reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release-history.html"> Release History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html"> Contributing to Modflow-export</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">modflow-export</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>mfexport.array_export</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mfexport.array_export</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">rasterio</span>
+<span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">LineString</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">gisutils</span> <span class="kn">import</span> <span class="n">df2shp</span>
+
+
+<div class="viewcode-block" id="export_array"><a class="viewcode-back" href="../../api/index.html#mfexport.array_export.export_array">[docs]</a><span class="k">def</span> <span class="nf">export_array</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=-</span><span class="mi">9999</span><span class="p">,</span>
+                 <span class="n">fieldname</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Write a numpy array to Arc Ascii grid or shapefile with the model</span>
+<span class="sd">    reference.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    modelgrid : MFsetupGrid instance</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        Path of output file. Export format is determined by</span>
+<span class="sd">        file extention.</span>
+<span class="sd">        &#39;.asc&#39;  Arc Ascii grid</span>
+<span class="sd">        &#39;.tif&#39;  GeoTIFF (requries rasterio package)</span>
+<span class="sd">        &#39;.shp&#39;  Shapefile</span>
+<span class="sd">    a : 2D numpy.ndarray</span>
+<span class="sd">        Array to export</span>
+<span class="sd">    nodata : scalar</span>
+<span class="sd">        Value to assign to np.nan entries (default -9999)</span>
+<span class="sd">    fieldname : str</span>
+<span class="sd">        Attribute field name for array values (shapefile export only).</span>
+<span class="sd">        (default &#39;values&#39;)</span>
+<span class="sd">    kwargs:</span>
+<span class="sd">        keyword arguments to np.savetxt (ascii)</span>
+<span class="sd">        rasterio.open (GeoTIFF)</span>
+<span class="sd">        or flopy.export.shapefile_utils.write_grid_shapefile2</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Rotated grids will be either be unrotated prior to export,</span>
+<span class="sd">    using scipy.ndimage.rotate (Arc Ascii format) or rotation will be</span>
+<span class="sd">    included in their transform property (GeoTiff format). In either case</span>
+<span class="sd">    the pixels will be displayed in the (unrotated) projected geographic</span>
+<span class="sd">    coordinate system, so the pixels will no longer align exactly with the</span>
+<span class="sd">    model grid (as displayed from a shapefile, for example). A key difference</span>
+<span class="sd">    between Arc Ascii and GeoTiff (besides disk usage) is that the</span>
+<span class="sd">    unrotated Arc Ascii will have a different grid size, whereas the GeoTiff</span>
+<span class="sd">    will have the same number of rows and pixels as the original.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.tif&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">modelgrid</span><span class="o">.</span><span class="n">delr</span><span class="p">))</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">modelgrid</span><span class="o">.</span><span class="n">delc</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">1</span> \
+                <span class="ow">or</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">delr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">delc</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;GeoTIFF export require a uniform grid.&#39;</span><span class="p">)</span>
+
+        <span class="n">trans</span> <span class="o">=</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">transform</span>
+
+        <span class="c1"># third dimension is the number of bands</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+        <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="nb">bool</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;count&#39;</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                <span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                <span class="s1">&#39;nodata&#39;</span><span class="p">:</span> <span class="n">nodata</span><span class="p">,</span>
+                <span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+                <span class="s1">&#39;driver&#39;</span><span class="p">:</span> <span class="s1">&#39;GTiff&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;crs&#39;</span><span class="p">:</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">proj_str</span><span class="p">,</span>
+                <span class="s1">&#39;transform&#39;</span><span class="p">:</span> <span class="n">trans</span><span class="p">,</span>
+                <span class="s1">&#39;compress&#39;</span><span class="p">:</span> <span class="s1">&#39;lzw&#39;</span>
+                <span class="p">}</span>
+        <span class="n">meta</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># remove file first,</span>
+        <span class="c1"># to avoid rasterio._err.CPLE_AppDefinedError: TIFFReadDirectory: errors</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="p">[</span><span class="n">filename</span><span class="p">,</span> <span class="n">filename</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.tif.msk&#39;</span><span class="p">),</span> <span class="n">filename</span><span class="o">.</span><span class="n">with_suffix</span><span class="p">(</span><span class="s1">&#39;.aux.xml&#39;</span><span class="p">)]:</span>
+            <span class="n">file</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">rasterio</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">meta</span><span class="p">)</span> <span class="k">as</span> <span class="n">dst</span><span class="p">:</span>
+            <span class="n">dst</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_array</span><span class="p">):</span>
+                <span class="n">dst</span><span class="o">.</span><span class="n">write_mask</span><span class="p">(</span><span class="o">~</span><span class="n">a</span><span class="o">.</span><span class="n">mask</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;wrote </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">filename</span><span class="p">))</span>
+
+    <span class="k">elif</span> <span class="n">filename</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.shp&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;array export took </span><span class="si">{:.2f}</span><span class="s2">s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="export_array_contours"><a class="viewcode-back" href="../../api/index.html#mfexport.array_export.export_array_contours">[docs]</a><span class="k">def</span> <span class="nf">export_array_contours</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span>
+                          <span class="n">fieldname</span><span class="o">=</span><span class="s1">&#39;level&#39;</span><span class="p">,</span>
+                          <span class="n">interval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">levels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">maxlevels</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+                          <span class="n">epsg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">proj_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Contour an array using matplotlib; write shapefile of contours.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        Path of output file with &#39;.shp&#39; extention.</span>
+<span class="sd">    a : 2D numpy array</span>
+<span class="sd">        Array to contour</span>
+<span class="sd">    epsg : int</span>
+<span class="sd">        EPSG code. See https://www.epsg-registry.org/ or spatialreference.org</span>
+<span class="sd">    prj : str</span>
+<span class="sd">        Existing projection file to be used with new shapefile.</span>
+<span class="sd">    **kwargs : keyword arguments to matplotlib.axes.Axes.contour</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">epsg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">epsg</span> <span class="o">=</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">epsg</span>
+    <span class="k">if</span> <span class="n">proj_str</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">proj_str</span> <span class="o">=</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">proj_str</span>
+
+    <span class="k">if</span> <span class="n">interval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;levels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">make_levels</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="n">maxlevels</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">levels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;levels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">levels</span>
+
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">contours</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contour</span><span class="p">(</span><span class="n">modelgrid</span><span class="o">.</span><span class="n">xcellcenters</span><span class="p">,</span>
+                          <span class="n">modelgrid</span><span class="o">.</span><span class="n">ycellcenters</span><span class="p">,</span>
+                          <span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">contours</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">contours</span> <span class="o">=</span> <span class="p">[</span><span class="n">contours</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">epsg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">epsg</span> <span class="o">=</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">epsg</span>
+    <span class="k">if</span> <span class="n">proj_str</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">proj_str</span> <span class="o">=</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">proj_str</span>
+
+    <span class="n">geoms</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">level</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ctr</span> <span class="ow">in</span> <span class="n">contours</span><span class="p">:</span>
+        <span class="n">levels</span> <span class="o">=</span> <span class="n">ctr</span><span class="o">.</span><span class="n">levels</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ctr</span><span class="o">.</span><span class="n">collections</span><span class="p">):</span>
+            <span class="n">paths</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">get_paths</span><span class="p">()</span>
+            <span class="n">geoms</span> <span class="o">+=</span> <span class="p">[</span><span class="n">LineString</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">vertices</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">LineString</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+            <span class="n">level</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">paths</span><span class="p">))</span> <span class="o">*</span> <span class="n">levels</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+    <span class="c1"># convert the dictionary to a recarray</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">level</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No contours! Try adjusting the levels or interval.&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">level</span><span class="p">,</span> <span class="s1">&#39;geometry&#39;</span><span class="p">:</span> <span class="n">geoms</span><span class="p">})</span>
+    <span class="n">df2shp</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">epsg</span><span class="o">=</span><span class="n">epsg</span><span class="p">,</span> <span class="n">proj_str</span><span class="o">=</span><span class="n">proj_str</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;array contour export took </span><span class="si">{:.2f}</span><span class="s2">s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span><span class="p">))</span>
+    <span class="k">return</span></div>
+
+
+<div class="viewcode-block" id="make_levels"><a class="viewcode-back" href="../../api/index.html#mfexport.array_export.make_levels">[docs]</a><span class="k">def</span> <span class="nf">make_levels</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="n">maxlevels</span><span class="o">=</span><span class="mi">1000</span><span class="p">):</span>
+    <span class="n">imin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">array</span><span class="p">)),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">imax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">array</span><span class="p">)),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">imin</span><span class="p">,</span> <span class="n">imax</span><span class="p">,</span> <span class="n">interval</span><span class="p">),</span> <span class="mi">6</span><span class="p">)</span>
+    <span class="n">inrange</span> <span class="o">=</span> <span class="p">(</span><span class="n">levels</span> <span class="o">&gt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmin</span><span class="p">(</span><span class="n">array</span><span class="p">))</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">levels</span> <span class="o">&lt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanmax</span><span class="p">(</span><span class="n">array</span><span class="p">))</span>
+    <span class="n">levels</span> <span class="o">=</span> <span class="n">levels</span><span class="p">[</span><span class="n">inrange</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">levels</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">maxlevels</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:.0f}</span><span class="s1"> levels at interval of </span><span class="si">{}</span><span class="s1">; setting contours based on maxlevels (</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">levels</span><span class="p">),</span>
+            <span class="n">interval</span><span class="p">,</span>
+            <span class="n">maxlevels</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">levels</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">imin</span><span class="p">,</span> <span class="n">imax</span><span class="p">,</span> <span class="n">maxlevels</span><span class="p">),</span> <span class="mi">6</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">levels</span></div>
+
+
+<div class="viewcode-block" id="squeeze_3d"><a class="viewcode-back" href="../../api/index.html#mfexport.array_export.squeeze_3d">[docs]</a><span class="k">def</span> <span class="nf">squeeze_3d</span><span class="p">(</span><span class="n">array</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Squeeze a 3D array to only include the (2D) slices</span>
+<span class="sd">    along the 0 axis that are different (for example, periods when</span>
+<span class="sd">    a stress changes). Include the first slice (period) by default.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    array : 3D numpy array</span>
+<span class="sd">        Original data</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    squeezed : dict</span>
+<span class="sd">        Dictionary of the 2D slices (values), keyed by period, that are</span>
+<span class="sd">        different.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">unique_pers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">array</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># include first period by default,</span>
+    <span class="c1"># won&#39;t show up if second is the same</span>
+    <span class="n">unique_pers</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">unique_pers</span>
+    <span class="n">squeezed</span> <span class="o">=</span> <span class="p">{</span><span class="n">per</span><span class="p">:</span> <span class="n">array</span><span class="p">[</span><span class="n">per</span><span class="p">]</span> <span class="k">for</span> <span class="n">per</span> <span class="ow">in</span> <span class="n">unique_pers</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">squeezed</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2019, Andrew Leaf.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mfexport.listfile &mdash; modflow-export 0.post65+g0f476d7 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/clipboard.min.js"></script>
+        <script src="../../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> modflow-export
+          </a>
+              <div class="version">
+                0.post65+g0f476d7
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html"> Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html"> Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html"> Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html"> Code reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release-history.html"> Release History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html"> Contributing to Modflow-export</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">modflow-export</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>mfexport.listfile</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mfexport.listfile</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Functions for exporting results from the MODFLOW listing file</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">flopy</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib.backends.backend_pdf</span> <span class="kn">import</span> <span class="n">PdfPages</span>
+<span class="kn">from</span> <span class="nn">mfexport.units</span> <span class="kn">import</span> <span class="p">(</span><span class="n">get_figure_label_unit_text</span><span class="p">,</span> <span class="n">parse_flux_units</span><span class="p">,</span>
+                            <span class="n">convert_volume_units</span><span class="p">,</span> <span class="n">convert_time_units</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">mfexport.utils</span> <span class="kn">import</span> <span class="n">make_output_folders</span>
+
+
+<span class="c1"># for each MODFLOW-6 listfile budget term</span>
+<span class="c1"># get the MF-2005 equivalent</span>
+<span class="n">mf2005_terms</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;STO-SS&#39;</span><span class="p">:</span> <span class="s1">&#39;STORAGE&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;STO-SY&#39;</span><span class="p">:</span> <span class="s1">&#39;STORAGE&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;WEL&#39;</span><span class="p">:</span> <span class="s1">&#39;WELLS&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;RCH&#39;</span><span class="p">:</span> <span class="s1">&#39;RECHARGE&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;SFR&#39;</span><span class="p">:</span> <span class="s1">&#39;STREAM_LEAKAGE&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;LAK&#39;</span><span class="p">:</span> <span class="s1">&#39;LAKES&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;CHD&#39;</span><span class="p">:</span> <span class="s1">&#39;CONSTANT_HEAD&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;GHB&#39;</span><span class="p">:</span> <span class="s1">&#39;HEAD DEP BOUNDS&#39;</span>
+                <span class="p">}</span>
+<span class="n">plotted</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+<div class="viewcode-block" id="get_listfile_model_version"><a class="viewcode-back" href="../../api/index.html#mfexport.listfile.get_listfile_model_version">[docs]</a><span class="k">def</span> <span class="nf">get_listfile_model_version</span><span class="p">(</span><span class="n">listfile</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">listfile</span><span class="p">)</span> <span class="k">as</span> <span class="n">src</span><span class="p">:</span>
+        <span class="n">firstline</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s1">&#39;MODFLOW 6&#39;</span> <span class="ow">in</span> <span class="n">firstline</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;mf6&#39;</span>
+        <span class="k">elif</span> <span class="s1">&#39;MODFLOW-NWT&#39;</span> <span class="ow">in</span> <span class="n">firstline</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;mfnwt&#39;</span>
+        <span class="k">elif</span> <span class="s1">&#39;MODFLOW-2005&#39;</span> <span class="ow">in</span> <span class="n">firstline</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;mf2005&#39;</span></div>
+
+
+<div class="viewcode-block" id="get_budget_keys"><a class="viewcode-back" href="../../api/index.html#mfexport.listfile.get_budget_keys">[docs]</a><span class="k">def</span> <span class="nf">get_budget_keys</span><span class="p">(</span><span class="n">listfile</span><span class="p">,</span> <span class="n">key_suffix</span><span class="o">=</span><span class="s1">&#39;BUDGET FOR ENTIRE MODEL&#39;</span><span class="p">):</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">listfile</span><span class="p">)</span> <span class="k">as</span> <span class="n">src</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">src</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key_suffix</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">keys</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; AT &#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">keys</span></div>
+
+
+<div class="viewcode-block" id="get_listfile_data"><a class="viewcode-back" href="../../api/index.html#mfexport.listfile.get_listfile_data">[docs]</a><span class="k">def</span> <span class="nf">get_listfile_data</span><span class="p">(</span><span class="n">listfile</span><span class="p">,</span> <span class="n">model_start_datetime</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">budgetkey</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+
+    <span class="bp">cls</span> <span class="o">=</span> <span class="n">flopy</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">MfListBudget</span>
+    <span class="n">model_version</span> <span class="o">=</span> <span class="n">get_listfile_model_version</span><span class="p">(</span><span class="n">listfile</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">model_version</span> <span class="o">==</span> <span class="s1">&#39;mf6&#39;</span><span class="p">:</span>
+        <span class="bp">cls</span> <span class="o">=</span> <span class="n">flopy</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">Mf6ListBudget</span>
+
+    <span class="k">if</span> <span class="n">budgetkey</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="n">get_budget_keys</span><span class="p">(</span><span class="n">listfile</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">budgetkey</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+            <span class="c1">#budget_package = budgetkey.replace(&#39;BUDGET FOR ENTIRE MODEL&#39;, &#39;&#39;).strip().split(&#39;_&#39;)[0]</span>
+            <span class="n">budget_package</span> <span class="o">=</span> <span class="n">budgetkey</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">budgetkey</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span> <span class="k">if</span> <span class="n">budget_package</span> <span class="ow">in</span> <span class="n">k</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">budgetkey</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">budgetkey</span> <span class="o">=</span> <span class="n">budgetkey</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span>
+
+        <span class="k">class</span> <span class="nc">PackageBudget</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Export the a Package Budget from the listing file.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">def</span> <span class="nf">set_budget_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">budgetkey</span> <span class="o">=</span> <span class="n">budgetkey</span>
+                <span class="k">return</span>
+        <span class="bp">cls</span> <span class="o">=</span> <span class="n">PackageBudget</span>
+
+    <span class="n">mfl</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">listfile</span><span class="p">)</span>
+    <span class="n">budget</span> <span class="o">=</span> <span class="n">mfl</span><span class="o">.</span><span class="n">get_dataframes</span><span class="p">(</span><span class="n">start_datetime</span><span class="o">=</span><span class="n">model_start_datetime</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">budget</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df_flux</span><span class="p">,</span> <span class="n">df_vol</span> <span class="o">=</span> <span class="n">budget</span>
+        <span class="n">kstp</span><span class="p">,</span> <span class="n">kper</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">mfl</span><span class="o">.</span><span class="n">get_kstpkper</span><span class="p">())</span>
+        <span class="n">df_flux</span><span class="p">[</span><span class="s1">&#39;kstp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kstp</span>
+        <span class="n">df_flux</span><span class="p">[</span><span class="s1">&#39;kper&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kper</span>
+        <span class="k">return</span> <span class="n">df_flux</span></div>
+
+
+<div class="viewcode-block" id="plot_list_budget"><a class="viewcode-back" href="../../api/index.html#mfexport.listfile.plot_list_budget">[docs]</a><span class="k">def</span> <span class="nf">plot_list_budget</span><span class="p">(</span><span class="n">listfile</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">model_start_datetime</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;postproc&#39;</span><span class="p">,</span>
+                     <span class="n">model_length_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">model_time_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">secondary_axis_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">xtick_stride</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">plot_start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_end_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">plot_pcts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                     <span class="n">datetime_xaxis</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+    <span class="n">pdfs_dir</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">make_output_folders</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">model_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">model_name</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">listfile</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
+    <span class="k">if</span> <span class="n">model_start_datetime</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">datetime_xaxis</span><span class="o">=</span><span class="kc">False</span>
+
+    <span class="n">df_flux</span> <span class="o">=</span> <span class="n">get_listfile_data</span><span class="p">(</span><span class="n">listfile</span><span class="p">,</span> <span class="n">model_start_datetime</span><span class="o">=</span><span class="n">model_start_datetime</span><span class="p">)</span>
+
+    <span class="n">df_flux_lake</span> <span class="o">=</span> <span class="n">get_listfile_data</span><span class="p">(</span><span class="n">listfile</span><span class="p">,</span> <span class="n">model_start_datetime</span><span class="o">=</span><span class="n">model_start_datetime</span><span class="p">,</span>
+                                     <span class="n">budgetkey</span><span class="o">=</span><span class="s1">&#39;LAK BUDGET FOR ENTIRE MODEL&#39;</span><span class="p">)</span>
+
+    <span class="n">df_flux_sfr</span> <span class="o">=</span> <span class="n">get_listfile_data</span><span class="p">(</span><span class="n">listfile</span><span class="p">,</span> <span class="n">model_start_datetime</span><span class="o">=</span><span class="n">model_start_datetime</span><span class="p">,</span>
+                                    <span class="n">budgetkey</span><span class="o">=</span><span class="s1">&#39;SFR BUDGET FOR ENTIRE MODEL&#39;</span><span class="p">)</span>
+
+    <span class="n">out_pdf</span> <span class="o">=</span> <span class="n">pdfs_dir</span> <span class="o">/</span> <span class="s1">&#39;listfile_budget_summary.pdf&#39;</span>
+    <span class="k">with</span> <span class="n">PdfPages</span><span class="p">(</span><span class="n">out_pdf</span><span class="p">)</span> <span class="k">as</span> <span class="n">pdf</span><span class="p">:</span>
+        <span class="c1"># plot summary with only net values for each term</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">df_flux</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                            <span class="n">term_nets</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">model_length_units</span><span class="o">=</span><span class="n">model_length_units</span><span class="p">,</span>
+                            <span class="n">model_time_units</span><span class="o">=</span><span class="n">model_time_units</span><span class="p">,</span>
+                            <span class="n">secondary_axis_units</span><span class="o">=</span><span class="n">secondary_axis_units</span><span class="p">,</span>
+                            <span class="n">xtick_stride</span><span class="o">=</span><span class="n">xtick_stride</span><span class="p">,</span>
+                            <span class="n">plot_start_date</span><span class="o">=</span><span class="n">plot_start_date</span><span class="p">,</span> 
+                            <span class="n">plot_end_date</span><span class="o">=</span><span class="n">plot_end_date</span><span class="p">,</span>
+                            <span class="n">plot_pcts</span><span class="o">=</span><span class="n">plot_pcts</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pdf</span><span class="o">.</span><span class="n">savefig</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="c1"># plot summary showing in and out values for all terms</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">df_flux</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                            <span class="n">model_length_units</span><span class="o">=</span><span class="n">model_length_units</span><span class="p">,</span>
+                            <span class="n">model_time_units</span><span class="o">=</span><span class="n">model_time_units</span><span class="p">,</span>
+                            <span class="n">secondary_axis_units</span><span class="o">=</span><span class="n">secondary_axis_units</span><span class="p">,</span>
+                            <span class="n">xtick_stride</span><span class="o">=</span><span class="n">xtick_stride</span><span class="p">,</span>
+                            <span class="n">plot_start_date</span><span class="o">=</span><span class="n">plot_start_date</span><span class="p">,</span> 
+                            <span class="n">plot_end_date</span><span class="o">=</span><span class="n">plot_end_date</span><span class="p">,</span>
+                            <span class="n">plot_pcts</span><span class="o">=</span><span class="n">plot_pcts</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pdf</span><span class="o">.</span><span class="n">savefig</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>    
+        <span class="c1"># plot summary of annual net means</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">df_flux</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span>
+                            <span class="n">term_nets</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">model_length_units</span><span class="o">=</span><span class="n">model_length_units</span><span class="p">,</span>
+                            <span class="n">model_time_units</span><span class="o">=</span><span class="n">model_time_units</span><span class="p">,</span>
+                            <span class="n">secondary_axis_units</span><span class="o">=</span><span class="n">secondary_axis_units</span><span class="p">,</span>
+                            <span class="n">xtick_stride</span><span class="o">=</span><span class="n">xtick_stride</span><span class="p">,</span>
+                            <span class="n">plot_start_date</span><span class="o">=</span><span class="n">plot_start_date</span><span class="p">,</span> 
+                            <span class="n">plot_end_date</span><span class="o">=</span><span class="n">plot_end_date</span><span class="p">,</span>
+                            <span class="n">annual_sums</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">pdf</span><span class="o">.</span><span class="n">savefig</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;wrote </span><span class="si">{</span><span class="n">out_pdf</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">pdf_outfile</span> <span class="o">=</span> <span class="n">pdfs_dir</span> <span class="o">/</span> <span class="s1">&#39;listfile_budget_by_term.pdf&#39;</span>
+    <span class="k">with</span> <span class="n">PdfPages</span><span class="p">(</span><span class="n">pdf_outfile</span><span class="p">)</span> <span class="k">as</span> <span class="n">pdf</span><span class="p">:</span>
+        <span class="n">plotted</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="n">terms</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df_flux</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;kstp&#39;</span><span class="p">,</span> <span class="s1">&#39;kper&#39;</span><span class="p">}]</span>
+        <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">term</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">plotted</span><span class="p">:</span>
+                <span class="n">plot_budget_term</span><span class="p">(</span><span class="n">df_flux</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span> <span class="c1">#plotted=plotted,</span>
+                                 <span class="n">model_length_units</span><span class="o">=</span><span class="n">model_length_units</span><span class="p">,</span>
+                                 <span class="n">model_time_units</span><span class="o">=</span><span class="n">model_time_units</span><span class="p">,</span>
+                                 <span class="n">secondary_axis_units</span><span class="o">=</span><span class="n">secondary_axis_units</span><span class="p">,</span>
+                                 <span class="n">xtick_stride</span><span class="o">=</span><span class="n">xtick_stride</span><span class="p">,</span> 
+                                 <span class="n">plot_start_date</span><span class="o">=</span><span class="n">plot_start_date</span><span class="p">,</span> <span class="n">plot_end_date</span><span class="o">=</span><span class="n">plot_end_date</span><span class="p">,</span>
+                                 <span class="n">datetime_xaxis</span><span class="o">=</span><span class="n">datetime_xaxis</span><span class="p">)</span>
+                <span class="n">pdf</span><span class="o">.</span><span class="n">savefig</span><span class="p">()</span>
+                <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">df_flux_lake</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_flux_lake</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">plotted</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="n">terms</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df_flux_lake</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;kstp&#39;</span><span class="p">,</span> <span class="s1">&#39;kper&#39;</span><span class="p">}]</span>
+            <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">term</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">plotted</span><span class="p">:</span>
+                    <span class="n">title_prefix</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> Lake Package&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+                    <span class="n">plot_budget_term</span><span class="p">(</span><span class="n">df_flux_lake</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="n">title_prefix</span><span class="p">,</span> <span class="c1">#plotted=plotted,</span>
+                                 <span class="n">model_length_units</span><span class="o">=</span><span class="n">model_length_units</span><span class="p">,</span>
+                                 <span class="n">model_time_units</span><span class="o">=</span><span class="n">model_time_units</span><span class="p">,</span>
+                                 <span class="n">secondary_axis_units</span><span class="o">=</span><span class="n">secondary_axis_units</span><span class="p">,</span> 
+                                 <span class="n">plot_start_date</span><span class="o">=</span><span class="n">plot_start_date</span><span class="p">,</span> <span class="n">plot_end_date</span><span class="o">=</span><span class="n">plot_end_date</span><span class="p">,</span>
+                                 <span class="n">datetime_xaxis</span><span class="o">=</span><span class="n">datetime_xaxis</span><span class="p">)</span>
+                    <span class="n">pdf</span><span class="o">.</span><span class="n">savefig</span><span class="p">()</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">df_flux_sfr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_flux_sfr</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">plotted</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="n">terms</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df_flux_sfr</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;kstp&#39;</span><span class="p">,</span> <span class="s1">&#39;kper&#39;</span><span class="p">}]</span>
+            <span class="k">for</span> <span class="n">term</span> <span class="ow">in</span> <span class="n">terms</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">term</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">plotted</span><span class="p">:</span>
+                    <span class="n">title_prefix</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> SFR Package&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
+                    <span class="n">plot_budget_term</span><span class="p">(</span><span class="n">df_flux_sfr</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="n">title_prefix</span><span class="p">,</span> <span class="c1">#plotted=plotted,</span>
+                                 <span class="n">model_length_units</span><span class="o">=</span><span class="n">model_length_units</span><span class="p">,</span>
+                                 <span class="n">model_time_units</span><span class="o">=</span><span class="n">model_time_units</span><span class="p">,</span>
+                                 <span class="n">secondary_axis_units</span><span class="o">=</span><span class="n">secondary_axis_units</span><span class="p">,</span> 
+                                 <span class="n">plot_start_date</span><span class="o">=</span><span class="n">plot_start_date</span><span class="p">,</span> <span class="n">plot_end_date</span><span class="o">=</span><span class="n">plot_end_date</span><span class="p">,</span>
+                                 <span class="n">datetime_xaxis</span><span class="o">=</span><span class="n">datetime_xaxis</span><span class="p">)</span>
+                    <span class="n">pdf</span><span class="o">.</span><span class="n">savefig</span><span class="p">()</span>
+                    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;wrote </span><span class="si">{</span><span class="n">pdf_outfile</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plot_budget_summary"><a class="viewcode-back" href="../../api/index.html#mfexport.listfile.plot_budget_summary">[docs]</a><span class="k">def</span> <span class="nf">plot_budget_summary</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">title_suffix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">date_index_fmt</span><span class="o">=</span><span class="s1">&#39;%Y-%m&#39;</span><span class="p">,</span>
+                        <span class="n">term_nets</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">model_length_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">model_time_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">secondary_axis_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xtick_stride</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+                        <span class="n">plot_start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_end_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">plot_pcts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                        <span class="n">annual_sums</span><span class="o">=</span><span class="kc">False</span>
+                        <span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Plot a stacked bar chart summary of a MODFLOW listing file budget dataframe.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : DataFrame</span>
+<span class="sd">        Table of listing file budget results produced by flopy; typically the flux </span>
+<span class="sd">        (not volume) terms (see example below).</span>
+<span class="sd">    title_prefix : str, optional</span>
+<span class="sd">        Prefix to insert at the begining of the title, for example the model name.</span>
+<span class="sd">        by default &#39;&#39;</span>
+<span class="sd">    title_suffix : str, optional</span>
+<span class="sd">        Suffix to insert at the end of the title, by default &#39;&#39;</span>
+<span class="sd">    date_index_fmt : str, optional</span>
+<span class="sd">        Date format for the plot x-axis, by default &#39;%Y-%m&#39;</span>
+<span class="sd">    term_nets : bool, optional</span>
+<span class="sd">        Option to only plot net quantities for each stress period.</span>
+<span class="sd">        For example if the inflows and outflows for the WEL package </span>
+<span class="sd">        were +10 and -10, a bar of zero height would be plotted.</span>
+<span class="sd">        by default False</span>
+<span class="sd">    model_length_units : str, optional</span>
+<span class="sd">        Length units of the model, for labeling and conversion </span>
+<span class="sd">        to secondary_axis_units, </span>
+<span class="sd">        by default None</span>
+<span class="sd">    model_time_units : str, optional</span>
+<span class="sd">        Time units of the model, for labeling and conversion </span>
+<span class="sd">        to secondary_axis_units, </span>
+<span class="sd">        by default None</span>
+<span class="sd">    secondary_axis_units : str, optional</span>
+<span class="sd">        Option to include a secondary y-axis on the right with</span>
+<span class="sd">        another unit, for example &#39;mgal/day&#39; for million gallons per day.</span>
+<span class="sd">        Requires `model_length_units` and `model_time_units`.</span>
+<span class="sd">        by default None</span>
+<span class="sd">    xtick_stride : int, optional</span>
+<span class="sd">        Spacing between x-ticks. May be useful for models with many stress periods.</span>
+<span class="sd">        by default 6</span>
+<span class="sd">    plot_start_date : str, optional</span>
+<span class="sd">        Minimum date to plot on the x-axis, in a string format </span>
+<span class="sd">        recognizable by pandas (if `df` has a datetime index) or</span>
+<span class="sd">        a numeric value (if `df` has a numeric index).</span>
+<span class="sd">        by default None (plot all dates)</span>
+<span class="sd">    plot_end_date : str, optional</span>
+<span class="sd">        Maximum date to plot on the x-axis, in a string format </span>
+<span class="sd">        recognizable by pandas (if `df` has a datetime index) or</span>
+<span class="sd">        a numeric value (if `df` has a numeric index).</span>
+<span class="sd">        by default None (plot all dates)</span>
+<span class="sd">    plot_pcts : bool</span>
+<span class="sd">        Option to include the percentage of each flux.</span>
+<span class="sd">        by default, False</span>
+<span class="sd">    annual_sums : bool</span>
+<span class="sd">        Option to summarize budget by year (e.g. using :py:meth:`pandas.DataFrame.groupby`).</span>
+<span class="sd">        Requires that ``df`` have a valid datetime index.</span>
+<span class="sd">        by default, False</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ax : matplotlib axes subplot instance</span>
+<span class="sd">        </span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        from mfexport.listfile import get_listfile_data, plot_budget_summary</span>
+<span class="sd">        df = get_listfile_data(listfile=&#39;model.list&#39;, model_start_datetime=&#39;2000-01-01&#39;)</span>
+<span class="sd">        plot_budget_summary(df)</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>    
+
+    <span class="c1"># slice the dataframe to the specified time range (if any)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="n">plot_start_date</span><span class="p">,</span> <span class="n">plot_end_date</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">annual_sums</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">):</span>
+            <span class="n">dfa</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">dfa</span><span class="p">[</span><span class="s1">&#39;kper&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">last</span><span class="p">()[</span><span class="s1">&#39;kper&#39;</span><span class="p">]</span>
+            <span class="n">dfa</span><span class="p">[</span><span class="s1">&#39;kstp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">last</span><span class="p">()[</span><span class="s1">&#39;kstp&#39;</span><span class="p">]</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">dfa</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Skipping, annual_sums requires a datetime index.&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">xtick_stride</span> <span class="o">*</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">xtick_stride</span> <span class="o">=</span> <span class="mi">1</span>
+        
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mf">8.5</span><span class="p">))</span>
+    <span class="n">in_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="s1">&#39;_IN&#39;</span> <span class="ow">in</span> <span class="n">c</span> <span class="ow">and</span> <span class="s1">&#39;TOTAL&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">c</span><span class="p">]</span>
+    <span class="n">out_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="s1">&#39;_OUT&#39;</span> <span class="ow">in</span> <span class="n">c</span> <span class="ow">and</span> <span class="s1">&#39;TOTAL&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">c</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">term_nets</span><span class="p">:</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">in_cols</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">stacked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span><span class="c1"># width=20</span>
+                                  <span class="p">)</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">out_cols</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">out_cols</span><span class="p">])</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">stacked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span><span class="c1"># width=20</span>
+                                      <span class="p">)</span>
+        <span class="n">df_pcts</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">df_pcts</span><span class="p">[</span><span class="n">in_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">in_cols</span><span class="p">]</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;TOTAL_IN&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">df_pcts</span><span class="p">[</span><span class="n">out_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">out_cols</span><span class="p">]</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;TOTAL_OUT&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">in_cols</span><span class="p">,</span> <span class="n">out_cols</span><span class="p">))</span>
+        <span class="n">net_cols</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">in_col</span><span class="p">,</span> <span class="n">out_col</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
+            <span class="n">net_col</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">in_col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> (net)&quot;</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">net_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">in_col</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="n">out_col</span><span class="p">]</span>
+            <span class="n">net_cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">net_col</span><span class="p">)</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">net_cols</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">stacked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span><span class="c1"># width=20</span>
+        <span class="p">)</span>
+        <span class="n">net_sums</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">net_cols</span><span class="p">][</span><span class="n">df</span><span class="p">[</span><span class="n">net_cols</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">df_pcts</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">net_cols</span><span class="p">]</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">net_sums</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">):</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">date_index_fmt</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="n">annual_sums</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Calendar year&#39;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time since the start of the simulation, in model units&#39;</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+
+    <span class="c1"># create ylabel with model units, if provided</span>
+    <span class="k">if</span> <span class="n">model_length_units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">model_time_units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">units_text</span> <span class="o">=</span> <span class="n">get_figure_label_unit_text</span><span class="p">(</span><span class="n">model_length_units</span><span class="p">,</span> <span class="n">model_time_units</span><span class="p">,</span>
+                                                <span class="n">length_unit_exp</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">units_text</span> <span class="o">=</span> <span class="s1">&#39;$L^3/T$&#39;</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Flow rate, in model units of </span><span class="si">{</span><span class="n">units_text</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="c1"># add commas to y axis values</span>
+    <span class="n">formatter</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">ticker</span><span class="o">.</span><span class="n">FuncFormatter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="nb">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="s1">&#39;,&#39;</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">get_yaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+
+    <span class="c1"># optional 2nd y-axis with other units</span>
+    <span class="k">if</span> <span class="n">secondary_axis_units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">length_units2</span><span class="p">,</span> <span class="n">time_units2</span> <span class="o">=</span> <span class="n">parse_flux_units</span><span class="p">(</span><span class="n">secondary_axis_units</span><span class="p">)</span>
+        <span class="n">vol_conversion</span> <span class="o">=</span> <span class="n">convert_volume_units</span><span class="p">(</span><span class="n">model_length_units</span><span class="p">,</span> <span class="n">length_units2</span><span class="p">)</span>
+        <span class="n">time_conversion</span> <span class="o">=</span> <span class="n">convert_time_units</span><span class="p">(</span><span class="n">model_time_units</span><span class="p">,</span> <span class="n">time_units2</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">fconvert</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">vol_conversion</span> <span class="o">*</span> <span class="n">time_conversion</span>
+
+        <span class="k">def</span> <span class="nf">rconvert</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">x</span> <span class="o">/</span> <span class="p">(</span><span class="n">vol_conversion</span> <span class="o">*</span> <span class="n">time_conversion</span><span class="p">)</span>
+
+        <span class="n">secondary_axis_unit_text</span> <span class="o">=</span> <span class="n">get_figure_label_unit_text</span><span class="p">(</span><span class="n">length_units2</span><span class="p">,</span> <span class="n">time_units2</span><span class="p">,</span>
+                                                              <span class="n">length_unit_exp</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+        <span class="n">secax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">secondary_yaxis</span><span class="p">(</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">functions</span><span class="o">=</span><span class="p">(</span><span class="n">fconvert</span><span class="p">,</span> <span class="n">rconvert</span><span class="p">))</span>
+        <span class="n">secax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Flow rate, in </span><span class="si">{</span><span class="n">secondary_axis_unit_text</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">secax</span><span class="o">.</span><span class="n">get_yaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+
+    <span class="c1"># add stress period info</span>
+    <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+    <span class="n">xlocs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))</span>
+    <span class="n">yloc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">ymin</span> <span class="o">+</span> <span class="mf">0.03</span> <span class="o">*</span> <span class="p">(</span><span class="n">ymax</span> <span class="o">-</span> <span class="n">ymin</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">xtick_stride</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">xtick_stride</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">xtick_stride</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">xtick_stride</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">xtick_stride</span>
+    <span class="n">kpers</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">xlocs</span><span class="p">[::</span><span class="n">xtick_stride</span><span class="p">],</span> <span class="n">yloc</span><span class="p">[::</span><span class="n">xtick_stride</span><span class="p">]):</span>
+        <span class="n">kper</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x</span><span class="p">][</span><span class="s1">&#39;kper&#39;</span><span class="p">])</span>
+        <span class="c1"># only make one line for each stress period</span>
+        <span class="k">if</span> <span class="n">kper</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kpers</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">kper</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transData</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;top&#39;</span><span class="p">)</span>
+            <span class="n">kpers</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">kper</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">kpers</span><span class="p">),</span> <span class="n">y</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="mf">0.06</span><span class="o">*</span><span class="n">y</span><span class="p">),</span> <span class="s1">&#39; model stress period:&#39;</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transData</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;top&#39;</span><span class="p">)</span>
+    <span class="n">title_text</span> <span class="o">=</span> <span class="s1">&#39;budget summary&#39;</span> 
+    <span class="k">if</span> <span class="n">term_nets</span><span class="p">:</span>
+        <span class="n">title_text</span> <span class="o">+=</span> <span class="s1">&#39; (net fluxes)&#39;</span>
+    <span class="n">title_text</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">title_prefix</span><span class="p">,</span> <span class="n">title_text</span><span class="p">,</span> <span class="n">title_suffix</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title_text</span><span class="p">)</span>
+    
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">ncol</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="c1"># reduce x-tick density</span>
+    <span class="n">ticks</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">get_ticklocs</span><span class="p">()</span>
+    <span class="n">ticklabels</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">get_ticklabels</span><span class="p">()]</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">(</span><span class="n">ticks</span><span class="p">[::</span><span class="n">xtick_stride</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticklabels</span><span class="p">(</span><span class="n">ticklabels</span><span class="p">[::</span><span class="n">xtick_stride</span><span class="p">])</span>
+    
+    <span class="c1"># add percentages for smaller datasets</span>
+    <span class="k">if</span> <span class="n">plot_pcts</span><span class="p">:</span>
+        <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+        <span class="c1"># max bar height for printing %</span>
+        <span class="n">height_cutoff_frac</span> <span class="o">=</span> <span class="mf">0.01</span>
+        <span class="n">height_cutoff</span> <span class="o">=</span> <span class="n">ymax</span> <span class="o">*</span> <span class="n">height_cutoff_frac</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">ax</span><span class="o">.</span><span class="n">patches</span><span class="p">:</span>
+            <span class="n">height</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">height</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">height_cutoff</span><span class="p">:</span>
+                <span class="n">width</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span>
+                <span class="n">xloc</span><span class="p">,</span> <span class="n">yloc</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">get_xy</span><span class="p">()</span>
+                <span class="n">x_value</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">xloc</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">width</span><span class="p">)</span>
+                
+                <span class="c1"># get the percentage</span>
+                <span class="k">if</span> <span class="n">term_nets</span><span class="p">:</span>
+                    <span class="n">loc</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">net_cols</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x_value</span><span class="p">]</span> <span class="o">==</span> <span class="n">height</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">loc</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x_value</span><span class="p">]</span> <span class="o">==</span> <span class="n">height</span>
+                <span class="n">pct</span> <span class="o">=</span> <span class="n">df_pcts</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">x_value</span><span class="p">][</span><span class="n">loc</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">y_center</span> <span class="o">=</span> <span class="n">yloc</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">height</span>
+                
+                <span class="c1"># plot the text</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x_value</span><span class="p">,</span> <span class="n">y_center</span><span class="p">,</span>
+                        <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="nb">abs</span><span class="p">(</span><span class="n">pct</span><span class="p">)</span><span class="si">:</span><span class="s1">.1%</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> 
+                        <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transData</span><span class="p">,</span> 
+                        <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span></div>
+
+
+<div class="viewcode-block" id="plot_budget_term"><a class="viewcode-back" href="../../api/index.html#mfexport.listfile.plot_budget_term">[docs]</a><span class="k">def</span> <span class="nf">plot_budget_term</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">term</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">title_suffix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+                     <span class="n">model_length_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">model_time_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">secondary_axis_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xtick_stride</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">plot_start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_end_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                     <span class="n">datetime_xaxis</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Make a timeseries plot of an individual MODFLOW listing file </span>
+<span class="sd">    budget term.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : DataFrame</span>
+<span class="sd">        Table of listing file budget results produced by flopy; typically the flux </span>
+<span class="sd">        (not volume) terms (see example below).</span>
+<span class="sd">    title_prefix : str, optional</span>
+<span class="sd">        Prefix to insert at the begining of the title, for example the model name.</span>
+<span class="sd">        by default &#39;&#39;</span>
+<span class="sd">    title_suffix : str, optional</span>
+<span class="sd">        Suffix to insert at the end of the title, by default &#39;&#39;</span>
+<span class="sd">    model_length_units : str, optional</span>
+<span class="sd">        Length units of the model, for labeling and conversion </span>
+<span class="sd">        to secondary_axis_units, </span>
+<span class="sd">        by default None</span>
+<span class="sd">    model_time_units : str, optional</span>
+<span class="sd">        Time units of the model, for labeling and conversion </span>
+<span class="sd">        to secondary_axis_units, </span>
+<span class="sd">        by default None</span>
+<span class="sd">    secondary_axis_units : str, optional</span>
+<span class="sd">        Option to include a secondary y-axis on the right with</span>
+<span class="sd">        another unit, for example &#39;mgal/day&#39; for million gallons per day.</span>
+<span class="sd">        Requires `model_length_units` and `model_time_units`.</span>
+<span class="sd">        by default None</span>
+<span class="sd">    xtick_stride : int, optional</span>
+<span class="sd">        Spacing between x-ticks. May be useful for models with many stress periods.</span>
+<span class="sd">        by default 6</span>
+<span class="sd">    plot_start_date : str, optional</span>
+<span class="sd">        Minimum date to plot on the x-axis, in a string format </span>
+<span class="sd">        recognizable by pandas (if `df` has a datetime index) or</span>
+<span class="sd">        a numeric value (if `df` has a numeric index). May be</span>
+<span class="sd">        useful if the model has long spinup period(s) that</span>
+<span class="sd">        would obscure later periods of interest when datetime_xaxis=True.</span>
+<span class="sd">        by default None (plot all dates)</span>
+<span class="sd">    plot_end_date : str, optional</span>
+<span class="sd">        Maximum date to plot on the x-axis, in a string format </span>
+<span class="sd">        recognizable by pandas (if `df` has a datetime index) or</span>
+<span class="sd">        a numeric value (if `df` has a numeric index).</span>
+<span class="sd">        by default None (plot all dates)</span>
+<span class="sd">    datetime_xaxis : bool</span>
+<span class="sd">        Plot budget values as a function of time. If False,</span>
+<span class="sd">        plot as a function of stress period.</span>
+<span class="sd">        by default, True</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ax : matplotlib axes subplot instance</span>
+<span class="sd">        </span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        from mfexport.listfile import get_listfile_data, plot_budget_summary</span>
+<span class="sd">        df = get_listfile_data(listfile=&#39;model.list&#39;, model_start_datetime=&#39;2000-01-01&#39;)</span>
+<span class="sd">        plot_budget_term(df, &#39;WELLS&#39;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>    
+    <span class="c1"># slice the dataframe to the specified time range (if any)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="n">plot_start_date</span><span class="p">,</span> <span class="n">plot_end_date</span><span class="p">)]</span>
+    
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">datetime_xaxis</span> <span class="ow">and</span> <span class="s1">&#39;datetime&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="s1">&#39;datetime&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;kper&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">term</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s1">&#39;IN-OUT&#39;</span><span class="p">,</span> <span class="s1">&#39;PERCENT_DISCREPANCY&#39;</span><span class="p">}:</span>
+
+        <span class="c1"># get the absolute quantity for the term</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">series</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">term</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">out_term</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_IN&#39;</span><span class="p">,</span> <span class="s1">&#39;_OUT&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">term</span><span class="p">]</span>
+            <span class="n">out_series</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">out_term</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">term</span> <span class="o">=</span> <span class="n">term</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_IN&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_OUT&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+            <span class="n">in_term</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">term</span><span class="si">}</span><span class="s1">_IN&#39;</span>
+            <span class="n">out_term</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">term</span><span class="si">}</span><span class="s1">_OUT&#39;</span>
+            <span class="n">series</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">in_term</span><span class="p">]</span>
+            <span class="n">out_series</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">out_term</span><span class="p">]</span>
+
+        <span class="c1"># get the net</span>
+        <span class="n">net_series</span> <span class="o">=</span> <span class="n">series</span> <span class="o">-</span> <span class="n">out_series</span>
+
+        <span class="c1"># get the percent relative to the total budget</span>
+        <span class="n">pct_series</span> <span class="o">=</span> <span class="n">series</span><span class="o">/</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;TOTAL_IN&#39;</span><span class="p">]</span>
+        <span class="n">pct_out_series</span> <span class="o">=</span> <span class="n">out_series</span><span class="o">/</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;TOTAL_OUT&#39;</span><span class="p">]</span>
+        <span class="n">pct_net_series</span> <span class="o">=</span> <span class="n">pct_series</span> <span class="o">-</span> <span class="n">pct_out_series</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">series</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">term</span><span class="p">]</span>
+        <span class="n">out_term</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">out_series</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">model_length_units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">model_time_units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">units_text</span> <span class="o">=</span> <span class="n">get_figure_label_unit_text</span><span class="p">(</span><span class="n">model_length_units</span><span class="p">,</span> <span class="n">model_time_units</span><span class="p">,</span>
+                                                <span class="n">length_unit_exp</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">units_text</span> <span class="o">=</span> <span class="s1">&#39;$L^3/T$&#39;</span>
+
+    <span class="k">if</span> <span class="n">out_series</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mf">8.5</span><span class="p">))</span>
+        <span class="n">axes</span> <span class="o">=</span> <span class="n">axes</span><span class="o">.</span><span class="n">flat</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">series</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;C0&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+        <span class="p">(</span><span class="o">-</span><span class="n">out_series</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;C1&#39;</span><span class="p">)</span>
+        <span class="n">net_series</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;0.5&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">h</span><span class="p">,</span> <span class="n">l</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;In&#39;</span><span class="p">,</span> <span class="s1">&#39;Out&#39;</span><span class="p">,</span> <span class="s1">&#39;Net&#39;</span><span class="p">])</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Flow rate, in model units of </span><span class="si">{</span><span class="n">units_text</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+        <span class="c1"># add commas to y axis values</span>
+        <span class="n">formatter</span> <span class="o">=</span> <span class="n">mpl</span><span class="o">.</span><span class="n">ticker</span><span class="o">.</span><span class="n">FuncFormatter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">p</span><span class="p">:</span> <span class="nb">format</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="s1">&#39;,&#39;</span><span class="p">))</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">get_yaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+
+        <span class="c1"># optional 2nd y-axis with other units</span>
+        <span class="k">if</span> <span class="n">secondary_axis_units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">length_units2</span><span class="p">,</span> <span class="n">time_units2</span> <span class="o">=</span> <span class="n">parse_flux_units</span><span class="p">(</span><span class="n">secondary_axis_units</span><span class="p">)</span>
+            <span class="n">vol_conversion</span> <span class="o">=</span> <span class="n">convert_volume_units</span><span class="p">(</span><span class="n">model_length_units</span><span class="p">,</span> <span class="n">length_units2</span><span class="p">)</span>
+            <span class="n">time_conversion</span> <span class="o">=</span> <span class="n">convert_time_units</span><span class="p">(</span><span class="n">model_time_units</span><span class="p">,</span> <span class="n">time_units2</span><span class="p">)</span>
+
+            <span class="k">def</span> <span class="nf">fconvert</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">x</span> <span class="o">*</span> <span class="n">vol_conversion</span> <span class="o">*</span> <span class="n">time_conversion</span>
+
+            <span class="k">def</span> <span class="nf">rconvert</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">x</span> <span class="o">/</span> <span class="p">(</span><span class="n">vol_conversion</span> <span class="o">*</span> <span class="n">time_conversion</span><span class="p">)</span>
+
+            <span class="n">secondary_axis_unit_text</span> <span class="o">=</span> <span class="n">get_figure_label_unit_text</span><span class="p">(</span><span class="n">length_units2</span><span class="p">,</span> <span class="n">time_units2</span><span class="p">,</span>
+                                                                  <span class="n">length_unit_exp</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+            <span class="n">secax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">secondary_yaxis</span><span class="p">(</span><span class="s1">&#39;right&#39;</span><span class="p">,</span> <span class="n">functions</span><span class="o">=</span><span class="p">(</span><span class="n">fconvert</span><span class="p">,</span> <span class="n">rconvert</span><span class="p">))</span>
+            <span class="n">secax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Flow rate, in </span><span class="si">{</span><span class="n">secondary_axis_unit_text</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">secax</span><span class="o">.</span><span class="n">get_yaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">formatter</span><span class="p">)</span>
+
+        <span class="c1"># plot the percentage of total budget on second axis</span>
+        <span class="n">ax2</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">pct_series</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;C0&#39;</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+        <span class="p">(</span><span class="o">-</span><span class="n">pct_out_series</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;C1&#39;</span><span class="p">)</span>
+        <span class="n">pct_net_series</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;0.5&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Fraction of budget&#39;</span><span class="p">)</span>
+        <span class="n">single_subplot</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># add stress period info</span>
+        <span class="c1">#ymin, ymax = ax.get_ylim()</span>
+        <span class="c1">#yloc = np.ones(len(df)) * (ymin - 0.02 * (ymax - ymin))</span>
+        <span class="c1">#if xtick_stride is None:</span>
+        <span class="c1">#    xtick_stride = int(np.round(len(df) / 10, 0))</span>
+        <span class="c1">#    xtick_stride = 1 if xtick_stride &lt; 1 else xtick_stride</span>
+        <span class="c1">#kpers = set()</span>
+        <span class="c1">#for x, y in zip(df.index.values[::xtick_stride], yloc[::xtick_stride]):</span>
+        <span class="c1">#    kper = int(df.loc[x, &#39;kper&#39;])</span>
+        <span class="c1">#    # only make one line for each stress period</span>
+        <span class="c1">#    if kper not in kpers:</span>
+        <span class="c1">#        ax.axvline(x, lw=0.5, c=&#39;k&#39;, zorder=-2)</span>
+        <span class="c1">#        ax2.axvline(x, lw=0.5, c=&#39;k&#39;, zorder=-2)</span>
+        <span class="c1">#        ax2.text(x, y, kper, transform=ax.transData, ha=&#39;center&#39;, va=&#39;top&#39;)</span>
+        <span class="c1">#        kpers.add(kper)</span>
+
+        <span class="c1">#ax2.text(0.5, -0.07, &#39;Model Stress Period&#39;, ha=&#39;center&#39;, va=&#39;top&#39;, transform=ax.transAxes)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mf">8.5</span><span class="p">))</span>
+        <span class="n">series</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;C0&#39;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+        <span class="n">ax2</span> <span class="o">=</span> <span class="n">ax</span>
+        <span class="n">single_subplot</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="c1"># add stress period info</span>
+    <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+    <span class="n">pad</span> <span class="o">=</span> <span class="mf">0.02</span>
+    <span class="k">if</span> <span class="n">single_subplot</span><span class="p">:</span>
+        <span class="n">pad</span> <span class="o">=</span> <span class="mf">0.1</span>
+    <span class="n">yloc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))</span> <span class="o">*</span> <span class="p">(</span><span class="n">ymin</span> <span class="o">-</span> <span class="n">pad</span> <span class="o">*</span> <span class="p">(</span><span class="n">ymax</span> <span class="o">-</span> <span class="n">ymin</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">xtick_stride</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">xtick_stride</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">/</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">xtick_stride</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">xtick_stride</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">xtick_stride</span>
+    <span class="n">kpers</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">[::</span><span class="n">xtick_stride</span><span class="p">],</span> <span class="n">yloc</span><span class="p">[::</span><span class="n">xtick_stride</span><span class="p">]):</span>
+        <span class="n">kper</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="s1">&#39;kper&#39;</span><span class="p">])</span>
+        <span class="c1"># only make one line for each stress period</span>
+        <span class="k">if</span> <span class="n">kper</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kpers</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">kper</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transData</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;top&#39;</span><span class="p">)</span>
+            <span class="n">kpers</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">kper</span><span class="p">)</span>
+
+        <span class="n">ax2</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.07</span><span class="p">,</span> <span class="s1">&#39;Model Stress Period&#39;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;top&#39;</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">)</span>
+
+
+    <span class="n">title_text</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">((</span><span class="n">title_prefix</span><span class="p">,</span> <span class="n">term</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">title_suffix</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title_text</span><span class="p">)</span>
+
+    <span class="c1"># set x axis limits</span>
+    <span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span> <span class="o">=</span> <span class="n">series</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">series</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+        
+    <span class="k">if</span> <span class="n">plot_start_date</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">datetime_xaxis</span><span class="p">:</span>
+            <span class="n">loc</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">datetime</span> <span class="o">&gt;=</span> <span class="n">plot_start_date</span>
+            <span class="n">xmin</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">loc</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span> 
+            <span class="n">xmin</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">plot_start_date</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">plot_end_date</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">datetime_xaxis</span><span class="p">:</span>
+            <span class="n">loc</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">datetime</span> <span class="o">&lt;=</span> <span class="n">plot_end_date</span>
+            <span class="n">xmax</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">loc</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">xmax</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">plot_end_date</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">xmin</span><span class="p">,</span> <span class="n">xmax</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">datetime_xaxis</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">&#39;datetime&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">xticks</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">get_xticks</span><span class="p">()</span>
+            <span class="n">datetime_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;datetime&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span> 
+                               <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xticks</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()]</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">datetime_labels</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+            
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">):</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time since the start of the simulation, in model units&#39;</span><span class="p">)</span>
+
+    <span class="n">plotted</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">term</span><span class="p">,</span> <span class="n">out_term</span><span class="p">})</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2019, Andrew Leaf.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
