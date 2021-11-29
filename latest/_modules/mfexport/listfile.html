@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mfexport.listfile &mdash; modflow-export 0.post65+g0f476d7 documentation</title>
+  <title>mfexport.listfile &mdash; modflow-export 0.post66+g3812fa9 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
@@ -32,7 +32,7 @@
             <a href="../../index.html" class="icon icon-home"> modflow-export
           </a>
               <div class="version">
-                0.post65+g0f476d7
+                0.post66+g3812fa9
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -176,7 +176,7 @@
                      <span class="n">model_time_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                      <span class="n">secondary_axis_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                      <span class="n">xtick_stride</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">plot_start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_end_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                     <span class="n">plot_pcts</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                     <span class="n">plot_pcts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                      <span class="n">datetime_xaxis</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 
     <span class="n">pdfs_dir</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">make_output_folders</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
@@ -229,7 +229,8 @@
                             <span class="n">xtick_stride</span><span class="o">=</span><span class="n">xtick_stride</span><span class="p">,</span>
                             <span class="n">plot_start_date</span><span class="o">=</span><span class="n">plot_start_date</span><span class="p">,</span> 
                             <span class="n">plot_end_date</span><span class="o">=</span><span class="n">plot_end_date</span><span class="p">,</span>
-                            <span class="n">annual_sums</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                            <span class="n">annual_sums</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                            <span class="n">plot_pcts</span><span class="o">=</span><span class="n">plot_pcts</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">pdf</span><span class="o">.</span><span class="n">savefig</span><span class="p">()</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -709,9 +710,15 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">datetime_xaxis</span><span class="p">:</span>
         <span class="k">if</span> <span class="s1">&#39;datetime&#39;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="n">xticks</span> <span class="o">=</span> <span class="n">ax2</span><span class="o">.</span><span class="n">get_xticks</span><span class="p">()</span>
-            <span class="n">datetime_labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;datetime&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span> 
-                               <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xticks</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()]</span>
+            <span class="n">datetime_labels</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">xticks</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+                    <span class="n">dt_label</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;datetime&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">dt_label</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+                <span class="n">datetime_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dt_label</span><span class="p">)</span>
             <span class="n">ax2</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">datetime_labels</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
             
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">):</span>
         <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time since the start of the simulation, in model units&#39;</span><span class="p">)</span>
