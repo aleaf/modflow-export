@@ -24,6 +24,7 @@ dependencies:
 - pytest
 - sphinx
 - numpydoc
+- nbsphinx
 - sphinx-copybutton
 - sphinx_rtd_theme
 - pip

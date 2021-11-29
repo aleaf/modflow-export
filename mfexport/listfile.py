@@ -90,7 +90,8 @@ def plot_list_budget(listfile, model_name=None,
                      model_length_units=None,
                      model_time_units=None,
                      secondary_axis_units=None,
-                     xtick_stride=None, plot_start_date=None, plot_end_date=None,
+                     xtick_stride=6, plot_start_date=None, plot_end_date=None,
+                     plot_pcts=True,
                      datetime_xaxis=True):
 
     pdfs_dir, _, _ = make_output_folders(output_path)
@@ -110,26 +111,43 @@ def plot_list_budget(listfile, model_name=None,
     out_pdf = pdfs_dir / 'listfile_budget_summary.pdf'
     with PdfPages(out_pdf) as pdf:
         # plot summary with only net values for each term
-        plot_budget_summary(df_flux, title_prefix=model_name,
+        ax = plot_budget_summary(df_flux, title_prefix=model_name,
                             term_nets=True,
                             model_length_units=model_length_units,
                             model_time_units=model_time_units,
                             secondary_axis_units=secondary_axis_units,
                             xtick_stride=xtick_stride,
                             plot_start_date=plot_start_date, 
-                            plot_end_date=plot_end_date)
-        pdf.savefig()
-        plt.close()
+                            plot_end_date=plot_end_date,
+                            plot_pcts=plot_pcts)
+        if ax is not None:
+            pdf.savefig()
+            plt.close()
         # plot summary showing in and out values for all terms
-        plot_budget_summary(df_flux, title_prefix=model_name,
+        ax = plot_budget_summary(df_flux, title_prefix=model_name,
                             model_length_units=model_length_units,
                             model_time_units=model_time_units,
                             secondary_axis_units=secondary_axis_units,
                             xtick_stride=xtick_stride,
                             plot_start_date=plot_start_date, 
-                            plot_end_date=plot_end_date)
-        pdf.savefig()
-        plt.close()    
+                            plot_end_date=plot_end_date,
+                            plot_pcts=plot_pcts)
+        if ax is not None:
+            pdf.savefig()
+            plt.close()    
+        # plot summary of annual net means
+        ax = plot_budget_summary(df_flux, title_prefix=model_name,
+                            term_nets=True,
+                            model_length_units=model_length_units,
+                            model_time_units=model_time_units,
+                            secondary_axis_units=secondary_axis_units,
+                            xtick_stride=xtick_stride,
+                            plot_start_date=plot_start_date, 
+                            plot_end_date=plot_end_date,
+                            annual_sums=True)
+        if ax is not None:
+            pdf.savefig()
+            plt.close()
     print(f'wrote {out_pdf}')
 
     pdf_outfile = pdfs_dir / 'listfile_budget_by_term.pdf'
@@ -183,7 +201,9 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
                         model_length_units=None,
                         model_time_units=None,
                         secondary_axis_units=None, xtick_stride=6,
-                        plot_start_date=None, plot_end_date=None
+                        plot_start_date=None, plot_end_date=None,
+                        plot_pcts=False,
+                        annual_sums=False
                         ):
     """Plot a stacked bar chart summary of a MODFLOW listing file budget dataframe.
 
@@ -230,6 +250,13 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
         recognizable by pandas (if `df` has a datetime index) or
         a numeric value (if `df` has a numeric index).
         by default None (plot all dates)
+    plot_pcts : bool
+        Option to include the percentage of each flux.
+        by default, False
+    annual_sums : bool
+        Option to summarize budget by year (e.g. using :py:meth:`pandas.DataFrame.groupby`).
+        Requires that ``df`` have a valid datetime index.
+        by default, False
 
     Returns
     -------
@@ -248,15 +275,30 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
     # slice the dataframe to the specified time range (if any)
     df = df.copy()
     df = df.loc[slice(plot_start_date, plot_end_date)]
-    
+    if annual_sums:
+        if isinstance(df.index, pd.DatetimeIndex):
+            dfa = df.groupby(df.index.year).sum()
+            dfa['kper'] = df.groupby(df.index.year).last()['kper']
+            dfa['kstp'] = df.groupby(df.index.year).last()['kstp']
+            df = dfa
+        else:
+            print('Skipping, annual_sums requires a datetime index.')
+            return
+    if len(df) < xtick_stride * 2:
+        xtick_stride = 1
+        
     fig, ax = plt.subplots(figsize=(11, 8.5))
     in_cols = [c for c in df.columns if '_IN' in c and 'TOTAL' not in c]
     out_cols = [c for c in df.columns if '_OUT' in c and 'TOTAL' not in c]
     if not term_nets:
         ax = df[in_cols].plot.bar(stacked=True, ax=ax,# width=20
                                   )
-        ax = (-df[out_cols]).plot.bar(stacked=True, ax=ax,# width=20
+        df[out_cols] *= -1
+        ax = (df[out_cols]).plot.bar(stacked=True, ax=ax,# width=20
                                       )
+        df_pcts = df.copy()
+        df_pcts[in_cols] = df[in_cols].div(df['TOTAL_IN'], axis=0)
+        df_pcts[out_cols] = df[out_cols].div(df['TOTAL_OUT'], axis=0)
     else:
         pairs = list(zip(in_cols, out_cols))
         net_cols = []
@@ -266,13 +308,17 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
             net_cols.append(net_col)
         ax = df[net_cols].plot.bar(stacked=True, ax=ax,# width=20
         )
+        net_sums = df[net_cols][df[net_cols] > 0].sum(axis=1)
+        df_pcts = df[net_cols].div(net_sums, axis=0)
 
     if isinstance(df.index, pd.DatetimeIndex):
         ax.set_xticklabels(df.index.strftime(date_index_fmt))
+    elif annual_sums:
+        ax.set_xlabel('Calendar year')
     else:
         ax.set_xlabel('Time since the start of the simulation, in model units')
 
-    ax.axhline(0, zorder=-1, lw=0.5, c='k')
+    ax.axhline(0, zorder=100, lw=0.5, c='k')
 
     # create ylabel with model units, if provided
     if model_length_units is not None and model_time_units is not None:
@@ -334,6 +380,32 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
     ax.xaxis.set_ticks(ticks[::xtick_stride])
     ax.xaxis.set_ticklabels(ticklabels[::xtick_stride])
     
+    # add percentages for smaller datasets
+    if plot_pcts:
+        ymin, ymax = ax.get_ylim()
+        # max bar height for printing %
+        height_cutoff_frac = 0.01
+        height_cutoff = ymax * height_cutoff_frac
+        for p in ax.patches:
+            height = p.get_height()
+            if abs(height) > height_cutoff:
+                width = p.get_width()
+                xloc, yloc = p.get_xy()
+                x_value = int(xloc + 0.5 * width)
+                
+                # get the percentage
+                if term_nets:
+                    loc = df[net_cols].iloc[x_value] == height
+                else:
+                    loc = df.iloc[x_value] == height
+                pct = df_pcts.iloc[x_value][loc].values[0]
+                y_center = yloc + 0.5 * height
+                
+                # plot the text
+                ax.text(x_value, y_center,
+                        f'{abs(pct):.1%}', fontsize=8, color='black', 
+                        transform=ax.transData, 
+                        ha='center', va='center')
     return ax
 
 
