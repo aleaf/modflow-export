@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mfexport.listfile &mdash; modflow-export 0.post66+g3812fa9 documentation</title>
+  <title>mfexport.listfile &mdash; modflow-export 0.post67+g936286c documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
@@ -32,7 +32,7 @@
             <a href="../../index.html" class="icon icon-home"> modflow-export
           </a>
               <div class="version">
-                0.post66+g3812fa9
+                0.post67+g936286c
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -363,7 +363,7 @@
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="n">plot_start_date</span><span class="p">,</span> <span class="n">plot_end_date</span><span class="p">)]</span>
     <span class="k">if</span> <span class="n">annual_sums</span><span class="p">:</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">):</span>
-            <span class="n">dfa</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">dfa</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
             <span class="n">dfa</span><span class="p">[</span><span class="s1">&#39;kper&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">last</span><span class="p">()[</span><span class="s1">&#39;kper&#39;</span><span class="p">]</span>
             <span class="n">dfa</span><span class="p">[</span><span class="s1">&#39;kstp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">last</span><span class="p">()[</span><span class="s1">&#39;kstp&#39;</span><span class="p">]</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">dfa</span>
@@ -451,7 +451,10 @@
             <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=-</span><span class="mi">2</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">kper</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transData</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;top&#39;</span><span class="p">)</span>
             <span class="n">kpers</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">kper</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">kpers</span><span class="p">),</span> <span class="n">y</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="mf">0.06</span><span class="o">*</span><span class="n">y</span><span class="p">),</span> <span class="s1">&#39; model stress period:&#39;</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transData</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;top&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="c1"># min(kpers), # (the x loc of the first bar is always 0)</span>
+            <span class="n">y</span> <span class="o">+</span> <span class="nb">abs</span><span class="p">(</span><span class="mf">0.06</span><span class="o">*</span><span class="n">y</span><span class="p">),</span> 
+            <span class="s1">&#39; model stress period:&#39;</span><span class="p">,</span> 
+            <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transData</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;top&#39;</span><span class="p">)</span>
     <span class="n">title_text</span> <span class="o">=</span> <span class="s1">&#39;budget summary&#39;</span> 
     <span class="k">if</span> <span class="n">term_nets</span><span class="p">:</span>
         <span class="n">title_text</span> <span class="o">+=</span> <span class="s1">&#39; (net fluxes)&#39;</span>

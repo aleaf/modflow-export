@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Plotting MODFLOW listing file budgets &mdash; modflow-export 0.post66+g3812fa9 documentation</title>
+  <title>Plotting MODFLOW listing file budgets &mdash; modflow-export 0.post67+g936286c documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
@@ -37,7 +37,7 @@
             <a href="../index.html" class="icon icon-home"> modflow-export
           </a>
               <div class="version">
-                0.post66+g3812fa9
+                0.post67+g936286c
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -1067,7 +1067,7 @@ div.rendered_html tbody tr:hover {
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;growing_season&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Non-growing season (Oct - April)&#39;</span>
 <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">month</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">month</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">),</span> <span class="s1">&#39;growing_season&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Growing season (May - Sept)&#39;</span>
-<span class="n">gs</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;growing_season&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="n">gs</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;growing_season&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 <span class="n">gs</span>
 </pre></div>
 </div>
@@ -1135,41 +1135,41 @@ div.rendered_html tbody tr:hover {
   <tbody>
     <tr>
       <th>Growing season (May - Sept)</th>
-      <td>2502723.750</td>
-      <td>3029337.0</td>
+      <td>625680.937500</td>
+      <td>757334.25</td>
       <td>0.0</td>
-      <td>4469145.0</td>
-      <td>2738.245117</td>
-      <td>10003944.0</td>
-      <td>2726084.25</td>
-      <td>1624901.5</td>
-      <td>2984643.750</td>
+      <td>1.117286e+06</td>
+      <td>684.561279</td>
+      <td>2500986.00</td>
+      <td>681521.0625</td>
+      <td>406225.3750</td>
+      <td>746160.937500</td>
       <td>0.0</td>
-      <td>2668745.5</td>
-      <td>10004375.0</td>
-      <td>-430.750</td>
-      <td>-0.02</td>
-      <td>16</td>
-      <td>26</td>
+      <td>667186.375</td>
+      <td>2501093.750</td>
+      <td>-107.687500</td>
+      <td>-0.00500</td>
+      <td>4.0</td>
+      <td>6.5</td>
     </tr>
     <tr>
       <th>Non-growing season (Oct - April)</th>
-      <td>1190443.875</td>
-      <td>6766244.0</td>
+      <td>148805.484375</td>
+      <td>845780.50</td>
       <td>0.0</td>
-      <td>6273222.5</td>
-      <td>4263.773926</td>
-      <td>14234174.0</td>
-      <td>4891758.50</td>
-      <td>2880279.5</td>
-      <td>880860.625</td>
+      <td>7.841528e+05</td>
+      <td>532.971741</td>
+      <td>1779271.75</td>
+      <td>611469.8125</td>
+      <td>360034.9375</td>
+      <td>110107.578125</td>
       <td>0.0</td>
-      <td>5582852.0</td>
-      <td>14235751.0</td>
-      <td>-1576.625</td>
-      <td>-0.11</td>
-      <td>32</td>
-      <td>40</td>
+      <td>697856.500</td>
+      <td>1779468.875</td>
+      <td>-197.078125</td>
+      <td>-0.01375</td>
+      <td>4.0</td>
+      <td>5.0</td>
     </tr>
   </tbody>
 </table>
@@ -1204,7 +1204,7 @@ div.rendered_html tbody tr:hover {
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
 <span></span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;growing_season&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Non-growing season (Oct - April)&#39;</span>
 <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">month</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">month</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">),</span> <span class="s1">&#39;growing_season&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Growing season (May - Sept)&#39;</span>
-<span class="n">gs</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;growing_season&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="n">gs</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;growing_season&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">gs</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Little Plover example&#39;</span><span class="p">,</span>
                          <span class="n">term_nets</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                          <span class="n">plot_pcts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1303,7 +1303,7 @@ Index([&#39;STORAGE_IN&#39;, &#39;CONSTANT_HEAD_IN&#39;, &#39;WELLS_IN&#39;, &#3
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/runner/work/modflow-export/modflow-export/mfexport/listfile.py:635: UserWarning: FixedFormatter should only be used together with FixedLocator
+/home/runner/work/modflow-export/modflow-export/mfexport/listfile.py:638: UserWarning: FixedFormatter should only be used together with FixedLocator
   ax2.set_xticklabels(datetime_labels, rotation=90)
 </pre></div></div>
 </div>
