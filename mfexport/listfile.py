@@ -5,6 +5,7 @@ from pathlib import Path
 import os
 import numpy as np
 import pandas as pd
+import re
 import flopy
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -204,7 +205,11 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
                         secondary_axis_units=None, xtick_stride=6,
                         plot_start_date=None, plot_end_date=None,
                         plot_pcts=False,
-                        annual_sums=False
+                        annual_sums=False,
+                        wateryear_sums=False,
+                        mindays=60,
+                        cmap_in=None,
+                        cmap_out=None
                         ):
     """Plot a stacked bar chart summary of a MODFLOW listing file budget dataframe.
 
@@ -258,6 +263,20 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
         Option to summarize budget by year (e.g. using :py:meth:`pandas.DataFrame.groupby`).
         Requires that ``df`` have a valid datetime index.
         by default, False
+    wateryear_sums: bool
+        Option to summarize budget by wateryear (e.g. using :py:meth:`pandas.DataFrame.resample`).
+        Requires that ``df`` have a valid datetime index.
+        by default, False
+    mindays: int
+        minimum number of days for wateryear or annual summary, if number of days in 
+        the interpolated year is less than mindays, that entry is dropped.  Default=60.
+    cmap_in: str
+        Name of matplotlib colormap to use for _IN water budget components, if None
+        then it uses pandas default which is list('bgrcmyk'). Default is None.
+    cmap_out: str
+        Name of matplotlib colormap to use for _OUT water budget components, if None
+        then it uses pandas default which is list('bgrcmyk'). Default is None.
+
 
     Returns
     -------
@@ -276,15 +295,52 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
     # slice the dataframe to the specified time range (if any)
     df = df.copy()
     df = df.loc[slice(plot_start_date, plot_end_date)]
-    if annual_sums:
+
+    if wateryear_sums or annual_sums:
         if isinstance(df.index, pd.DatetimeIndex):
-            dfa = df.groupby(df.index.year).mean()
-            dfa['kper'] = df.groupby(df.index.year).last()['kper']
-            dfa['kstp'] = df.groupby(df.index.year).last()['kstp']
-            df = dfa
+            interp = df.resample('D').last()
+            interp = interp.interpolate(method='time')
+            interp['days'] = 1
+            cols = interp.columns.to_list()
+            agg_type = dict()
+            for c in cols:
+                if re.match('kstp', c) or re.match('kper', c):
+                    agg_type[c] = 'last'
+                else:
+                    agg_type[c] = 'sum'
+            # resample to October 1 and set the label to the end of the interval
+            # this is consistent with budget output; the time printed is the end
+            # of the stress period.  The agg_type dictionary is used so that
+            # kstp and kper are not interpolated, the last value is taken.
+            mass_WY = interp.resample('AS-OCT', label='right').agg(agg_type)
+
+            # resample to the end of the year, same aggregation types
+            mass_Y = interp.resample('Y', label='right').agg(agg_type)
+
+            # query operator, don't have to use .loc, etc.
+            mass_WY = mass_WY.query('days > {0}'.format(mindays))   
+            mass_Y = mass_Y.query('days > {0}'.format(mindays))
+
+            # get the average rate in model units by dividing by the 
+            # number of days in the period (might be partial year or leap year)
+            rate_WY = mass_WY[cols].divide(mass_WY['days'], axis='index')
+            rate_Y = mass_Y[cols].divide(mass_Y['days'], axis='index')
+
+            # kper got divided by days, need to remake it and set to integer
+            rate_WY['kper'] = rate_WY['kper']*mass_WY['days']
+            rate_WY['kper'] = rate_WY['kper'].astype(int)
+            rate_Y['kper'] = rate_Y['kper']*mass_Y['days']
+            rate_Y['kper'] = rate_Y['kper'].astype(int)
+
+            # set df to the desired frame
+            if wateryear_sums:
+                df = rate_WY
+            else:
+                df = rate_Y
         else:
-            print('Skipping, annual_sums requires a datetime index.')
+            print('Skipping, annual or wateryear summaries require a datetime index.')
             return
+
     if len(df) < xtick_stride * 2:
         xtick_stride = 1
         
@@ -293,10 +349,10 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
     out_cols = [c for c in df.columns if '_OUT' in c and 'TOTAL' not in c]
     if not term_nets:
         ax = df[in_cols].plot.bar(stacked=True, ax=ax,# width=20
-                                  )
+                                  cmap=cmap_in)
         df[out_cols] *= -1
         ax = (df[out_cols]).plot.bar(stacked=True, ax=ax,# width=20
-                                      )
+                                     cmap=cmap_out)
         df_pcts = df.copy()
         df_pcts[in_cols] = df[in_cols].div(df['TOTAL_IN'], axis=0)
         df_pcts[out_cols] = df[out_cols].div(df['TOTAL_OUT'], axis=0)
