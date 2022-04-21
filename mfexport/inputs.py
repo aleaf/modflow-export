@@ -273,6 +273,9 @@ def export_variable(variable, package, modelgrid,
 
     elif v.data_type == DataType.transientlist:
         packagename = package.name[0].lower().replace('_', '')
+        if v.name in {'perioddata'}:
+            print(f'skipping {packagename}.perioddata; efficient export not implemented')
+            return
         name = '{}_stress_period_data'.format(packagename)
         if gis:
             filename = os.path.join(shps_dir,
