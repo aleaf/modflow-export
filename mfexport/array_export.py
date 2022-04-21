@@ -75,7 +75,7 @@ def export_array(filename, a, modelgrid, nodata=-9999,
                 'nodata': nodata,
                 'dtype': a.dtype,
                 'driver': 'GTiff',
-                'crs': modelgrid.proj_str,
+                'crs': modelgrid.crs,
                 'transform': trans,
                 'compress': 'lzw'
                 }
@@ -102,8 +102,7 @@ def export_array_contours(filename, a, modelgrid,
                           interval=None,
                           levels=None,
                           maxlevels=1000,
-                          epsg=None,
-                          proj_str=None, verbose=False,
+                          crs=None, verbose=False,
                           **kwargs):
     """
     Contour an array using matplotlib; write shapefile of contours.
@@ -114,18 +113,28 @@ def export_array_contours(filename, a, modelgrid,
         Path of output file with '.shp' extention.
     a : 2D numpy array
         Array to contour
-    epsg : int
-        EPSG code. See https://www.epsg-registry.org/ or spatialreference.org
-    prj : str
-        Existing projection file to be used with new shapefile.
+    crs : obj
+        A Python int, dict, str, or :class:`pyproj.crs.CRS` instance
+        passed to the :meth:`pyproj.crs.CRS.from_user_input`
+        See http://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS.from_user_input.
+        Can be any of:
+        
+          - PROJ string
+          - Dictionary of PROJ parameters
+          - PROJ keyword arguments for parameters
+          - JSON string with PROJ parameters
+          - CRS WKT string
+          - An authority string [i.e. 'epsg:4326']
+          - An EPSG integer code [i.e. 4326]
+          - A tuple of ("auth_name": "auth_code") [i.e ('epsg', '4326')]
+          - An object with a `to_wkt` method.
+          - A :class:`pyproj.crs.CRS` class
     **kwargs : keyword arguments to matplotlib.axes.Axes.contour
 
     """
     t0 = time.time()
-    if epsg is None:
-        epsg = modelgrid.epsg
-    if proj_str is None:
-        proj_str = modelgrid.proj_str
+    if crs is None:
+        crs = modelgrid.crs
 
     if interval is not None:
         kwargs['levels'] = make_levels(a, interval, maxlevels)
@@ -141,11 +150,6 @@ def export_array_contours(filename, a, modelgrid,
     if not isinstance(contours, list):
         contours = [contours]
 
-    if epsg is None:
-        epsg = modelgrid.epsg
-    if proj_str is None:
-        proj_str = modelgrid.proj_str
-
     geoms = []
     level = []
     for ctr in contours:
@@ -160,7 +164,7 @@ def export_array_contours(filename, a, modelgrid,
         print('No contours! Try adjusting the levels or interval.')
         return
     df = pd.DataFrame({'level': level, 'geometry': geoms})
-    df2shp(df, filename, epsg=epsg, proj_str=proj_str)
+    df2shp(df, filename, crs=crs)
     if verbose:
         print("array contour export took {:.2f}s".format(time.time() - t0))
     return
