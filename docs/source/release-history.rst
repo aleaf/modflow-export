@@ -2,6 +2,13 @@
 Release History
 ===============
 
+Version 0.3.0 (2022-08-01)
+----------------------------
+* added option to ``listfile.plot_budget_summary`` to plot annual budget sums from MODFLOW Listing file
+* updated ``MFexportGrid`` object to use the :class:`pyproj.crs.CRS` object for coordinate reference system management; added dataframe and grid cell polygon properties
+* bug fixes:
+  * skip MODFLOW 6 perioddata (transientlist datatype) for now; flopy array access can be too slow for large datasets
+
 Version 0.2.0 (2021-11-26)
 ----------------------------
 * added online documentation
