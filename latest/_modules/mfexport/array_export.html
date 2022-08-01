@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mfexport.array_export &mdash; modflow-export 0.post67+g936286c documentation</title>
+  <title>mfexport.array_export &mdash; modflow-export 0.post72+gb596b18 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
@@ -15,6 +15,7 @@
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/clipboard.min.js"></script>
         <script src="../../_static/copybutton.js"></script>
@@ -32,7 +33,7 @@
             <a href="../../index.html" class="icon icon-home"> modflow-export
           </a>
               <div class="version">
-                0.post67+g936286c
+                0.post72+gb596b18
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -160,7 +161,7 @@
                 <span class="s1">&#39;nodata&#39;</span><span class="p">:</span> <span class="n">nodata</span><span class="p">,</span>
                 <span class="s1">&#39;dtype&#39;</span><span class="p">:</span> <span class="n">a</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
                 <span class="s1">&#39;driver&#39;</span><span class="p">:</span> <span class="s1">&#39;GTiff&#39;</span><span class="p">,</span>
-                <span class="s1">&#39;crs&#39;</span><span class="p">:</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">proj_str</span><span class="p">,</span>
+                <span class="s1">&#39;crs&#39;</span><span class="p">:</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">crs</span><span class="p">,</span>
                 <span class="s1">&#39;transform&#39;</span><span class="p">:</span> <span class="n">trans</span><span class="p">,</span>
                 <span class="s1">&#39;compress&#39;</span><span class="p">:</span> <span class="s1">&#39;lzw&#39;</span>
                 <span class="p">}</span>
@@ -187,8 +188,7 @@
                           <span class="n">interval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                           <span class="n">levels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                           <span class="n">maxlevels</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
-                          <span class="n">epsg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                          <span class="n">proj_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                          <span class="n">crs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                           <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Contour an array using matplotlib; write shapefile of contours.</span>
@@ -199,18 +199,28 @@
 <span class="sd">        Path of output file with &#39;.shp&#39; extention.</span>
 <span class="sd">    a : 2D numpy array</span>
 <span class="sd">        Array to contour</span>
-<span class="sd">    epsg : int</span>
-<span class="sd">        EPSG code. See https://www.epsg-registry.org/ or spatialreference.org</span>
-<span class="sd">    prj : str</span>
-<span class="sd">        Existing projection file to be used with new shapefile.</span>
+<span class="sd">    crs : obj</span>
+<span class="sd">        A Python int, dict, str, or :class:`pyproj.crs.CRS` instance</span>
+<span class="sd">        passed to the :meth:`pyproj.crs.CRS.from_user_input`</span>
+<span class="sd">        See http://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS.from_user_input.</span>
+<span class="sd">        Can be any of:</span>
+<span class="sd">        </span>
+<span class="sd">          - PROJ string</span>
+<span class="sd">          - Dictionary of PROJ parameters</span>
+<span class="sd">          - PROJ keyword arguments for parameters</span>
+<span class="sd">          - JSON string with PROJ parameters</span>
+<span class="sd">          - CRS WKT string</span>
+<span class="sd">          - An authority string [i.e. &#39;epsg:4326&#39;]</span>
+<span class="sd">          - An EPSG integer code [i.e. 4326]</span>
+<span class="sd">          - A tuple of (&quot;auth_name&quot;: &quot;auth_code&quot;) [i.e (&#39;epsg&#39;, &#39;4326&#39;)]</span>
+<span class="sd">          - An object with a `to_wkt` method.</span>
+<span class="sd">          - A :class:`pyproj.crs.CRS` class</span>
 <span class="sd">    **kwargs : keyword arguments to matplotlib.axes.Axes.contour</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">epsg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">epsg</span> <span class="o">=</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">epsg</span>
-    <span class="k">if</span> <span class="n">proj_str</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">proj_str</span> <span class="o">=</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">proj_str</span>
+    <span class="k">if</span> <span class="n">crs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">crs</span> <span class="o">=</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">crs</span>
 
     <span class="k">if</span> <span class="n">interval</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;levels&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">make_levels</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">interval</span><span class="p">,</span> <span class="n">maxlevels</span><span class="p">)</span>
@@ -226,11 +236,6 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">contours</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="n">contours</span> <span class="o">=</span> <span class="p">[</span><span class="n">contours</span><span class="p">]</span>
 
-    <span class="k">if</span> <span class="n">epsg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">epsg</span> <span class="o">=</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">epsg</span>
-    <span class="k">if</span> <span class="n">proj_str</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">proj_str</span> <span class="o">=</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">proj_str</span>
-
     <span class="n">geoms</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">level</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">ctr</span> <span class="ow">in</span> <span class="n">contours</span><span class="p">:</span>
@@ -245,7 +250,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;No contours! Try adjusting the levels or interval.&#39;</span><span class="p">)</span>
         <span class="k">return</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;level&#39;</span><span class="p">:</span> <span class="n">level</span><span class="p">,</span> <span class="s1">&#39;geometry&#39;</span><span class="p">:</span> <span class="n">geoms</span><span class="p">})</span>
-    <span class="n">df2shp</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">epsg</span><span class="o">=</span><span class="n">epsg</span><span class="p">,</span> <span class="n">proj_str</span><span class="o">=</span><span class="n">proj_str</span><span class="p">)</span>
+    <span class="n">df2shp</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;array contour export took </span><span class="si">{:.2f}</span><span class="s2">s&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span><span class="p">))</span>
     <span class="k">return</span></div>

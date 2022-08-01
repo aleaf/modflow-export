@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Release History &mdash; modflow-export 0.post67+g936286c documentation</title>
+  <title>Release History &mdash; modflow-export 0.post72+gb596b18 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
@@ -16,6 +16,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/clipboard.min.js"></script>
         <script src="_static/copybutton.js"></script>
@@ -35,7 +36,7 @@
             <a href="index.html" class="icon icon-home"> modflow-export
           </a>
               <div class="version">
-                0.post67+g936286c
+                0.post72+gb596b18
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -58,7 +59,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="api/index.html"> Code reference</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#"> Release History</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#version-0-2-0-2021-11-26">Version 0.2.0 (2021-11-26)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-2-0-2022-08-01">Version 0.2.0 (2022-08-01)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#initial-release-version-0-1-0-2019-11-17">Initial Release Version 0.1.0 (2019-11-17)</a></li>
 </ul>
 </li>
@@ -114,19 +115,23 @@
 }
 </style>
 <section id="release-history">
-<h1>Release History<a class="headerlink" href="#release-history" title="Permalink to this headline">¶</a></h1>
-<section id="version-0-2-0-2021-11-26">
-<h2>Version 0.2.0 (2021-11-26)<a class="headerlink" href="#version-0-2-0-2021-11-26" title="Permalink to this headline">¶</a></h2>
+<h1>Release History<a class="headerlink" href="#release-history" title="Permalink to this heading">¶</a></h1>
+<section id="version-0-2-0-2022-08-01">
+<h2>Version 0.2.0 (2022-08-01)<a class="headerlink" href="#version-0-2-0-2022-08-01" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
+<li><p>added option to <code class="docutils literal notranslate"><span class="pre">listfile.plot_budget_summary</span></code> to plot annual budget sums from MODFLOW Listing file</p></li>
+<li><p>updated <code class="docutils literal notranslate"><span class="pre">MFexportGrid</span></code> object to use the <a class="reference external" href="https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS" title="(in pyproj v3.3.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyproj.crs.CRS</span></code></a> object for coordinate reference system management; added dataframe and grid cell polygon properties</p></li>
 <li><p>added online documentation</p></li>
 <li><p>added plotting MODFLOW listing file budgets</p></li>
 <li><p>added support for SFR input export (MF6 only)</p></li>
 <li><p>added option to heads export to export depth to water and overpressurization depth</p></li>
-<li><p>various bug fixes</p></li>
+<li><p>bug fixes:
+* skip MODFLOW 6 perioddata (transientlist datatype) for now; flopy array access can be too slow for large datasets
+* various other bug fixes</p></li>
 </ul>
 </section>
 <section id="initial-release-version-0-1-0-2019-11-17">
-<h2>Initial Release Version 0.1.0 (2019-11-17)<a class="headerlink" href="#initial-release-version-0-1-0-2019-11-17" title="Permalink to this headline">¶</a></h2>
+<h2>Initial Release Version 0.1.0 (2019-11-17)<a class="headerlink" href="#initial-release-version-0-1-0-2019-11-17" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>PDF and gis (raster and shapefile) export for MODFLOW-NWT and MODFLOW-6 style models at model, package and variable levels</p></li>
 <li><p>model summary tables via the mfexport.summarize() method</p></li>

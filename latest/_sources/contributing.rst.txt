@@ -155,7 +155,7 @@ want to clone your fork to your machine::
 
     git clone git@github.com:your-user-name/modflow-export.git modflow-export-yourname
     cd modflow-export-yourname
-    git remote add upstream git://github.com/aleaf/modflow-export.git
+    git remote add upstream https://github.com/aleaf/modflow-export.git
 
 This creates the directory `modflow-export-yourname` and connects your repository to
 the upstream (main project) *Modflow-export* repository.

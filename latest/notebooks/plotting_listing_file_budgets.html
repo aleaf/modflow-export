@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Plotting MODFLOW listing file budgets &mdash; modflow-export 0.post67+g936286c documentation</title>
+  <title>Plotting MODFLOW listing file budgets &mdash; modflow-export 0.post72+gb596b18 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
@@ -16,12 +16,13 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -37,7 +38,7 @@
             <a href="../index.html" class="icon icon-home"> modflow-export
           </a>
               <div class="version">
-                0.post67+g936286c
+                0.post72+gb596b18
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -328,11 +329,12 @@ div.nboutput.container div.output_area > div[class^='highlight']{
 }
 
 /* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
-.prompt a.copybtn {
+.prompt .copybtn {
     display: none;
 }
 
 /* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
 div.rendered_html table {
   border: none;
   border-collapse: collapse;
@@ -341,10 +343,14 @@ div.rendered_html table {
   font-size: 12px;
   table-layout: fixed;
 }
+.jp-RenderedHTMLCommon thead,
 div.rendered_html thead {
   border-bottom: 1px solid black;
   vertical-align: bottom;
 }
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
 div.rendered_html tr,
 div.rendered_html th,
 div.rendered_html td {
@@ -356,12 +362,15 @@ div.rendered_html td {
   max-width: none;
   border: none;
 }
+.jp-RenderedHTMLCommon th,
 div.rendered_html th {
   font-weight: bold;
 }
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
 div.rendered_html tbody tr:nth-child(odd) {
   background: #f5f5f5;
 }
+.jp-RenderedHTMLCommon tbody tr:hover,
 div.rendered_html tbody tr:hover {
   background: rgba(66, 165, 245, 0.2);
 }
@@ -389,7 +398,7 @@ div.rendered_html tbody tr:hover {
 }
 </style>
 <section id="Plotting-MODFLOW-listing-file-budgets">
-<h1>Plotting MODFLOW listing file budgets<a class="headerlink" href="#Plotting-MODFLOW-listing-file-budgets" title="Permalink to this headline">¶</a></h1>
+<h1>Plotting MODFLOW listing file budgets<a class="headerlink" href="#Plotting-MODFLOW-listing-file-budgets" title="Permalink to this heading">¶</a></h1>
 <p>This notebook shows how to</p>
 <ul class="simple">
 <li><p>make stacked bar chart summaries of MODFLOW water budgets by stress period, including global budgets and budgets for advanced stress packages (SFR, Lake, etc).</p></li>
@@ -400,8 +409,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span> <span class="nn">mfexport.listfile</span> <span class="kn">import</span> <span class="n">plot_list_budget</span><span class="p">,</span> <span class="n">get_listfile_data</span><span class="p">,</span> <span class="n">plot_budget_summary</span><span class="p">,</span> <span class="n">plot_budget_term</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="o">%</span><span class="k">matplotlib</span> inline
@@ -409,13 +417,12 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <section id="Example-MODFLOW-NWT-model-with-monthly-stress-periods">
-<h2>Example MODFLOW-NWT model with monthly stress periods<a class="headerlink" href="#Example-MODFLOW-NWT-model-with-monthly-stress-periods" title="Permalink to this headline">¶</a></h2>
+<h2>Example MODFLOW-NWT model with monthly stress periods<a class="headerlink" href="#Example-MODFLOW-NWT-model-with-monthly-stress-periods" title="Permalink to this heading">¶</a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">listfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;data/lpr/lpr_inset.list&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">listfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;data/lpr/lpr_inset.list&#39;</span><span class="p">)</span>
 <span class="n">model_name</span> <span class="o">=</span> <span class="n">listfile</span><span class="o">.</span><span class="n">stem</span>
 <span class="n">model_start_date</span><span class="o">=</span><span class="s1">&#39;2010-12-31&#39;</span>
 
@@ -425,13 +432,12 @@ div.rendered_html tbody tr:hover {
 </div>
 </section>
 <section id="Example-MODFLOW-6-model-with-biannual-stress-periods">
-<h2>Example MODFLOW 6 model with biannual stress periods<a class="headerlink" href="#Example-MODFLOW-6-model-with-biannual-stress-periods" title="Permalink to this headline">¶</a></h2>
+<h2>Example MODFLOW 6 model with biannual stress periods<a class="headerlink" href="#Example-MODFLOW-6-model-with-biannual-stress-periods" title="Permalink to this heading">¶</a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">mf6_listfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../mfexport/tests/data/shellmound/shellmound.list&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mf6_listfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../mfexport/tests/data/shellmound/shellmound.list&#39;</span><span class="p">)</span>
 <span class="n">mf6_model_name</span> <span class="o">=</span> <span class="n">listfile</span><span class="o">.</span><span class="n">stem</span>
 <span class="n">mf6_model_start_date</span><span class="o">=</span><span class="s1">&#39;1998-04-01&#39;</span>
 
@@ -440,7 +446,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <section id="Parse-the-listing-file-budget-to-a-dataframe">
-<h3>Parse the listing file budget to a dataframe<a class="headerlink" href="#Parse-the-listing-file-budget-to-a-dataframe" title="Permalink to this headline">¶</a></h3>
+<h3>Parse the listing file budget to a dataframe<a class="headerlink" href="#Parse-the-listing-file-budget-to-a-dataframe" title="Permalink to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>no <code class="docutils literal notranslate"><span class="pre">budgetkey</span></code> argument returns the global mass balance</p></li>
 <li><p>alternatively, use an identifying <code class="docutils literal notranslate"><span class="pre">budgetkey</span></code> (text string from the listing file) to get the terms for an advanced stress package</p></li>
@@ -449,8 +455,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">df</span> <span class="o">=</span> <span class="n">get_listfile_data</span><span class="p">(</span><span class="n">listfile</span><span class="o">=</span><span class="n">listfile</span><span class="p">,</span> <span class="n">model_start_datetime</span><span class="o">=</span><span class="n">model_start_date</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">get_listfile_data</span><span class="p">(</span><span class="n">listfile</span><span class="o">=</span><span class="n">listfile</span><span class="p">,</span> <span class="n">model_start_datetime</span><span class="o">=</span><span class="n">model_start_date</span><span class="p">)</span>
 <span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
 </div>
@@ -600,8 +605,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">mf6_df</span> <span class="o">=</span> <span class="n">get_listfile_data</span><span class="p">(</span><span class="n">listfile</span><span class="o">=</span><span class="n">mf6_listfile</span><span class="p">,</span> <span class="n">model_start_datetime</span><span class="o">=</span><span class="n">mf6_model_start_date</span><span class="p">,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mf6_df</span> <span class="o">=</span> <span class="n">get_listfile_data</span><span class="p">(</span><span class="n">listfile</span><span class="o">=</span><span class="n">mf6_listfile</span><span class="p">,</span> <span class="n">model_start_datetime</span><span class="o">=</span><span class="n">mf6_model_start_date</span><span class="p">,</span>
                            <span class="p">)</span>
 <span class="n">mf6_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
@@ -751,7 +755,7 @@ div.rendered_html tbody tr:hover {
 </section>
 </section>
 <section id="Get-an-advanced-stress-package-budget">
-<h2>Get an advanced stress package budget<a class="headerlink" href="#Get-an-advanced-stress-package-budget" title="Permalink to this headline">¶</a></h2>
+<h2>Get an advanced stress package budget<a class="headerlink" href="#Get-an-advanced-stress-package-budget" title="Permalink to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>in this case, for the SFR package</p></li>
 <li><p>this requires a package budget to be written to the listing file (MODFLOW 6)</p></li>
@@ -760,8 +764,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">sfr_df</span> <span class="o">=</span> <span class="n">get_listfile_data</span><span class="p">(</span><span class="n">listfile</span><span class="o">=</span><span class="n">mf6_listfile</span><span class="p">,</span> <span class="n">model_start_datetime</span><span class="o">=</span><span class="n">mf6_model_start_date</span><span class="p">,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sfr_df</span> <span class="o">=</span> <span class="n">get_listfile_data</span><span class="p">(</span><span class="n">listfile</span><span class="o">=</span><span class="n">mf6_listfile</span><span class="p">,</span> <span class="n">model_start_datetime</span><span class="o">=</span><span class="n">mf6_model_start_date</span><span class="p">,</span>
                        <span class="n">budgetkey</span><span class="o">=</span><span class="s1">&#39;SFR BUDGET&#39;</span><span class="p">)</span>
 <span class="n">sfr_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
 </pre></div>
@@ -940,13 +943,12 @@ div.rendered_html tbody tr:hover {
 </div></div>
 </div>
 <section id="Basic-summary-of-MODFLOW-water-balance">
-<h3>Basic summary of MODFLOW water balance<a class="headerlink" href="#Basic-summary-of-MODFLOW-water-balance" title="Permalink to this headline">¶</a></h3>
+<h3>Basic summary of MODFLOW water balance<a class="headerlink" href="#Basic-summary-of-MODFLOW-water-balance" title="Permalink to this heading">¶</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Little Plover example&#39;</span><span class="p">,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Little Plover example&#39;</span><span class="p">,</span>
                     <span class="n">xtick_stride</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -969,7 +971,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </section>
 <section id="Plot-just-the-net-fluxes-for-each-component">
-<h3>Plot just the net fluxes for each component<a class="headerlink" href="#Plot-just-the-net-fluxes-for-each-component" title="Permalink to this headline">¶</a></h3>
+<h3>Plot just the net fluxes for each component<a class="headerlink" href="#Plot-just-the-net-fluxes-for-each-component" title="Permalink to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>add a secondary axis with other units</p></li>
 </ul>
@@ -978,8 +980,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Little Plover example&#39;</span><span class="p">,</span> <span class="n">term_nets</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Little Plover example&#39;</span><span class="p">,</span> <span class="n">term_nets</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                     <span class="n">model_length_units</span><span class="o">=</span><span class="s1">&#39;feet&#39;</span><span class="p">,</span> <span class="n">model_time_units</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">,</span>
                     <span class="n">secondary_axis_units</span><span class="o">=</span><span class="s1">&#39;mgal/day&#39;</span><span class="p">)</span>
 </pre></div>
@@ -1003,14 +1004,13 @@ div.rendered_html tbody tr:hover {
 </div>
 </section>
 <section id="Plot-a-subset-of-results">
-<h3>Plot a subset of results<a class="headerlink" href="#Plot-a-subset-of-results" title="Permalink to this headline">¶</a></h3>
+<h3>Plot a subset of results<a class="headerlink" href="#Plot-a-subset-of-results" title="Permalink to this heading">¶</a></h3>
 <p>This can be useful for models with many stress periods</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Little Plover example&#39;</span><span class="p">,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Little Plover example&#39;</span><span class="p">,</span>
                     <span class="n">xtick_stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
                         <span class="n">plot_start_date</span><span class="o">=</span><span class="s1">&#39;2011-05&#39;</span><span class="p">,</span> <span class="n">plot_end_date</span><span class="o">=</span><span class="s1">&#39;2011-09&#39;</span><span class="p">)</span>
 </pre></div>
@@ -1034,7 +1034,7 @@ div.rendered_html tbody tr:hover {
 </div>
 </section>
 <section id="plot-budget-sums-by-calendar-year">
-<h3>plot budget sums by calendar year<a class="headerlink" href="#plot-budget-sums-by-calendar-year" title="Permalink to this headline">¶</a></h3>
+<h3>plot budget sums by calendar year<a class="headerlink" href="#plot-budget-sums-by-calendar-year" title="Permalink to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>with percentages</p></li>
 </ul>
@@ -1042,8 +1042,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Little Plover example&#39;</span><span class="p">,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Little Plover example&#39;</span><span class="p">,</span>
                          <span class="n">annual_sums</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">plot_pcts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1057,15 +1056,14 @@ div.rendered_html tbody tr:hover {
 </div>
 </section>
 <section id="plot-budget-sums-for-an-arbitrary-grouping">
-<h3>plot budget sums for an arbitrary grouping<a class="headerlink" href="#plot-budget-sums-for-an-arbitrary-grouping" title="Permalink to this headline">¶</a></h3>
+<h3>plot budget sums for an arbitrary grouping<a class="headerlink" href="#plot-budget-sums-for-an-arbitrary-grouping" title="Permalink to this heading">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">plot_budget_summary</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_budget_term</span></code> can take any DataFrame with column names structured like those output by <code class="docutils literal notranslate"><span class="pre">flopy.utils.MfListBudget</span></code> (i.e. with <code class="docutils literal notranslate"><span class="pre">_IN</span></code> or <code class="docutils literal notranslate"><span class="pre">_OUT</span></code> suffixes), and a datetime index. So pandas <code class="docutils literal notranslate"><span class="pre">groupby</span></code> (or any other manipulations) can be performed on the data beforehand to achieve the desired result.</p>
 <p>In this case, we group the data into growing season vs. non-growing season based on month:</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;growing_season&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Non-growing season (Oct - April)&#39;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;growing_season&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Non-growing season (Oct - April)&#39;</span>
 <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">month</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">month</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">),</span> <span class="s1">&#39;growing_season&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Growing season (May - Sept)&#39;</span>
 <span class="n">gs</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;growing_season&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 <span class="n">gs</span>
@@ -1179,8 +1177,7 @@ div.rendered_html tbody tr:hover {
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">gs</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Little Plover example&#39;</span><span class="p">,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">gs</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Little Plover example&#39;</span><span class="p">,</span>
                          <span class="n">plot_pcts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_tick_params</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
 </pre></div>
@@ -1196,13 +1193,12 @@ div.rendered_html tbody tr:hover {
 </section>
 </section>
 <section id="This-can-be-done-for-net-fluxes-too">
-<h2>This can be done for net fluxes too<a class="headerlink" href="#This-can-be-done-for-net-fluxes-too" title="Permalink to this headline">¶</a></h2>
+<h2>This can be done for net fluxes too<a class="headerlink" href="#This-can-be-done-for-net-fluxes-too" title="Permalink to this heading">¶</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;growing_season&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Non-growing season (Oct - April)&#39;</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;growing_season&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Non-growing season (Oct - April)&#39;</span>
 <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">month</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">month</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">),</span> <span class="s1">&#39;growing_season&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Growing season (May - Sept)&#39;</span>
 <span class="n">gs</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;growing_season&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 <span class="n">ax</span> <span class="o">=</span> <span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">gs</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Little Plover example&#39;</span><span class="p">,</span>
@@ -1220,14 +1216,13 @@ div.rendered_html tbody tr:hover {
 </div>
 </div>
 <section id="Plot-a-budget-term">
-<h3>Plot a budget term<a class="headerlink" href="#Plot-a-budget-term" title="Permalink to this headline">¶</a></h3>
+<h3>Plot a budget term<a class="headerlink" href="#Plot-a-budget-term" title="Permalink to this heading">¶</a></h3>
 <p>Two plots are produced * absolute values, optionally with secondary axis as above * as a fraction of model or advanced stress package (e.g. SFR) budget</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">plot_budget_term</span><span class="p">(</span><span class="n">sfr_df</span><span class="p">,</span> <span class="s1">&#39;RUNOFF_IN&#39;</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Shellmound SFR&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_budget_term</span><span class="p">(</span><span class="n">sfr_df</span><span class="p">,</span> <span class="s1">&#39;RUNOFF_IN&#39;</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Shellmound SFR&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1241,14 +1236,13 @@ div.rendered_html tbody tr:hover {
 </section>
 </section>
 <section id="Any-column-in-the-listing-file-budget-dataframe-(df)-can-be-plotted,">
-<h2>Any column in the listing file budget dataframe (<code class="docutils literal notranslate"><span class="pre">df</span></code>) can be plotted,<a class="headerlink" href="#Any-column-in-the-listing-file-budget-dataframe-(df)-can-be-plotted," title="Permalink to this headline">¶</a></h2>
+<h2>Any column in the listing file budget dataframe (<code class="docutils literal notranslate"><span class="pre">df</span></code>) can be plotted,<a class="headerlink" href="#Any-column-in-the-listing-file-budget-dataframe-(df)-can-be-plotted," title="Permalink to this heading">¶</a></h2>
 <p>by specifying the first part of the column name (without the <code class="docutils literal notranslate"><span class="pre">_IN</span></code> or <code class="docutils literal notranslate"><span class="pre">_OUT</span></code> at the end)</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">columns</span>
 </pre></div>
 </div>
 </div>
@@ -1267,13 +1261,12 @@ Index([&#39;STORAGE_IN&#39;, &#39;CONSTANT_HEAD_IN&#39;, &#39;WELLS_IN&#39;, &#3
 </div>
 </section>
 <section id="For-example">
-<h2>For example<a class="headerlink" href="#For-example" title="Permalink to this headline">¶</a></h2>
+<h2>For example<a class="headerlink" href="#For-example" title="Permalink to this heading">¶</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">plot_budget_term</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s1">&#39;WELLS&#39;</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Shellmound SFR&#39;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_budget_term</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s1">&#39;WELLS&#39;</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Shellmound SFR&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -1285,14 +1278,13 @@ Index([&#39;STORAGE_IN&#39;, &#39;CONSTANT_HEAD_IN&#39;, &#39;WELLS_IN&#39;, &#3
 </div>
 </div>
 <section id="Plot-term-by-stress-period-instead-of-time">
-<h3>Plot term by stress period instead of time<a class="headerlink" href="#Plot-term-by-stress-period-instead-of-time" title="Permalink to this headline">¶</a></h3>
+<h3>Plot term by stress period instead of time<a class="headerlink" href="#Plot-term-by-stress-period-instead-of-time" title="Permalink to this heading">¶</a></h3>
 <p>Can be useful for models with long spin-up periods that obscure shorter periods of interest when whole simulation time is plotted.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">plot_budget_term</span><span class="p">(</span><span class="n">sfr_df</span><span class="p">,</span> <span class="s1">&#39;RUNOFF_IN&#39;</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Shellmound SFR&#39;</span><span class="p">,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_budget_term</span><span class="p">(</span><span class="n">sfr_df</span><span class="p">,</span> <span class="s1">&#39;RUNOFF_IN&#39;</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Shellmound SFR&#39;</span><span class="p">,</span>
                  <span class="n">plot_start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_end_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">datetime_xaxis</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
@@ -1316,13 +1308,12 @@ Index([&#39;STORAGE_IN&#39;, &#39;CONSTANT_HEAD_IN&#39;, &#39;WELLS_IN&#39;, &#3
 </div>
 </section>
 <section id="Plot-mass-balance-error">
-<h3>Plot mass balance error<a class="headerlink" href="#Plot-mass-balance-error" title="Permalink to this headline">¶</a></h3>
+<h3>Plot mass balance error<a class="headerlink" href="#Plot-mass-balance-error" title="Permalink to this heading">¶</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">plot_budget_term</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s1">&#39;PERCENT_DISCREPANCY&#39;</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Mass Balance&#39;</span><span class="p">,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_budget_term</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s1">&#39;PERCENT_DISCREPANCY&#39;</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Mass Balance&#39;</span><span class="p">,</span>
                  <span class="n">title_suffix</span><span class="o">=</span><span class="s1">&#39;discrepency&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1336,7 +1327,7 @@ Index([&#39;STORAGE_IN&#39;, &#39;CONSTANT_HEAD_IN&#39;, &#39;WELLS_IN&#39;, &#3
 </div>
 </section>
 <section id="Macro-to-plot-everything-to-PDFs">
-<h3>Macro to plot everything to PDFs<a class="headerlink" href="#Macro-to-plot-everything-to-PDFs" title="Permalink to this headline">¶</a></h3>
+<h3>Macro to plot everything to PDFs<a class="headerlink" href="#Macro-to-plot-everything-to-PDFs" title="Permalink to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>budget summary (in/out and net)</p></li>
 <li><p>timeseries of budget terms for each package, and within each advanced stress package</p></li>
@@ -1345,8 +1336,7 @@ Index([&#39;STORAGE_IN&#39;, &#39;CONSTANT_HEAD_IN&#39;, &#39;WELLS_IN&#39;, &#3
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span><span class="n">plot_list_budget</span><span class="p">(</span><span class="n">listfile</span><span class="o">=</span><span class="n">mf6_listfile</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_list_budget</span><span class="p">(</span><span class="n">listfile</span><span class="o">=</span><span class="n">mf6_listfile</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span>
                  <span class="n">model_start_datetime</span><span class="o">=</span><span class="s1">&#39;1998-04-01&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -1367,8 +1357,7 @@ wrote output/pdfs/listfile_budget_by_term.pdf
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre>
-<span></span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
 </pre></div>
 </div>
 </div>

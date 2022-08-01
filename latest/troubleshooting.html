@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Troubleshooting &mdash; modflow-export 0.post67+g936286c documentation</title>
+  <title>Troubleshooting &mdash; modflow-export 0.post72+gb596b18 documentation</title>
       <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
@@ -16,6 +16,7 @@
         <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
         <script src="_static/jquery.js"></script>
         <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="_static/doctools.js"></script>
         <script src="_static/clipboard.min.js"></script>
         <script src="_static/copybutton.js"></script>
@@ -35,7 +36,7 @@
             <a href="index.html" class="icon icon-home"> modflow-export
           </a>
               <div class="version">
-                0.post67+g936286c
+                0.post72+gb596b18
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -117,12 +118,12 @@
 }
 </style>
 <section id="troubleshooting">
-<h1>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h1>
+<h1>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this heading">¶</a></h1>
 <section id="my-script-doesn-t-run">
-<h2>My script doesn’t run<a class="headerlink" href="#my-script-doesn-t-run" title="Permalink to this headline">¶</a></h2>
+<h2>My script doesn’t run<a class="headerlink" href="#my-script-doesn-t-run" title="Permalink to this heading">¶</a></h2>
 <p>Before filing a <a class="reference internal" href="contributing.html#bug-reports-and-enhancement-requests"><span class="std std-ref">bug report</span></a>, check these possible solutions:</p>
 <section id="updating-your-python-environment">
-<h3>Updating your python environment<a class="headerlink" href="#updating-your-python-environment" title="Permalink to this headline">¶</a></h3>
+<h3>Updating your python environment<a class="headerlink" href="#updating-your-python-environment" title="Permalink to this heading">¶</a></h3>
 <p>Check the versions of python and the various package dependencies (especially Numpy) in the environment that you are using with <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">list</span></code>.</p>
 <ul class="simple">
 <li><p>Is your python version more than 1 minor release out of date (e.g. 3.7 if the current version is 3.9)?</p></li>
@@ -132,11 +133,11 @@
 <p><a class="reference internal" href="installation.html#keeping-the-conda-environment-up-to-date"><span class="std std-ref">Instructions for updating your conda environment</span></a></p>
 </section>
 <section id="updating-modflow-export">
-<h3>Updating Modflow-export<a class="headerlink" href="#updating-modflow-export" title="Permalink to this headline">¶</a></h3>
+<h3>Updating Modflow-export<a class="headerlink" href="#updating-modflow-export" title="Permalink to this heading">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">list</span></code> can also be used to check if you Modflow-export is up to date.</p>
 <ul class="simple">
 <li><p>if you installed Modflow-export from PyPI (e.g. <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">modflow-export</span></code>), the reported version should match <a class="reference external" href="https://pypi.org/project/modflow-export/">the latest</a>. Otherwise <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">modflow-export</span></code>.</p></li>
-<li><p>if you installed Modflow-export from PyPI and you need to incorporate a recently pushed bug fix, you might need to reinstall directly from GitHub (e.g. <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">git+git://github.com/usgs/modflow-export&#64;develop</span></code>)</p></li>
+<li><p>if you installed Modflow-export from PyPI and you need to incorporate a recently pushed bug fix, you might need to reinstall directly from GitHub (e.g. <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">git+https://github.com/usgs/modflow-export&#64;develop</span></code>)</p></li>
 <li><p>if you cloned the Modflow-export source code and need to incorporate a recently pushed bug fix, you will need to pull (<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">pull</span></code>) and possibly reinstall (<code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">-e</span> <span class="pre">.</span></code> in the root folder of the source code).</p></li>
 <li><p>in the latter two cases (Modflow-export installed from GitHub), the version reported by <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">list</span></code> should match the latest commit hash. For example version <code class="docutils literal notranslate"><span class="pre">0.8.0.post6+g91f0db4</span></code> for the commit hash starting with <code class="docutils literal notranslate"><span class="pre">91f0db4</span></code>.</p></li>
 </ul>

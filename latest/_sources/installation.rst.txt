@@ -100,14 +100,14 @@ to incorporate a bug fix that was made after the latest release. Pip can also be
 
 .. code-block:: bash
 
-    pip install git+git://github.com/aleaf/modflow-export@develop
+    pip install git+https://github.com/aleaf/modflow-export@develop
 
 (for the develop branch). Subsequent updates can then be made with
 
 .. code-block:: bash
 
     pip uninstall mfexport
-    pip install git+git://github.com/aleaf/modflow-export@develop
+    pip install git+https://github.com/aleaf/modflow-export@develop
 
 Installing the Modflow-export source code in-place
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

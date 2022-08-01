@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mfexport.grid &mdash; modflow-export 0.post67+g936286c documentation</title>
+  <title>mfexport.grid &mdash; modflow-export 0.post72+gb596b18 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
@@ -15,6 +15,7 @@
         <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
         <script src="../../_static/jquery.js"></script>
         <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
         <script src="../../_static/clipboard.min.js"></script>
         <script src="../../_static/copybutton.js"></script>
@@ -32,7 +33,7 @@
             <a href="../../index.html" class="icon icon-home"> modflow-export
           </a>
               <div class="version">
-                0.post67+g936286c
+                0.post72+gb596b18
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -83,31 +84,51 @@
            <div itemprop="articleBody">
              
   <h1>Source code for mfexport.grid</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span></span><span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">from</span> <span class="nn">rasterio</span> <span class="kn">import</span> <span class="n">Affine</span>
+<span class="kn">import</span> <span class="nn">pyproj</span>
 <span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">Polygon</span>
 <span class="kn">from</span> <span class="nn">flopy.discretization</span> <span class="kn">import</span> <span class="n">StructuredGrid</span>
+<span class="kn">from</span> <span class="nn">gisutils</span> <span class="kn">import</span> <span class="n">df2shp</span>
+<span class="kn">from</span> <span class="nn">mfexport.units</span> <span class="kn">import</span> <span class="n">convert_length_units</span>
 <span class="kn">from</span> <span class="nn">mfexport.utils</span> <span class="kn">import</span> <span class="n">get_input_arguments</span><span class="p">,</span> <span class="n">load</span>
 
 
 <div class="viewcode-block" id="MFexportGrid"><a class="viewcode-back" href="../../api/index.html#mfexport.grid.MFexportGrid">[docs]</a><span class="k">class</span> <span class="nc">MFexportGrid</span><span class="p">(</span><span class="n">StructuredGrid</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delc</span><span class="p">,</span> <span class="n">delr</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">botm</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">idomain</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">lenuni</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">epsg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">proj_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xoff</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
-                 <span class="n">yoff</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">xul</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">yul</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">angrot</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+                 <span class="n">laycbd</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lenuni</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">epsg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">proj_str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wkt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">xoff</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">yoff</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">xul</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">yul</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">angrot</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">MFexportGrid</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">delc</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">delc</span><span class="p">),</span> <span class="n">delr</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">delr</span><span class="p">),</span>
+                                          <span class="n">top</span><span class="o">=</span><span class="n">top</span><span class="p">,</span> <span class="n">botm</span><span class="o">=</span><span class="n">botm</span><span class="p">,</span> <span class="n">idomain</span><span class="o">=</span><span class="n">idomain</span><span class="p">,</span>
+                                          <span class="n">laycbd</span><span class="o">=</span><span class="n">laycbd</span><span class="p">,</span> <span class="n">lenuni</span><span class="o">=</span><span class="n">lenuni</span><span class="p">,</span>
+                                          <span class="n">epsg</span><span class="o">=</span><span class="n">epsg</span><span class="p">,</span> <span class="n">proj4</span><span class="o">=</span><span class="n">proj_str</span><span class="p">,</span> <span class="n">prj</span><span class="o">=</span><span class="n">prj</span><span class="p">,</span>
+                                          <span class="n">xoff</span><span class="o">=</span><span class="n">xoff</span><span class="p">,</span> <span class="n">yoff</span><span class="o">=</span><span class="n">yoff</span><span class="p">,</span> <span class="n">angrot</span><span class="o">=</span><span class="n">angrot</span>
+                                          <span class="p">)</span>
 
-        <span class="nb">super</span><span class="p">(</span><span class="n">MFexportGrid</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">delc</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">delr</span><span class="p">),</span>
-                                          <span class="n">top</span><span class="p">,</span> <span class="n">botm</span><span class="p">,</span> <span class="n">idomain</span><span class="p">,</span>
-                                          <span class="n">lenuni</span><span class="p">,</span> <span class="n">epsg</span><span class="p">,</span> <span class="n">proj_str</span><span class="p">,</span> <span class="n">prj</span><span class="p">,</span> <span class="n">xoff</span><span class="p">,</span>
-                                          <span class="n">yoff</span><span class="p">,</span> <span class="n">angrot</span><span class="p">)</span>
         <span class="c1"># properties</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_crs</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="c1"># pass all CRS representations through pyproj.CRS.from_user_input</span>
+        <span class="c1"># to convert to pyproj.CRS instance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">crs</span> <span class="o">=</span> <span class="n">get_crs</span><span class="p">(</span><span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">,</span> <span class="n">epsg</span><span class="o">=</span><span class="n">epsg</span><span class="p">,</span> <span class="n">prj</span><span class="o">=</span><span class="n">prj</span><span class="p">,</span> <span class="n">wkt</span><span class="o">=</span><span class="n">wkt</span><span class="p">,</span> <span class="n">proj_str</span><span class="o">=</span><span class="n">proj_str</span><span class="p">)</span>
+
+        <span class="c1"># other CRS-related properties are set in the flopy Grid base class</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_vertices</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_polygons</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataframe</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># if no epsg, set from proj4 string if possible</span>
+        <span class="c1">#if epsg is None and proj_str is not None and &#39;epsg&#39; in proj_str.lower():</span>
+        <span class="c1">#    self.epsg = int(proj_str.split(&#39;:&#39;)[1])</span>
 
         <span class="c1"># in case the upper left corner is known but the lower left corner is not</span>
         <span class="k">if</span> <span class="n">xul</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">yul</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">xll</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_xul_to_xll</span><span class="p">(</span><span class="n">xul</span><span class="p">)</span>
             <span class="n">yll</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_yul_to_yll</span><span class="p">(</span><span class="n">yul</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">set_coord_info</span><span class="p">(</span><span class="n">xoff</span><span class="o">=</span><span class="n">xll</span><span class="p">,</span> <span class="n">yoff</span><span class="o">=</span><span class="n">yll</span><span class="p">,</span> <span class="n">epsg</span><span class="o">=</span><span class="n">epsg</span><span class="p">,</span> <span class="n">angrot</span><span class="o">=</span><span class="n">angrot</span><span class="p">,</span> <span class="n">proj4</span><span class="o">=</span><span class="n">proj_str</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_coord_info</span><span class="p">(</span><span class="n">xoff</span><span class="o">=</span><span class="n">xll</span><span class="p">,</span> <span class="n">yoff</span><span class="o">=</span><span class="n">yll</span><span class="p">,</span> <span class="n">epsg</span><span class="o">=</span><span class="n">epsg</span><span class="p">,</span> <span class="n">proj4</span><span class="o">=</span><span class="n">proj_str</span><span class="p">,</span> <span class="n">angrot</span><span class="o">=</span><span class="n">angrot</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">StructuredGrid</span><span class="p">):</span>
@@ -118,13 +139,32 @@
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">angrot</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">angrot</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">other</span><span class="o">.</span><span class="n">proj_str</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj_str</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">other</span><span class="o">.</span><span class="n">crs</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">delr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">delr</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span><span class="n">other</span><span class="o">.</span><span class="n">delc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">delc</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">txt</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlay</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">txt</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nlay</span><span class="si">:</span><span class="s1">d</span><span class="si">}</span><span class="s1"> layer(s), &#39;</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nrow</span><span class="si">:</span><span class="s1">d</span><span class="si">}</span><span class="s1"> row(s), </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ncol</span><span class="si">:</span><span class="s1">d</span><span class="si">}</span><span class="s1"> column(s)</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="p">(</span><span class="sa">f</span><span class="s1">&#39;delr: [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">delr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">...</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">delr</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">]&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;delc: [</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">delc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">...</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">delc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s1">.2f</span><span class="si">}</span><span class="s1">]&#39;</span>
+                <span class="sa">f</span><span class="s1">&#39; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">units</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+                <span class="p">)</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;CRS: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;length units: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">length_units</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;xll: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">xoffset</span><span class="si">}</span><span class="s1">; yll: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">yoffset</span><span class="si">}</span><span class="s1">; rotation: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rotation</span><span class="si">}</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="n">txt</span> <span class="o">+=</span> <span class="s1">&#39;Bounds: </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extent</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">txt</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">StructuredGrid</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">xul</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -140,7 +180,6 @@
         <span class="n">x0r</span><span class="p">,</span> <span class="n">y0r</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_coords</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">y0r</span>
 
-
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Shapely polygon bounding box of the model grid.&quot;&quot;&quot;</span>
@@ -154,20 +193,66 @@
         <span class="k">return</span> <span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">y1</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlay</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nrow</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ncol</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlay</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nrow</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ncol</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Rasterio Affine object (same as transform attribute of rasters).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Affine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mf">0.</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xul</span><span class="p">,</span>
                       <span class="mf">0.</span><span class="p">,</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">delc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">yul</span><span class="p">)</span> <span class="o">*</span> \
-               <span class="n">Affine</span><span class="o">.</span><span class="n">rotation</span><span class="p">(</span><span class="n">angle</span><span class="o">=-</span><span class="bp">self</span><span class="o">.</span><span class="n">angrot</span><span class="p">)</span>
+               <span class="n">Affine</span><span class="o">.</span><span class="n">rotation</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">angrot</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">crs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;pyproj.crs.CRS instance describing the coordinate reference system</span>
+<span class="sd">        for the model grid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_crs</span>
+
+    <span class="nd">@crs</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">crs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">crs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a pyproj CRS instance from various inputs</span>
+<span class="sd">        (epsg, proj string, wkt, etc.).</span>
+
+<span class="sd">        crs : obj, optional</span>
+<span class="sd">            Coordinate reference system for model grid.</span>
+<span class="sd">            A Python int, dict, str, or pyproj.crs.CRS instance</span>
+<span class="sd">            passed to the pyproj.crs.from_user_input</span>
+<span class="sd">            See http://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS.from_user_input.</span>
+<span class="sd">            Can be any of:</span>
+<span class="sd">              - PROJ string</span>
+<span class="sd">              - Dictionary of PROJ parameters</span>
+<span class="sd">              - PROJ keyword arguments for parameters</span>
+<span class="sd">              - JSON string with PROJ parameters</span>
+<span class="sd">              - CRS WKT string</span>
+<span class="sd">              - An authority string [i.e. &#39;epsg:4326&#39;]</span>
+<span class="sd">              - An EPSG integer code [i.e. 4326]</span>
+<span class="sd">              - A tuple of (&quot;auth_name&quot;: &quot;auth_code&quot;) [i.e (&#39;epsg&#39;, &#39;4326&#39;)]</span>
+<span class="sd">              - An object with a `to_wkt` method.</span>
+<span class="sd">              - A :class:`pyproj.crs.CRS` class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">crs</span> <span class="o">=</span> <span class="n">get_crs</span><span class="p">(</span><span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_crs</span> <span class="o">=</span> <span class="n">crs</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">epsg</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">to_epsg</span><span class="p">()</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">proj_str</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">proj_str</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">proj4</span>
-        <span class="k">if</span> <span class="n">proj_str</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s1">&#39;epsg&#39;</span> <span class="ow">in</span> <span class="n">proj_str</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
-                <span class="n">proj_str</span> <span class="o">=</span> <span class="n">proj_str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;+init=&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">proj_str</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">to_proj4</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">wkt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">to_wkt</span><span class="p">(</span><span class="n">pretty</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">length_units</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">get_crs_length_units</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">vertices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -176,10 +261,81 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_set_vertices</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_vertices</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">polygons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Vertices for grid cell polygons.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_polygons</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_set_polygons</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_polygons</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Pandas DataFrame of grid cell polygons</span>
+<span class="sd">        with i, j locations.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataframe</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dataframe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_dataframe</span><span class="p">(</span><span class="n">layers</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataframe</span>
+
+<div class="viewcode-block" id="MFexportGrid.get_dataframe"><a class="viewcode-back" href="../../api/index.html#mfexport.grid.MFexportGrid.get_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">get_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">layers</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a pandas DataFrame of grid cell polygons</span>
+<span class="sd">        with i, j locations.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        layers : bool</span>
+<span class="sd">            If True, return a row for each k, i, j location</span>
+<span class="sd">            and a &#39;k&#39; column; if False, only return i, j</span>
+<span class="sd">            locations with no &#39;k&#39; column. By default, True</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        layers : DataFrame</span>
+<span class="sd">            Pandas Dataframe with k, i, j and geometry column</span>
+<span class="sd">            with a shapely polygon representation of each model cell.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># get dataframe of model grid cells</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">indices</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nrow</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ncol</span><span class="p">))</span>
+        <span class="n">geoms</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">polygons</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">({</span><span class="s1">&#39;i&#39;</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+                              <span class="s1">&#39;j&#39;</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+                              <span class="s1">&#39;geometry&#39;</span><span class="p">:</span> <span class="n">geoms</span><span class="p">},</span> <span class="n">crs</span><span class="o">=</span><span class="mi">5070</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">layers</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlay</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># add layer information</span>
+            <span class="n">dfs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nlay</span><span class="p">):</span>
+                <span class="n">layer_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">layer_df</span><span class="p">[</span><span class="s1">&#39;k&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">k</span>
+                <span class="n">dfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">layer_df</span><span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">dfs</span><span class="p">)</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="s1">&#39;i&#39;</span><span class="p">,</span> <span class="s1">&#39;j&#39;</span><span class="p">,</span> <span class="s1">&#39;geometry&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+<div class="viewcode-block" id="MFexportGrid.write_bbox_shapefile"><a class="viewcode-back" href="../../api/index.html#mfexport.grid.MFexportGrid.write_bbox_shapefile">[docs]</a>    <span class="k">def</span> <span class="nf">write_bbox_shapefile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;grid_bbox.shp&#39;</span><span class="p">):</span>
+        <span class="n">write_bbox_shapefile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MFexportGrid.write_shapefile"><a class="viewcode-back" href="../../api/index.html#mfexport.grid.MFexportGrid.write_shapefile">[docs]</a>    <span class="k">def</span> <span class="nf">write_shapefile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s1">&#39;grid.shp&#39;</span><span class="p">):</span>
+        <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">indices</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">nrow</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ncol</span><span class="p">))</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;node&#39;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">polygons</span><span class="p">))),</span>
+                           <span class="s1">&#39;i&#39;</span><span class="p">:</span> <span class="n">i</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+                           <span class="s1">&#39;j&#39;</span><span class="p">:</span> <span class="n">j</span><span class="o">.</span><span class="n">ravel</span><span class="p">(),</span>
+                           <span class="s1">&#39;geometry&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">polygons</span>
+                           <span class="p">})</span>
+        <span class="n">df2shp</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">epsg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">epsg</span><span class="p">,</span> <span class="n">proj_str</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">proj_str</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_set_polygons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create shapely polygon for each grid cell</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;creating shapely Polygons of grid cells...&#39;</span><span class="p">)</span>
+        <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_polygons</span> <span class="o">=</span> <span class="p">[</span><span class="n">Polygon</span><span class="p">(</span><span class="n">verts</span><span class="p">)</span> <span class="k">for</span> <span class="n">verts</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vertices</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;finished in </span><span class="si">{:.2f}</span><span class="s2">s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">t0</span><span class="p">))</span>
+
     <span class="c1"># stuff to conform to sr</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">length_multiplier</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="mf">1.</span>
+        <span class="k">return</span> <span class="n">convert_length_units</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lenuni</span><span class="p">,</span>
+                                    <span class="mi">2</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">rotation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -266,6 +422,49 @@
     <span class="n">i</span> <span class="o">=</span> <span class="n">node2d</span> <span class="o">//</span> <span class="n">ncol</span>
     <span class="n">j</span> <span class="o">=</span> <span class="n">node2d</span> <span class="o">%</span> <span class="n">ncol</span>
     <span class="k">return</span> <span class="n">k</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span></div>
+
+
+<div class="viewcode-block" id="get_crs"><a class="viewcode-back" href="../../api/index.html#mfexport.grid.get_crs">[docs]</a><span class="k">def</span> <span class="nf">get_crs</span><span class="p">(</span><span class="n">crs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">epsg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">prj</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wkt</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">proj_str</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get a pyproj CRS instance from various CRS representations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">crs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">crs</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">CRS</span><span class="o">.</span><span class="n">from_user_input</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">epsg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">crs</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">CRS</span><span class="o">.</span><span class="n">from_epsg</span><span class="p">(</span><span class="n">epsg</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">prj</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">prj</span><span class="p">)</span> <span class="k">as</span> <span class="n">src</span><span class="p">:</span>
+            <span class="n">wkt</span> <span class="o">=</span> <span class="n">src</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">crs</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">CRS</span><span class="o">.</span><span class="n">from_wkt</span><span class="p">(</span><span class="n">wkt</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">wkt</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">crs</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">CRS</span><span class="o">.</span><span class="n">from_wkt</span><span class="p">(</span><span class="n">wkt</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">proj_str</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">crs</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">CRS</span><span class="o">.</span><span class="n">from_string</span><span class="p">(</span><span class="n">proj_str</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span> <span class="c1"># crs is None</span>
+        <span class="k">return</span>
+    <span class="c1"># if possible, have pyproj try to find the closest</span>
+    <span class="c1"># authority name and code matching the crs</span>
+    <span class="c1"># so that input from epsg codes, proj strings, and prjfiles</span>
+    <span class="c1"># results in equal pyproj_crs instances</span>
+    <span class="n">authority</span> <span class="o">=</span> <span class="n">crs</span><span class="o">.</span><span class="n">to_authority</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">authority</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">crs</span> <span class="o">=</span> <span class="n">pyproj</span><span class="o">.</span><span class="n">CRS</span><span class="o">.</span><span class="n">from_user_input</span><span class="p">(</span><span class="n">crs</span><span class="o">.</span><span class="n">to_authority</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">crs</span></div>
+
+
+<div class="viewcode-block" id="get_crs_length_units"><a class="viewcode-back" href="../../api/index.html#mfexport.grid.get_crs_length_units">[docs]</a><span class="k">def</span> <span class="nf">get_crs_length_units</span><span class="p">(</span><span class="n">crs</span><span class="p">):</span>
+    <span class="n">length_units</span> <span class="o">=</span> <span class="n">crs</span><span class="o">.</span><span class="n">axis_info</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">unit_name</span>
+    <span class="k">if</span> <span class="s1">&#39;foot&#39;</span> <span class="ow">in</span> <span class="n">length_units</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;feet&#39;</span> <span class="ow">in</span> <span class="n">length_units</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+        <span class="n">length_units</span> <span class="o">=</span> <span class="s1">&#39;feet&#39;</span>
+    <span class="k">elif</span> <span class="s1">&#39;metre&#39;</span> <span class="ow">in</span> <span class="n">length_units</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">or</span> <span class="s1">&#39;meter&#39;</span> <span class="ow">in</span> <span class="n">length_units</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+        <span class="n">length_units</span> <span class="o">=</span> <span class="s1">&#39;meters&#39;</span>
+    <span class="k">return</span> <span class="n">length_units</span></div>
+
+
+<div class="viewcode-block" id="write_bbox_shapefile"><a class="viewcode-back" href="../../api/index.html#mfexport.grid.write_bbox_shapefile">[docs]</a><span class="k">def</span> <span class="nf">write_bbox_shapefile</span><span class="p">(</span><span class="n">modelgrid</span><span class="p">,</span> <span class="n">outshp</span><span class="p">):</span>
+    <span class="n">outline</span> <span class="o">=</span> <span class="n">get_grid_bounding_box</span><span class="p">(</span><span class="n">modelgrid</span><span class="p">)</span>
+    <span class="n">df2shp</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s1">&#39;desc&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;model bounding box&#39;</span><span class="p">],</span>
+                         <span class="s1">&#39;geometry&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">outline</span><span class="p">]}),</span>
+           <span class="n">outshp</span><span class="p">,</span> <span class="n">epsg</span><span class="o">=</span><span class="n">modelgrid</span><span class="o">.</span><span class="n">epsg</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
