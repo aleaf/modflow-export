@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modules &mdash; modflow-export 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Release History" href="../release-history.html" />
+    <link rel="prev" title="Troubleshooting" href="../troubleshooting.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> modflow-export
+          </a>
+              <div class="version">
+                0.2.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html"> Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html"> Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html"> Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#"> Code reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.array_export">Array export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.budget_output">Budget output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.grid">Grid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.list_export">Tabular data export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.listfile">Listing file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.inputs">Model input</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.pdf_export">PDF export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.results">Model results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.shapefile_export">Shapefile export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.units">Units conversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.utils">Utility functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.zbud">Zone budget</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../release-history.html"> Release History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html"> Contributing to Modflow-export</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">modflow-export</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Modules</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="modules">
+<h1>Modules<a class="headerlink" href="#modules" title="Permalink to this heading">¶</a></h1>
+<section id="module-mfexport.array_export">
+<span id="array-export"></span><h2>Array export<a class="headerlink" href="#module-mfexport.array_export" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.array_export.export_array">
+<span class="sig-prename descclassname"><span class="pre">mfexport.array_export.</span></span><span class="sig-name descname"><span class="pre">export_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modelgrid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-9999</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fieldname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'value'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/array_export.html#export_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.array_export.export_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a numpy array to Arc Ascii grid or shapefile with the model
+reference.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>modelgrid</strong><span class="classifier">MFsetupGrid instance</span></dt><dd></dd>
+<dt><strong>filename</strong><span class="classifier">str</span></dt><dd><p>Path of output file. Export format is determined by
+file extention.
+‘.asc’  Arc Ascii grid
+‘.tif’  GeoTIFF (requries rasterio package)
+‘.shp’  Shapefile</p>
+</dd>
+<dt><strong>a</strong><span class="classifier">2D numpy.ndarray</span></dt><dd><p>Array to export</p>
+</dd>
+<dt><strong>nodata</strong><span class="classifier">scalar</span></dt><dd><p>Value to assign to np.nan entries (default -9999)</p>
+</dd>
+<dt><strong>fieldname</strong><span class="classifier">str</span></dt><dd><p>Attribute field name for array values (shapefile export only).
+(default ‘values’)</p>
+</dd>
+<dt><strong>kwargs:</strong></dt><dd><p>keyword arguments to np.savetxt (ascii)
+rasterio.open (GeoTIFF)
+or flopy.export.shapefile_utils.write_grid_shapefile2</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Rotated grids will be either be unrotated prior to export,
+using scipy.ndimage.rotate (Arc Ascii format) or rotation will be
+included in their transform property (GeoTiff format). In either case
+the pixels will be displayed in the (unrotated) projected geographic
+coordinate system, so the pixels will no longer align exactly with the
+model grid (as displayed from a shapefile, for example). A key difference
+between Arc Ascii and GeoTiff (besides disk usage) is that the
+unrotated Arc Ascii will have a different grid size, whereas the GeoTiff
+will have the same number of rows and pixels as the original.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.array_export.export_array_contours">
+<span class="sig-prename descclassname"><span class="pre">mfexport.array_export.</span></span><span class="sig-name descname"><span class="pre">export_array_contours</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modelgrid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fieldname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'level'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxlevels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/array_export.html#export_array_contours"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.array_export.export_array_contours" title="Permalink to this definition">¶</a></dt>
+<dd><p>Contour an array using matplotlib; write shapefile of contours.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>filename</strong><span class="classifier">str</span></dt><dd><p>Path of output file with ‘.shp’ extention.</p>
+</dd>
+<dt><strong>a</strong><span class="classifier">2D numpy array</span></dt><dd><p>Array to contour</p>
+</dd>
+<dt><strong>crs</strong><span class="classifier">obj</span></dt><dd><p>A Python int, dict, str, or <a class="reference external" href="https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS" title="(in pyproj v3.3.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyproj.crs.CRS</span></code></a> instance
+passed to the <a class="reference external" href="https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS.from_user_input" title="(in pyproj v3.3.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pyproj.crs.CRS.from_user_input()</span></code></a>
+See <a class="reference external" href="http://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS.from_user_input">http://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS.from_user_input</a>.
+Can be any of:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>PROJ string</p></li>
+<li><p>Dictionary of PROJ parameters</p></li>
+<li><p>PROJ keyword arguments for parameters</p></li>
+<li><p>JSON string with PROJ parameters</p></li>
+<li><p>CRS WKT string</p></li>
+<li><p>An authority string [i.e. ‘epsg:4326’]</p></li>
+<li><p>An EPSG integer code [i.e. 4326]</p></li>
+<li><p>A tuple of (“auth_name”: “auth_code”) [i.e (‘epsg’, ‘4326’)]</p></li>
+<li><p>An object with a <cite>to_wkt</cite> method.</p></li>
+<li><p>A <a class="reference external" href="https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS" title="(in pyproj v3.3.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyproj.crs.CRS</span></code></a> class</p></li>
+</ul>
+</div></blockquote>
+</dd>
+<dt><strong>**kwargs</strong><span class="classifier">keyword arguments to matplotlib.axes.Axes.contour</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.array_export.make_levels">
+<span class="sig-prename descclassname"><span class="pre">mfexport.array_export.</span></span><span class="sig-name descname"><span class="pre">make_levels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxlevels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/array_export.html#make_levels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.array_export.make_levels" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.array_export.squeeze_3d">
+<span class="sig-prename descclassname"><span class="pre">mfexport.array_export.</span></span><span class="sig-name descname"><span class="pre">squeeze_3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">array</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/array_export.html#squeeze_3d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.array_export.squeeze_3d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Squeeze a 3D array to only include the (2D) slices
+along the 0 axis that are different (for example, periods when
+a stress changes). Include the first slice (period) by default.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>array</strong><span class="classifier">3D numpy array</span></dt><dd><p>Original data</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>squeezed</strong><span class="classifier">dict</span></dt><dd><p>Dictionary of the 2D slices (values), keyed by period, that are
+different.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-mfexport.budget_output">
+<span id="budget-output"></span><h2>Budget output<a class="headerlink" href="#module-mfexport.budget_output" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.budget_output.aggregate_mf6_stress_budget">
+<span class="sig-prename descclassname"><span class="pre">mfexport.budget_output.</span></span><span class="sig-name descname"><span class="pre">aggregate_mf6_stress_budget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mf6_stress_budget_output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kstpkper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/budget_output.html#aggregate_mf6_stress_budget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.budget_output.aggregate_mf6_stress_budget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read MODFLOW 6 budget output for a stress package into
+a DataFrame of one node/stress period per row, with fluxes
+listed by column.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mf6_stress_budget_output</strong><span class="classifier">file path</span></dt><dd><p>Binary output file</p>
+</dd>
+<dt><strong>text</strong><span class="classifier">str or list of strings</span></dt><dd><p>Text identifying flow term(s) (e.g. ‘FLOW-JA-FACE’, ‘GWF’, etc.).
+If None, all available variables are returned. (default None)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>df</strong><span class="classifier">DataFrame</span></dt><dd><p>DataFrame with flow values aggregated by node and stress period.
+Columns derived from FLOW-JA-FACE results are:
+kstpkper : (timestep, stress period) tuples
+time : total time in model units
+node : SFR reach number (zero-based)
+Qin : total inflows from other reaches
+Qout : total outflows to other reaches
+Qnet : net gain/loss in flow
+Qmean : average of inflows and outflows
+Any additional fluxes are listed in columns of the same name.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.budget_output.aggregate_sfr_flow_ja_face">
+<span class="sig-prename descclassname"><span class="pre">mfexport.budget_output.</span></span><span class="sig-name descname"><span class="pre">aggregate_sfr_flow_ja_face</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/budget_output.html#aggregate_sfr_flow_ja_face"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.budget_output.aggregate_sfr_flow_ja_face" title="Permalink to this definition">¶</a></dt>
+<dd><p>SFR streamflow in/out components are saved in MODFLOW 6
+as FLOW-JA-FACE, where all inflows (positive values) and outflows
+(negative values) are listed for each stream reach (node). This
+method aggregates those results and returns a dataframe
+with one row per reach, with Qin, Qout, Qnet and Qmean_cfd
+and Qmean_cfs columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>df</strong><span class="classifier">DataFrame</span></dt><dd><p>Dataframe produced by read_mf6_binary_stress_output.
+Must have columns:
+node : reach number (rno)
+kstpkper : (timestep, stress period) tuples
+time : total time in model units
+q : FLOW-JA-FACE values (+ in, - out)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>agg</strong><span class="classifier">DataFrame</span></dt><dd><p>DataFrame with flow values aggregated by node, with columns:
+kstpkper : (timestep, stress period) tuples
+time : total time in model units
+rno : reach number (1-based)
+Qin : total inflows from other reaches
+Qout : total outflows to other reaches
+Qnet : net gain/loss in flow
+Qmean : average of inflows and outflows</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.budget_output.get_bc_flux">
+<span class="sig-prename descclassname"><span class="pre">mfexport.budget_output.</span></span><span class="sig-name descname"><span class="pre">get_bc_flux</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cbbobj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">txt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kstpkper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/budget_output.html#get_bc_flux"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.budget_output.get_bc_flux" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a flow component from MODFLOW binary cell budget output;</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>cbbobj</strong><span class="classifier">open file handle (instance of flopy.utils.binaryfile.CellBudgetFile</span></dt><dd></dd>
+<dt><strong>txt</strong><span class="classifier">cell budget record to read (e.g. ‘STREAM LEAKAGE’)</span></dt><dd></dd>
+<dt><strong>kstpkper</strong><span class="classifier">tuple</span></dt><dd><p>(timestep, stress period) to read</p>
+</dd>
+<dt><strong>idx</strong><span class="classifier">index of list returned by cbbobj (usually 0)</span></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>arr</strong><span class="classifier">ndarray</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.budget_output.get_flowja_face">
+<span class="sig-prename descclassname"><span class="pre">mfexport.budget_output.</span></span><span class="sig-name descname"><span class="pre">get_flowja_face</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_budget_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binary_grid_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kstpkper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'double'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/budget_output.html#get_flowja_face"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.budget_output.get_flowja_face" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get FLOW-JA-FACE (cell by cell flows) from MODFLOW 6 budget
+output and binary grid file.
+TODO: need test for extracted flowja fluxes</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.budget_output.get_intercell_connections">
+<span class="sig-prename descclassname"><span class="pre">mfexport.budget_output.</span></span><span class="sig-name descname"><span class="pre">get_intercell_connections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ia</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ja</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flowja</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/budget_output.html#get_intercell_connections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.budget_output.get_intercell_connections" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.budget_output.get_stress_budget_textlist">
+<span class="sig-prename descclassname"><span class="pre">mfexport.budget_output.</span></span><span class="sig-name descname"><span class="pre">get_stress_budget_textlist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mf6_stress_budget_output</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/budget_output.html#get_stress_budget_textlist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.budget_output.get_stress_budget_textlist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get list of available variable names in a binary budget output file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.budget_output.read_mf6_dependent_variable_output">
+<span class="sig-prename descclassname"><span class="pre">mfexport.budget_output.</span></span><span class="sig-name descname"><span class="pre">read_mf6_dependent_variable_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mf6_dependent_variable_output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'head'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kstpkper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hdry</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1e+30</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/budget_output.html#read_mf6_dependent_variable_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.budget_output.read_mf6_dependent_variable_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads dependent variable output; for example, heads from the
+groundwater flow solution or output from STAGE FILEOUT in the options
+block of the .sfr6 file). Returns a DataFrame of output values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mf6_dependent_variable_output</strong><span class="classifier">file path</span></dt><dd><p>Binary output file</p>
+</dd>
+<dt><strong>text</strong><span class="classifier">str</span></dt><dd><p>Text identifying variable (e.g. ‘head’, ‘stage’, etc.)</p>
+</dd>
+<dt><strong>kstpkper</strong><span class="classifier">list of tuples</span></dt><dd><p>List of zero-based (timestep, stress period) tuples. If
+None, all available data are returned. (default None)</p>
+</dd>
+<dt><strong>hdry</strong><span class="classifier">float</span></dt><dd><p>Value indicating dry cells.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>df</strong><span class="classifier">DataFrame</span></dt><dd><p>Table with results. Columns:
+node : Zero-based ID: model cell number for heads, reach number for SFR, etc.
+&lt;text&gt; : results for variable &lt;text&gt;
+kstpkper : (timestep, stress period)
+time : total time in model units</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.budget_output.read_mf6_stress_budget_output">
+<span class="sig-prename descclassname"><span class="pre">mfexport.budget_output.</span></span><span class="sig-name descname"><span class="pre">read_mf6_stress_budget_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mf6_stress_budget_output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'FLOW-JA-FACE'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kstpkper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/budget_output.html#read_mf6_stress_budget_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.budget_output.read_mf6_stress_budget_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads budget output from any package that follows the imeth=6
+structure (e.g. LAK, MAW, SFR, and UZF package(s); for example,
+output from BUDGET FILEOUT in the options block of the .sfr6 file).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mf6_stress_budget_output</strong><span class="classifier">file path</span></dt><dd><p>Binary output file</p>
+</dd>
+<dt><strong>text</strong><span class="classifier">str</span></dt><dd><p>Text identifying flow term (e.g. ‘FLOW-JA-FACE’)</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>df</strong><span class="classifier">DataFrame</span></dt><dd><p>Table with flow results. Columns:
+node : node number (e.g. stream reach; 1-based)
+node2 : connecting node (e.g. up or downstream reach; 1-based)
+q : flow values
+FLOW-AREA : area of JA-FACE?
+kstpkper : (timestep, stress period)
+time : total time in model units</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.budget_output.read_sfr_output">
+<span class="sig-prename descclassname"><span class="pre">mfexport.budget_output.</span></span><span class="sig-name descname"><span class="pre">read_sfr_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mf2005_sfr_outputfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mf2005_SfrFile_instance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mf6_sfr_stage_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mf6_sfr_budget_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mf6_package_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'structured'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/budget_output.html#read_sfr_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.budget_output.read_sfr_output" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read MF-2005 or MF-6 style SFR output; return as DataFrame.</p>
+</dd></dl>
+
+</section>
+<section id="module-mfexport.grid">
+<span id="grid"></span><h2>Grid<a class="headerlink" href="#module-mfexport.grid" title="Permalink to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mfexport.grid.</span></span><span class="sig-name descname"><span class="pre">MFexportGrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">botm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idomain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">laycbd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lenuni</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proj_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wkt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angrot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/grid.html#MFexportGrid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.grid.MFexportGrid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://flopy.readthedocs.io/en/latest/source/flopy.discretization.structuredgrid.html#flopy.discretization.structuredgrid.StructuredGrid" title="(in flopy Documentation v3.3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">StructuredGrid</span></code></a></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.bbox">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bbox</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.bbox" title="Permalink to this definition">¶</a></dt>
+<dd><p>Shapely polygon bounding box of the model grid.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.bounds">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bounds</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.bounds" title="Permalink to this definition">¶</a></dt>
+<dd><p>Grid bounding box in order used by shapely.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.crs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">crs</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.crs" title="Permalink to this definition">¶</a></dt>
+<dd><p>pyproj.crs.CRS instance describing the coordinate reference system
+for the model grid.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.dataframe">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dataframe</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pandas DataFrame of grid cell polygons
+with i, j locations.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.epsg">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">epsg</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.epsg" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.get_dataframe">
+<span class="sig-name descname"><span class="pre">get_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/grid.html#MFexportGrid.get_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.grid.MFexportGrid.get_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a pandas DataFrame of grid cell polygons
+with i, j locations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>layers</strong><span class="classifier">bool</span></dt><dd><p>If True, return a row for each k, i, j location
+and a ‘k’ column; if False, only return i, j
+locations with no ‘k’ column. By default, True</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>layers</strong><span class="classifier">DataFrame</span></dt><dd><p>Pandas Dataframe with k, i, j and geometry column
+with a shapely polygon representation of each model cell.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.get_vertices">
+<span class="sig-name descname"><span class="pre">get_vertices</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/grid.html#MFexportGrid.get_vertices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.grid.MFexportGrid.get_vertices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get vertices for a single cell or sequence if i, j locations.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.length_multiplier">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">length_multiplier</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.length_multiplier" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.length_units">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">length_units</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.length_units" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.polygons">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">polygons</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.polygons" title="Permalink to this definition">¶</a></dt>
+<dd><p>Vertices for grid cell polygons.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.proj_str">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">proj_str</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.proj_str" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.rotation">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rotation</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.rotation" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.size">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">size</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.transform">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">transform</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rasterio Affine object (same as transform attribute of rasters).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.vertices">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vertices</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.vertices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Vertices for grid cell polygons.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.wkt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wkt</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.wkt" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.write_bbox_shapefile">
+<span class="sig-name descname"><span class="pre">write_bbox_shapefile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'grid_bbox.shp'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/grid.html#MFexportGrid.write_bbox_shapefile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.grid.MFexportGrid.write_bbox_shapefile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.write_shapefile">
+<span class="sig-name descname"><span class="pre">write_shapefile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'grid.shp'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/grid.html#MFexportGrid.write_shapefile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.grid.MFexportGrid.write_shapefile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a shapefile of the grid with just the row and column attributes.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.xul">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">xul</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.xul" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.yul">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">yul</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.yul" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.grid.get_crs">
+<span class="sig-prename descclassname"><span class="pre">mfexport.grid.</span></span><span class="sig-name descname"><span class="pre">get_crs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wkt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proj_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/grid.html#get_crs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.grid.get_crs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a pyproj CRS instance from various CRS representations.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.grid.get_crs_length_units">
+<span class="sig-prename descclassname"><span class="pre">mfexport.grid.</span></span><span class="sig-name descname"><span class="pre">get_crs_length_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/grid.html#get_crs_length_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.grid.get_crs_length_units" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.grid.get_grid_bounding_box">
+<span class="sig-prename descclassname"><span class="pre">mfexport.grid.</span></span><span class="sig-name descname"><span class="pre">get_grid_bounding_box</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modelgrid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/grid.html#get_grid_bounding_box"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.grid.get_grid_bounding_box" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get bounding box of potentially rotated modelgrid
+as a shapely Polygon object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>modelgrid</strong><span class="classifier">flopy.discretization.StructuredGrid instance</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.grid.get_kij_from_node3d">
+<span class="sig-prename descclassname"><span class="pre">mfexport.grid.</span></span><span class="sig-name descname"><span class="pre">get_kij_from_node3d</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node3d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nrow</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncol</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/grid.html#get_kij_from_node3d"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.grid.get_kij_from_node3d" title="Permalink to this definition">¶</a></dt>
+<dd><p>For a consecutive cell number in row-major order
+(row, column, layer), get the zero-based row, column position.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.grid.load_modelgrid">
+<span class="sig-prename descclassname"><span class="pre">mfexport.grid.</span></span><span class="sig-name descname"><span class="pre">load_modelgrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/grid.html#load_modelgrid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.grid.load_modelgrid" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a MFsetupGrid instance from model config json file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.grid.write_bbox_shapefile">
+<span class="sig-prename descclassname"><span class="pre">mfexport.grid.</span></span><span class="sig-name descname"><span class="pre">write_bbox_shapefile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modelgrid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outshp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/grid.html#write_bbox_shapefile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.grid.write_bbox_shapefile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mfexport.list_export">
+<span id="tabular-data-export"></span><h2>Tabular data export<a class="headerlink" href="#module-mfexport.list_export" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.list_export.get_tl_variables">
+<span class="sig-prename descclassname"><span class="pre">mfexport.list_export.</span></span><span class="sig-name descname"><span class="pre">get_tl_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mftransientlist</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/list_export.html#get_tl_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.list_export.get_tl_variables" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get variable names in a flopy.utils.MFList or
+flopy.mf6.data.mfdatalist.MFTransientList instance</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.list_export.mftransientlist_to_dataframe">
+<span class="sig-prename descclassname"><span class="pre">mfexport.list_export.</span></span><span class="sig-name descname"><span class="pre">mftransientlist_to_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mftransientlist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">squeeze</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/list_export.html#mftransientlist_to_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.list_export.mftransientlist_to_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cast a MFTransientList of stress period data
+into single dataframe containing all stress periods. Output data are
+aggregated (summed) to the model cell level, to avoid
+issues with non-unique row indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mftransientlist</strong><span class="classifier">flopy.mf6.data.mfdatalist.MFTransientList instance</span></dt><dd></dd>
+<dt><strong>squeeze</strong><span class="classifier">bool</span></dt><dd><p>Reduce number of columns in dataframe to only include
+stress periods where a variable changes.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>df</strong><span class="classifier">dataframe</span></dt><dd><p>Dataframe of shape nrow = ncells, ncol = nvar x nper. If
+the squeeze option is chosen, nper is the number of
+stress periods where at least one cell is different,
+otherwise it is equal to the number of keys in MfList.data.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.list_export.squeeze_columns">
+<span class="sig-prename descclassname"><span class="pre">mfexport.list_export.</span></span><span class="sig-name descname"><span class="pre">squeeze_columns</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fillna</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/list_export.html#squeeze_columns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.list_export.squeeze_columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Drop columns where the forward difference
+(along axis 1, the column axis) is 0 in all rows.
+In other words, only retain columns where the data
+changed in at least one row.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>df</strong><span class="classifier">DataFrame</span></dt><dd><p>Containing homogenous data to be differenced (e.g.,
+just flux values, no id or other ancillary information)</p>
+</dd>
+<dt><strong>fillna</strong><span class="classifier">float</span></dt><dd><p>Value for nan values in DataFrame</p>
+</dd>
+<dt><strong>Returns</strong></dt><dd></dd>
+<dt><strong>——-</strong></dt><dd></dd>
+<dt><strong>squeezed</strong><span class="classifier">DataFrame</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-mfexport.listfile">
+<span id="listing-file"></span><h2>Listing file<a class="headerlink" href="#module-mfexport.listfile" title="Permalink to this heading">¶</a></h2>
+<p>Functions for exporting results from the MODFLOW listing file</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.listfile.get_budget_keys">
+<span class="sig-prename descclassname"><span class="pre">mfexport.listfile.</span></span><span class="sig-name descname"><span class="pre">get_budget_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">listfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'BUDGET</span> <span class="pre">FOR</span> <span class="pre">ENTIRE</span> <span class="pre">MODEL'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/listfile.html#get_budget_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.listfile.get_budget_keys" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.listfile.get_listfile_data">
+<span class="sig-prename descclassname"><span class="pre">mfexport.listfile.</span></span><span class="sig-name descname"><span class="pre">get_listfile_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">listfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_start_datetime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">budgetkey</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/listfile.html#get_listfile_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.listfile.get_listfile_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.listfile.get_listfile_model_version">
+<span class="sig-prename descclassname"><span class="pre">mfexport.listfile.</span></span><span class="sig-name descname"><span class="pre">get_listfile_model_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">listfile</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/listfile.html#get_listfile_model_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.listfile.get_listfile_model_version" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.listfile.plot_budget_summary">
+<span class="sig-prename descclassname"><span class="pre">mfexport.listfile.</span></span><span class="sig-name descname"><span class="pre">plot_budget_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date_index_fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%Y-%m'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">term_nets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_length_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_time_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secondary_axis_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xtick_stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_start_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_end_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_pcts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annual_sums</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/listfile.html#plot_budget_summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.listfile.plot_budget_summary" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot a stacked bar chart summary of a MODFLOW listing file budget dataframe.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>df</strong><span class="classifier">DataFrame</span></dt><dd><p>Table of listing file budget results produced by flopy; typically the flux 
+(not volume) terms (see example below).</p>
+</dd>
+<dt><strong>title_prefix</strong><span class="classifier">str, optional</span></dt><dd><p>Prefix to insert at the begining of the title, for example the model name.
+by default ‘’</p>
+</dd>
+<dt><strong>title_suffix</strong><span class="classifier">str, optional</span></dt><dd><p>Suffix to insert at the end of the title, by default ‘’</p>
+</dd>
+<dt><strong>date_index_fmt</strong><span class="classifier">str, optional</span></dt><dd><p>Date format for the plot x-axis, by default ‘%Y-%m’</p>
+</dd>
+<dt><strong>term_nets</strong><span class="classifier">bool, optional</span></dt><dd><p>Option to only plot net quantities for each stress period.
+For example if the inflows and outflows for the WEL package 
+were +10 and -10, a bar of zero height would be plotted.
+by default False</p>
+</dd>
+<dt><strong>model_length_units</strong><span class="classifier">str, optional</span></dt><dd><p>Length units of the model, for labeling and conversion 
+to secondary_axis_units, 
+by default None</p>
+</dd>
+<dt><strong>model_time_units</strong><span class="classifier">str, optional</span></dt><dd><p>Time units of the model, for labeling and conversion 
+to secondary_axis_units, 
+by default None</p>
+</dd>
+<dt><strong>secondary_axis_units</strong><span class="classifier">str, optional</span></dt><dd><p>Option to include a secondary y-axis on the right with
+another unit, for example ‘mgal/day’ for million gallons per day.
+Requires <cite>model_length_units</cite> and <cite>model_time_units</cite>.
+by default None</p>
+</dd>
+<dt><strong>xtick_stride</strong><span class="classifier">int, optional</span></dt><dd><p>Spacing between x-ticks. May be useful for models with many stress periods.
+by default 6</p>
+</dd>
+<dt><strong>plot_start_date</strong><span class="classifier">str, optional</span></dt><dd><p>Minimum date to plot on the x-axis, in a string format 
+recognizable by pandas (if <cite>df</cite> has a datetime index) or
+a numeric value (if <cite>df</cite> has a numeric index).
+by default None (plot all dates)</p>
+</dd>
+<dt><strong>plot_end_date</strong><span class="classifier">str, optional</span></dt><dd><p>Maximum date to plot on the x-axis, in a string format 
+recognizable by pandas (if <cite>df</cite> has a datetime index) or
+a numeric value (if <cite>df</cite> has a numeric index).
+by default None (plot all dates)</p>
+</dd>
+<dt><strong>plot_pcts</strong><span class="classifier">bool</span></dt><dd><p>Option to include the percentage of each flux.
+by default, False</p>
+</dd>
+<dt><strong>annual_sums</strong><span class="classifier">bool</span></dt><dd><p>Option to summarize budget by year (e.g. using <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.groupby.html#pandas.DataFrame.groupby" title="(in pandas v1.4.3)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pandas.DataFrame.groupby()</span></code></a>).
+Requires that <code class="docutils literal notranslate"><span class="pre">df</span></code> have a valid datetime index.
+by default, False</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>ax</strong><span class="classifier">matplotlib axes subplot instance</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mfexport.listfile</span> <span class="kn">import</span> <span class="n">get_listfile_data</span><span class="p">,</span> <span class="n">plot_budget_summary</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">get_listfile_data</span><span class="p">(</span><span class="n">listfile</span><span class="o">=</span><span class="s1">&#39;model.list&#39;</span><span class="p">,</span> <span class="n">model_start_datetime</span><span class="o">=</span><span class="s1">&#39;2000-01-01&#39;</span><span class="p">)</span>
+<span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.listfile.plot_budget_term">
+<span class="sig-prename descclassname"><span class="pre">mfexport.listfile.</span></span><span class="sig-name descname"><span class="pre">plot_budget_term</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">term</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_length_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_time_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secondary_axis_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xtick_stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_start_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_end_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datetime_xaxis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/listfile.html#plot_budget_term"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.listfile.plot_budget_term" title="Permalink to this definition">¶</a></dt>
+<dd><p>Make a timeseries plot of an individual MODFLOW listing file 
+budget term.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>df</strong><span class="classifier">DataFrame</span></dt><dd><p>Table of listing file budget results produced by flopy; typically the flux 
+(not volume) terms (see example below).</p>
+</dd>
+<dt><strong>title_prefix</strong><span class="classifier">str, optional</span></dt><dd><p>Prefix to insert at the begining of the title, for example the model name.
+by default ‘’</p>
+</dd>
+<dt><strong>title_suffix</strong><span class="classifier">str, optional</span></dt><dd><p>Suffix to insert at the end of the title, by default ‘’</p>
+</dd>
+<dt><strong>model_length_units</strong><span class="classifier">str, optional</span></dt><dd><p>Length units of the model, for labeling and conversion 
+to secondary_axis_units, 
+by default None</p>
+</dd>
+<dt><strong>model_time_units</strong><span class="classifier">str, optional</span></dt><dd><p>Time units of the model, for labeling and conversion 
+to secondary_axis_units, 
+by default None</p>
+</dd>
+<dt><strong>secondary_axis_units</strong><span class="classifier">str, optional</span></dt><dd><p>Option to include a secondary y-axis on the right with
+another unit, for example ‘mgal/day’ for million gallons per day.
+Requires <cite>model_length_units</cite> and <cite>model_time_units</cite>.
+by default None</p>
+</dd>
+<dt><strong>xtick_stride</strong><span class="classifier">int, optional</span></dt><dd><p>Spacing between x-ticks. May be useful for models with many stress periods.
+by default 6</p>
+</dd>
+<dt><strong>plot_start_date</strong><span class="classifier">str, optional</span></dt><dd><p>Minimum date to plot on the x-axis, in a string format 
+recognizable by pandas (if <cite>df</cite> has a datetime index) or
+a numeric value (if <cite>df</cite> has a numeric index). May be
+useful if the model has long spinup period(s) that
+would obscure later periods of interest when datetime_xaxis=True.
+by default None (plot all dates)</p>
+</dd>
+<dt><strong>plot_end_date</strong><span class="classifier">str, optional</span></dt><dd><p>Maximum date to plot on the x-axis, in a string format 
+recognizable by pandas (if <cite>df</cite> has a datetime index) or
+a numeric value (if <cite>df</cite> has a numeric index).
+by default None (plot all dates)</p>
+</dd>
+<dt><strong>datetime_xaxis</strong><span class="classifier">bool</span></dt><dd><p>Plot budget values as a function of time. If False,
+plot as a function of stress period.
+by default, True</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>ax</strong><span class="classifier">matplotlib axes subplot instance</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">mfexport.listfile</span> <span class="kn">import</span> <span class="n">get_listfile_data</span><span class="p">,</span> <span class="n">plot_budget_summary</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">get_listfile_data</span><span class="p">(</span><span class="n">listfile</span><span class="o">=</span><span class="s1">&#39;model.list&#39;</span><span class="p">,</span> <span class="n">model_start_datetime</span><span class="o">=</span><span class="s1">&#39;2000-01-01&#39;</span><span class="p">)</span>
+<span class="n">plot_budget_term</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s1">&#39;WELLS&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.listfile.plot_list_budget">
+<span class="sig-prename descclassname"><span class="pre">mfexport.listfile.</span></span><span class="sig-name descname"><span class="pre">plot_list_budget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">listfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_start_datetime</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'postproc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_length_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_time_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secondary_axis_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xtick_stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_start_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_end_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_pcts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datetime_xaxis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/listfile.html#plot_list_budget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.listfile.plot_list_budget" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mfexport.inputs">
+<span id="model-input"></span><h2>Model input<a class="headerlink" href="#module-mfexport.inputs" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.inputs.export">
+<span class="sig-prename descclassname"><span class="pre">mfexport.inputs.</span></span><span class="sig-name descname"><span class="pre">export</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modelgrid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'postproc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contours</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_inactive_cells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdfs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/inputs.html#export"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.inputs.export" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.inputs.export_sfr">
+<span class="sig-prename descclassname"><span class="pre">mfexport.inputs.</span></span><span class="sig-name descname"><span class="pre">export_sfr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modelgrid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdfs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shapefile_outfolder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdf_outfolder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'.'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filenames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/inputs.html#export_sfr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.inputs.export_sfr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export an SFR package</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.inputs.export_thickness">
+<span class="sig-prename descclassname"><span class="pre">mfexport.inputs.</span></span><span class="sig-name descname"><span class="pre">export_thickness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">top_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">botm_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modelgrid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filenames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rasters_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shps_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdfs_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdfs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contours</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_inactive_cells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inactive_cells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/inputs.html#export_thickness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.inputs.export_thickness" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.inputs.export_variable">
+<span class="sig-prename descclassname"><span class="pre">mfexport.inputs.</span></span><span class="sig-name descname"><span class="pre">export_variable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">package</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modelgrid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inactive_cells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inactive_cells2d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filenames</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rasters_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shps_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdfs_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdfs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contours</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_inactive_cells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/inputs.html#export_variable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.inputs.export_variable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.inputs.get_inactive_cells_mask">
+<span class="sig-prename descclassname"><span class="pre">mfexport.inputs.</span></span><span class="sig-name descname"><span class="pre">get_inactive_cells_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/inputs.html#get_inactive_cells_mask"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.inputs.get_inactive_cells_mask" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.inputs.get_package_list">
+<span class="sig-prename descclassname"><span class="pre">mfexport.inputs.</span></span><span class="sig-name descname"><span class="pre">get_package_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/inputs.html#get_package_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.inputs.get_package_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.inputs.get_variable_list">
+<span class="sig-prename descclassname"><span class="pre">mfexport.inputs.</span></span><span class="sig-name descname"><span class="pre">get_variable_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variables</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/inputs.html#get_variable_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.inputs.get_variable_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.inputs.summarize">
+<span class="sig-prename descclassname"><span class="pre">mfexport.inputs.</span></span><span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">packages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variables</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_inactive_cells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/inputs.html#summarize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.inputs.summarize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.inputs.summarize_variable">
+<span class="sig-prename descclassname"><span class="pre">mfexport.inputs.</span></span><span class="sig-name descname"><span class="pre">summarize_variable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variable</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">package</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inactive_cells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inactive_cells2d</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">summarized</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_inactive_cells</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/inputs.html#summarize_variable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.inputs.summarize_variable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mfexport.pdf_export">
+<span id="pdf-export"></span><h2>PDF export<a class="headerlink" href="#module-mfexport.pdf_export" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.pdf_export.export_pdf">
+<span class="sig-prename descclassname"><span class="pre">mfexport.pdf_export.</span></span><span class="sig-name descname"><span class="pre">export_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodata</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mfarray_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'array2d'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">float_fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'{:.2f}'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/pdf_export.html#export_pdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.pdf_export.export_pdf" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.pdf_export.export_pdf_bar_summary">
+<span class="sig-prename descclassname"><span class="pre">mfexport.pdf_export.</span></span><span class="sig-name descname"><span class="pre">export_pdf_bar_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xlabel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Stress</span> <span class="pre">Period'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/pdf_export.html#export_pdf_bar_summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.pdf_export.export_pdf_bar_summary" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.pdf_export.sfr_baseflow_pdf">
+<span class="sig-prename descclassname"><span class="pre">mfexport.pdf_export.</span></span><span class="sig-name descname"><span class="pre">sfr_baseflow_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pointsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/pdf_export.html#sfr_baseflow_pdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.pdf_export.sfr_baseflow_pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>make a scatter plot of base flow
+(with point size proportional to Q)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.pdf_export.sfr_qaquifer_pdf">
+<span class="sig-prename descclassname"><span class="pre">mfexport.pdf_export.</span></span><span class="sig-name descname"><span class="pre">sfr_qaquifer_pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pointsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/pdf_export.html#sfr_qaquifer_pdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.pdf_export.sfr_qaquifer_pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>make a scatter plot of Qaquifer
+(with color proportional to flux, scaled to largest gaining flow)</p>
+</dd></dl>
+
+</section>
+<section id="module-mfexport.results">
+<span id="model-results"></span><h2>Model results<a class="headerlink" href="#module-mfexport.results" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.results.export_cell_budget">
+<span class="sig-prename descclassname"><span class="pre">mfexport.results.</span></span><span class="sig-name descname"><span class="pre">export_cell_budget</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cell_budget_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binary_grid_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kstpkper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precision</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'single'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'postproc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/results.html#export_cell_budget"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.results.export_cell_budget" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a flow component from MODFLOW binary cell budget output;
+write to raster.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>cell_budget_file</strong><span class="classifier">modflow binary cell budget output</span></dt><dd></dd>
+<dt><strong>grid</strong><span class="classifier">rOpen.modflow.grid instance</span></dt><dd></dd>
+<dt><strong>text</strong><span class="classifier">cell budget record to read (e.g. ‘STREAM LEAKAGE’)</span></dt><dd></dd>
+<dt><strong>kstpkper</strong><span class="classifier">tuple</span></dt><dd><p>(timestep, stress period) to read</p>
+</dd>
+<dt><strong>idx</strong><span class="classifier">index of list returned by cbbobj (usually 0)</span></dt><dd></dd>
+<dt><strong>outfolder</strong><span class="classifier">where to write raster</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.results.export_drawdown">
+<span class="sig-prename descclassname"><span class="pre">mfexport.results.</span></span><span class="sig-name descname"><span class="pre">export_drawdown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">heads_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hdry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hnflo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kstpkper0</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kstpkper1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_water_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'postproc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/results.html#export_drawdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.results.export_drawdown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export MODFLOW binary head output to rasters and shapefiles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>modelname</strong><span class="classifier">str</span></dt><dd><p>model base name</p>
+</dd>
+<dt><strong>grid</strong><span class="classifier">rOpen.modflow.grid instance</span></dt><dd></dd>
+<dt><strong>hdry</strong><span class="classifier">hdry value from UPW package</span></dt><dd></dd>
+<dt><strong>hnflo</strong><span class="classifier">hnflo value from BAS package</span></dt><dd></dd>
+<dt><strong>levels</strong><span class="classifier">1D numpy array</span></dt><dd><p>Values of equal interval contours to write.</p>
+</dd>
+<dt><strong>shps_outfolder</strong><span class="classifier">where to write shapefiles</span></dt><dd></dd>
+<dt><strong>rasters_outfolder</strong><span class="classifier">where to write rasters</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.results.export_heads">
+<span class="sig-prename descclassname"><span class="pre">mfexport.results.</span></span><span class="sig-name descname"><span class="pre">export_heads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">heads_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hdry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hnflo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kstpkper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">levels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_water_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_depth_to_water</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">export_layers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">land_surface_elevations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'postproc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/results.html#export_heads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.results.export_heads" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export MODFLOW binary head output to rasters and shapefiles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>modelname</strong><span class="classifier">str</span></dt><dd><p>model base name</p>
+</dd>
+<dt><strong>grid</strong><span class="classifier">rOpen.modflow.grid instance</span></dt><dd></dd>
+<dt><strong>hdry</strong><span class="classifier">hdry value from UPW package</span></dt><dd></dd>
+<dt><strong>hnflo</strong><span class="classifier">hnflo value from BAS package</span></dt><dd></dd>
+<dt><strong>levels</strong><span class="classifier">1D numpy array</span></dt><dd><p>Values of equal interval contours to write.</p>
+</dd>
+<dt><strong>shps_outfolder</strong><span class="classifier">where to write shapefiles</span></dt><dd></dd>
+<dt><strong>rasters_outfolder</strong><span class="classifier">where to write rasters</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.results.export_sfr_results">
+<span class="sig-prename descclassname"><span class="pre">mfexport.results.</span></span><span class="sig-name descname"><span class="pre">export_sfr_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mf2005_sfr_outputfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mf2005_SfrFile_instance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mf6_sfr_stage_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mf6_sfr_budget_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mf6_package_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_top</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kstpkper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sfrlinesfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pointsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_length_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_time_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_length_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'feet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_time_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'seconds'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdfs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'postproc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/results.html#export_sfr_results"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.results.export_sfr_results" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mfexport.shapefile_export">
+<span id="shapefile-export"></span><h2>Shapefile export<a class="headerlink" href="#module-mfexport.shapefile_export" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.shapefile_export.export_shapefile">
+<span class="sig-prename descclassname"><span class="pre">mfexport.shapefile_export.</span></span><span class="sig-name descname"><span class="pre">export_shapefile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modelgrid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">squeeze</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proj_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/shapefile_export.html#export_shapefile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.shapefile_export.export_shapefile" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mfexport.units">
+<span id="units-conversion"></span><h2>Units conversion<a class="headerlink" href="#module-mfexport.units" title="Permalink to this heading">¶</a></h2>
+<p>Stuff for handling units</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.units.convert_flux_units">
+<span class="sig-prename descclassname"><span class="pre">mfexport.units.</span></span><span class="sig-name descname"><span class="pre">convert_flux_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_length_units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_time_units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_length_units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_time_units</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/units.html#convert_flux_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.units.convert_flux_units" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.units.convert_length_units">
+<span class="sig-prename descclassname"><span class="pre">mfexport.units.</span></span><span class="sig-name descname"><span class="pre">convert_length_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lenuni1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lenuni2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/units.html#convert_length_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.units.convert_length_units" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert length units, takes MODFLOW-2005 style lenuni numbers
+or MF-6 style text.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>lenuni1</strong><span class="classifier">int or str</span></dt><dd><p>Convert from.</p>
+</dd>
+<dt><strong>lenuni2</strong><span class="classifier">int or str</span></dt><dd><p>Convert to.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>mult</strong><span class="classifier">float</span></dt><dd><p>Multiplier to convert from lenuni1 to lenuni2.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.units.convert_temperature_units">
+<span class="sig-prename descclassname"><span class="pre">mfexport.units.</span></span><span class="sig-name descname"><span class="pre">convert_temperature_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_temp_units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_temp_units</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/units.html#convert_temperature_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.units.convert_temperature_units" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.units.convert_time_units">
+<span class="sig-prename descclassname"><span class="pre">mfexport.units.</span></span><span class="sig-name descname"><span class="pre">convert_time_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">itmuni1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">itmuni2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/units.html#convert_time_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.units.convert_time_units" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert time units, takes MODFLOW-2005 style itmuni numbers
+or MF-6 style text.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>itmuni1</strong><span class="classifier">int or str</span></dt><dd><p>Convert from.</p>
+</dd>
+<dt><strong>itmuni2</strong><span class="classifier">int or str</span></dt><dd><p>Convert to.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>mult</strong><span class="classifier">float</span></dt><dd><p>Multiplier to convert from itmuni1 to itmuni2.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.units.convert_volume_units">
+<span class="sig-prename descclassname"><span class="pre">mfexport.units.</span></span><span class="sig-name descname"><span class="pre">convert_volume_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_volume_units</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_volume_units</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/units.html#convert_volume_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.units.convert_volume_units" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.units.get_figure_label_unit_text">
+<span class="sig-prename descclassname"><span class="pre">mfexport.units.</span></span><span class="sig-name descname"><span class="pre">get_figure_label_unit_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length_unit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_unit_exp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/units.html#get_figure_label_unit_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.units.get_figure_label_unit_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get text abbreviation for common units.
+Needs to be filled out more.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.units.get_length_conversions">
+<span class="sig-prename descclassname"><span class="pre">mfexport.units.</span></span><span class="sig-name descname"><span class="pre">get_length_conversions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/units.html#get_length_conversions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.units.get_length_conversions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.units.get_length_units">
+<span class="sig-prename descclassname"><span class="pre">mfexport.units.</span></span><span class="sig-name descname"><span class="pre">get_length_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/units.html#get_length_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.units.get_length_units" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return length units for model as text.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.units.get_time_units">
+<span class="sig-prename descclassname"><span class="pre">mfexport.units.</span></span><span class="sig-name descname"><span class="pre">get_time_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/units.html#get_time_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.units.get_time_units" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return time units for model as text.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.units.get_unit_text">
+<span class="sig-prename descclassname"><span class="pre">mfexport.units.</span></span><span class="sig-name descname"><span class="pre">get_unit_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length_unit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_unit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_unit_exp</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/units.html#get_unit_text"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.units.get_unit_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get text abbreviation for common units.
+Needs to be filled out more.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.units.get_volume_conversions">
+<span class="sig-prename descclassname"><span class="pre">mfexport.units.</span></span><span class="sig-name descname"><span class="pre">get_volume_conversions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/units.html#get_volume_conversions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.units.get_volume_conversions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.units.parse_flux_units">
+<span class="sig-prename descclassname"><span class="pre">mfexport.units.</span></span><span class="sig-name descname"><span class="pre">parse_flux_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/units.html#parse_flux_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.units.parse_flux_units" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.units.parse_length_units">
+<span class="sig-prename descclassname"><span class="pre">mfexport.units.</span></span><span class="sig-name descname"><span class="pre">parse_length_units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">text_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/units.html#parse_length_units"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.units.parse_length_units" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mfexport.utils">
+<span id="utility-functions"></span><h2>Utility functions<a class="headerlink" href="#module-mfexport.utils" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.utils.get_flopy_package_fname">
+<span class="sig-prename descclassname"><span class="pre">mfexport.utils.</span></span><span class="sig-name descname"><span class="pre">get_flopy_package_fname</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/utils.html#get_flopy_package_fname"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.utils.get_flopy_package_fname" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.utils.get_input_arguments">
+<span class="sig-prename descclassname"><span class="pre">mfexport.utils.</span></span><span class="sig-name descname"><span class="pre">get_input_arguments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kwargs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/utils.html#get_input_arguments"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.utils.get_input_arguments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return subset of keyword arguments in kwargs dict
+that are valid parameters to a function or method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>kwargs</strong><span class="classifier">dict (parameter names, values)</span></dt><dd></dd>
+<dt><strong>function</strong><span class="classifier">function of class method</span></dt><dd></dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>input_kwargs</strong><span class="classifier">dict</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.utils.get_water_table">
+<span class="sig-prename descclassname"><span class="pre">mfexport.utils.</span></span><span class="sig-name descname"><span class="pre">get_water_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">heads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodata</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">valid_max</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30000.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/utils.html#get_water_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.utils.get_water_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a 2D array representing
+the water table elevation for each
+stress period in heads array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>heads</strong><span class="classifier">3 or 4-D np.ndarray</span></dt><dd><p>Heads array.</p>
+</dd>
+<dt><strong>nodata</strong><span class="classifier">real</span></dt><dd><p>HDRY value indicating dry cells.</p>
+</dd>
+<dt><strong>valid_min</strong><span class="classifier">float (optional)</span></dt><dd><p>The lowest value regarded as valid, regardless of nodata value.
+By default, -1e4</p>
+</dd>
+<dt><strong>valid_max</strong><span class="classifier">float (optional)</span></dt><dd><p>The highest value regarded as valid, regardless of nodata value.
+By default, 3e4</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>wt</strong><span class="classifier">2 or 3-D np.ndarray of water table elevations</span></dt><dd><p>for each stress period.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.utils.load">
+<span class="sig-prename descclassname"><span class="pre">mfexport.utils.</span></span><span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/utils.html#load"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.utils.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a configuration file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.utils.load_json">
+<span class="sig-prename descclassname"><span class="pre">mfexport.utils.</span></span><span class="sig-name descname"><span class="pre">load_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jsonfile</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/utils.html#load_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.utils.load_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience function to load a json file; replacing
+some escaped characters.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.utils.load_yaml">
+<span class="sig-prename descclassname"><span class="pre">mfexport.utils.</span></span><span class="sig-name descname"><span class="pre">load_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">yml_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/utils.html#load_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.utils.load_yaml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load yaml file into a dictionary.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.utils.make_output_folders">
+<span class="sig-prename descclassname"><span class="pre">mfexport.utils.</span></span><span class="sig-name descname"><span class="pre">make_output_folders</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'postproc'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/utils.html#make_output_folders"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.utils.make_output_folders" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.utils.print_item">
+<span class="sig-prename descclassname"><span class="pre">mfexport.utils.</span></span><span class="sig-name descname"><span class="pre">print_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/utils.html#print_item"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.utils.print_item" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-mfexport.zbud">
+<span id="zone-budget"></span><h2>Zone budget<a class="headerlink" href="#module-mfexport.zbud" title="Permalink to this heading">¶</a></h2>
+<p>Functions for working with zone budget.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="mfexport.zbud.write_zonebudget6_input">
+<span class="sig-prename descclassname"><span class="pre">mfexport.zbud.</span></span><span class="sig-name descname"><span class="pre">write_zonebudget6_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zones</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">budgetfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">binary_grid_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zone_arrays_subfolder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'external'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/zbud.html#write_zonebudget6_input"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.zbud.write_zonebudget6_input" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../troubleshooting.html" class="btn btn-neutral float-left" title="Troubleshooting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../release-history.html" class="btn btn-neutral float-right" title="Release History" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2019, Andrew Leaf.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

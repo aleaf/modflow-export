@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>modflow-export &mdash; modflow-export 0.2.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="_static/copybutton.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/clipboard.min.js"></script>
+        <script src="_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Examples" href="examples.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="#" class="icon icon-home"> modflow-export
+          </a>
+              <div class="version">
+                0.2.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples.html"> Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html"> Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html"> Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html"> Code reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="release-history.html"> Release History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html"> Contributing to Modflow-export</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">modflow-export</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="#" class="icon icon-home"></a> &raquo;</li>
+      <li>modflow-export</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="modflow-export">
+<h1>modflow-export<a class="headerlink" href="#modflow-export" title="Permalink to this heading">¶</a></h1>
+<p>version 0.2.0</p>
+<hr><div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="examples.html"> Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/modflow_nwt_example.html"> Summarizing inputs and outputs for a MODFLOW-NWT model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/modflow_nwt_example.html#load-the-model-using-flopy">load the model using flopy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/modflow_nwt_example.html#define-the-location-of-the-model-grid">define the location of the model grid</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="notebooks/modflow_nwt_example.html#export-all-data-arrays-and-stress-period-data-(MfLists)-to-shapefiles,-rasters-and-PDFs">export all data arrays and stress period data (<code class="docutils literal notranslate"><span class="pre">MfLists</span></code>) to shapefiles, rasters and PDFs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="notebooks/modflow_nwt_example.html#export-a-package">export a package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="notebooks/modflow_nwt_example.html#summarize-model-input">summarize model input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="notebooks/modflow_nwt_example.html#Export-model-results">Export model results</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/modflow_nwt_example.html#cell-by-cell-flows">cell by cell flows</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/modflow_nwt_example.html#heads">heads</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/modflow_nwt_example.html#drawdown">drawdown</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/modflow_nwt_example.html#SFR-results">SFR results</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="notebooks/plotting_listing_file_budgets.html"> Plotting budgets from a MODFLOW listing file</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/plotting_listing_file_budgets.html#Example-MODFLOW-NWT-model-with-monthly-stress-periods">Example MODFLOW-NWT model with monthly stress periods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/plotting_listing_file_budgets.html#Example-MODFLOW-6-model-with-biannual-stress-periods">Example MODFLOW 6 model with biannual stress periods</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="notebooks/plotting_listing_file_budgets.html#Parse-the-listing-file-budget-to-a-dataframe">Parse the listing file budget to a dataframe</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/plotting_listing_file_budgets.html#Get-an-advanced-stress-package-budget">Get an advanced stress package budget</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="notebooks/plotting_listing_file_budgets.html#Basic-summary-of-MODFLOW-water-balance">Basic summary of MODFLOW water balance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="notebooks/plotting_listing_file_budgets.html#Plot-just-the-net-fluxes-for-each-component">Plot just the net fluxes for each component</a></li>
+<li class="toctree-l4"><a class="reference internal" href="notebooks/plotting_listing_file_budgets.html#Plot-a-subset-of-results">Plot a subset of results</a></li>
+<li class="toctree-l4"><a class="reference internal" href="notebooks/plotting_listing_file_budgets.html#plot-budget-sums-by-calendar-year">plot budget sums by calendar year</a></li>
+<li class="toctree-l4"><a class="reference internal" href="notebooks/plotting_listing_file_budgets.html#plot-budget-sums-for-an-arbitrary-grouping">plot budget sums for an arbitrary grouping</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/plotting_listing_file_budgets.html#This-can-be-done-for-net-fluxes-too">This can be done for net fluxes too</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="notebooks/plotting_listing_file_budgets.html#Plot-a-budget-term">Plot a budget term</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/plotting_listing_file_budgets.html#Any-column-in-the-listing-file-budget-dataframe-(df)-can-be-plotted,">Any column in the listing file budget dataframe (<code class="docutils literal notranslate"><span class="pre">df</span></code>) can be plotted,</a></li>
+<li class="toctree-l3"><a class="reference internal" href="notebooks/plotting_listing_file_budgets.html#For-example">For example</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="notebooks/plotting_listing_file_budgets.html#Plot-term-by-stress-period-instead-of-time">Plot term by stress period instead of time</a></li>
+<li class="toctree-l4"><a class="reference internal" href="notebooks/plotting_listing_file_budgets.html#Plot-mass-balance-error">Plot mass balance error</a></li>
+<li class="toctree-l4"><a class="reference internal" href="notebooks/plotting_listing_file_budgets.html#Macro-to-plot-everything-to-PDFs">Macro to plot everything to PDFs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html"> Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-python-dependencies-with-conda">Installing python dependencies with Conda</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#download-and-install-the-64-bit-anaconda-python-distribution-or-miniconda">Download and install the 64-bit Anaconda python distribution or Miniconda</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#download-an-environment-file">Download an environment file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#creating-a-conda-environment">Creating a Conda environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#keeping-the-conda-environment-up-to-date">Keeping the Conda environment up to date</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#installing-modflow-export">Installing Modflow-export</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#installing-and-updating-modflow-export-from-pypi">Installing and updating Modflow-export from PyPI</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#installing-the-latest-develop-version-of-modflow-export">Installing the latest develop version of Modflow-export</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#installing-the-modflow-export-source-code-in-place">Installing the Modflow-export source code in-place</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#id1">Considerations for USGS Users</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#id2">Installing the DOI SSL certificate for use with pip</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#installing-the-doi-ssl-certificate-for-use-with-conda">Installing the DOI SSL certificate for use with conda</a></li>
+<li class="toctree-l3"><a class="reference internal" href="installation.html#troubleshooting-issues-with-the-usgs-network">Troubleshooting issues with the USGS network</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="installation.html#ssl-related-error-messages-when-using-conda">SSL-related error messages when using conda</a></li>
+<li class="toctree-l4"><a class="reference internal" href="installation.html#ssl-related-error-messages-when-using-pip">SSL-related error messages when using pip</a></li>
+<li class="toctree-l4"><a class="reference internal" href="installation.html#if-you-are-on-the-usgs-network-using-windows-and-you-get-this-error-message">If you are on the USGS network, using Windows, and you get this error message:</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html"> Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#my-script-doesn-t-run">My script doesn’t run</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html"> Code reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/index.html#module-mfexport.array_export">Array export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/index.html#module-mfexport.budget_output">Budget output</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/index.html#module-mfexport.grid">Grid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/index.html#module-mfexport.list_export">Tabular data export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/index.html#module-mfexport.listfile">Listing file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/index.html#module-mfexport.inputs">Model input</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/index.html#module-mfexport.pdf_export">PDF export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/index.html#module-mfexport.results">Model results</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/index.html#module-mfexport.shapefile_export">Shapefile export</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/index.html#module-mfexport.units">Units conversion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/index.html#module-mfexport.utils">Utility functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/index.html#module-mfexport.zbud">Zone budget</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="release-history.html"> Release History</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="release-history.html#version-0-2-0-2022-08-01">Version 0.2.0 (2022-08-01)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release-history.html#initial-release-version-0-1-0-2019-11-17">Initial Release Version 0.1.0 (2019-11-17)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html"> Contributing to Modflow-export</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#getting-started">Getting started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#bug-reports-and-enhancement-requests">Bug reports and enhancement requests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#code-contributions">Code contributions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="examples.html" class="btn btn-neutral float-right" title="Examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2019, Andrew Leaf.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

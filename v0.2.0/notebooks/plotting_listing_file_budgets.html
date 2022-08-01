@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plotting MODFLOW listing file budgets &mdash; modflow-export 0.2.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/clipboard.min.js"></script>
+        <script src="../_static/copybutton.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Installation" href="../installation.html" />
+    <link rel="prev" title="export a model" href="modflow_nwt_example.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> modflow-export
+          </a>
+              <div class="version">
+                0.2.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../examples.html"> Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="modflow_nwt_example.html"> Summarizing inputs and outputs for a MODFLOW-NWT model</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"> Plotting budgets from a MODFLOW listing file</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Example-MODFLOW-NWT-model-with-monthly-stress-periods">Example MODFLOW-NWT model with monthly stress periods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Example-MODFLOW-6-model-with-biannual-stress-periods">Example MODFLOW 6 model with biannual stress periods</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Parse-the-listing-file-budget-to-a-dataframe">Parse the listing file budget to a dataframe</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Get-an-advanced-stress-package-budget">Get an advanced stress package budget</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Basic-summary-of-MODFLOW-water-balance">Basic summary of MODFLOW water balance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Plot-just-the-net-fluxes-for-each-component">Plot just the net fluxes for each component</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Plot-a-subset-of-results">Plot a subset of results</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#plot-budget-sums-by-calendar-year">plot budget sums by calendar year</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#plot-budget-sums-for-an-arbitrary-grouping">plot budget sums for an arbitrary grouping</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#This-can-be-done-for-net-fluxes-too">This can be done for net fluxes too</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Plot-a-budget-term">Plot a budget term</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Any-column-in-the-listing-file-budget-dataframe-(df)-can-be-plotted,">Any column in the listing file budget dataframe (<code class="docutils literal notranslate"><span class="pre">df</span></code>) can be plotted,</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#For-example">For example</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Plot-term-by-stress-period-instead-of-time">Plot term by stress period instead of time</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Plot-mass-balance-error">Plot mass balance error</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Macro-to-plot-everything-to-PDFs">Macro to plot everything to PDFs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html"> Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html"> Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html"> Code reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release-history.html"> Release History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html"> Contributing to Modflow-export</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">modflow-export</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../examples.html">Examples</a> &raquo;</li>
+      <li>Plotting MODFLOW listing file budgets</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/notebooks/plotting_listing_file_budgets.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="Plotting-MODFLOW-listing-file-budgets">
+<h1>Plotting MODFLOW listing file budgets<a class="headerlink" href="#Plotting-MODFLOW-listing-file-budgets" title="Permalink to this heading">¶</a></h1>
+<p>This notebook shows how to</p>
+<ul class="simple">
+<li><p>make stacked bar chart summaries of MODFLOW water budgets by stress period, including global budgets and budgets for advanced stress packages (SFR, Lake, etc).</p></li>
+<li><p>make stacked bar charts of net fluxes for each variable</p></li>
+<li><p>plot time series of individual terms (e.g. model packages, or advanced stress package variables)</p></li>
+</ul>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span> <span class="nn">mfexport.listfile</span> <span class="kn">import</span> <span class="n">plot_list_budget</span><span class="p">,</span> <span class="n">get_listfile_data</span><span class="p">,</span> <span class="n">plot_budget_summary</span><span class="p">,</span> <span class="n">plot_budget_term</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="o">%</span><span class="k">matplotlib</span> inline
+</pre></div>
+</div>
+</div>
+<section id="Example-MODFLOW-NWT-model-with-monthly-stress-periods">
+<h2>Example MODFLOW-NWT model with monthly stress periods<a class="headerlink" href="#Example-MODFLOW-NWT-model-with-monthly-stress-periods" title="Permalink to this heading">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">listfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;data/lpr/lpr_inset.list&#39;</span><span class="p">)</span>
+<span class="n">model_name</span> <span class="o">=</span> <span class="n">listfile</span><span class="o">.</span><span class="n">stem</span>
+<span class="n">model_start_date</span><span class="o">=</span><span class="s1">&#39;2010-12-31&#39;</span>
+
+<span class="n">output_path</span> <span class="o">=</span> <span class="s1">&#39;output&#39;</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Example-MODFLOW-6-model-with-biannual-stress-periods">
+<h2>Example MODFLOW 6 model with biannual stress periods<a class="headerlink" href="#Example-MODFLOW-6-model-with-biannual-stress-periods" title="Permalink to this heading">¶</a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mf6_listfile</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../mfexport/tests/data/shellmound/shellmound.list&#39;</span><span class="p">)</span>
+<span class="n">mf6_model_name</span> <span class="o">=</span> <span class="n">listfile</span><span class="o">.</span><span class="n">stem</span>
+<span class="n">mf6_model_start_date</span><span class="o">=</span><span class="s1">&#39;1998-04-01&#39;</span>
+
+<span class="n">output_path</span> <span class="o">=</span> <span class="s1">&#39;output&#39;</span>
+</pre></div>
+</div>
+</div>
+<section id="Parse-the-listing-file-budget-to-a-dataframe">
+<h3>Parse the listing file budget to a dataframe<a class="headerlink" href="#Parse-the-listing-file-budget-to-a-dataframe" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>no <code class="docutils literal notranslate"><span class="pre">budgetkey</span></code> argument returns the global mass balance</p></li>
+<li><p>alternatively, use an identifying <code class="docutils literal notranslate"><span class="pre">budgetkey</span></code> (text string from the listing file) to get the terms for an advanced stress package</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">get_listfile_data</span><span class="p">(</span><span class="n">listfile</span><span class="o">=</span><span class="n">listfile</span><span class="p">,</span> <span class="n">model_start_datetime</span><span class="o">=</span><span class="n">model_start_date</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>STORAGE_IN</th>
+      <th>CONSTANT_HEAD_IN</th>
+      <th>WELLS_IN</th>
+      <th>RECHARGE_IN</th>
+      <th>STREAM_LEAKAGE_IN</th>
+      <th>TOTAL_IN</th>
+      <th>STORAGE_OUT</th>
+      <th>CONSTANT_HEAD_OUT</th>
+      <th>WELLS_OUT</th>
+      <th>RECHARGE_OUT</th>
+      <th>STREAM_LEAKAGE_OUT</th>
+      <th>TOTAL_OUT</th>
+      <th>IN-OUT</th>
+      <th>PERCENT_DISCREPANCY</th>
+      <th>kstp</th>
+      <th>kper</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2011-01-31</th>
+      <td>426492.593750</td>
+      <td>6.469874e+05</td>
+      <td>0.0</td>
+      <td>4.471989e+02</td>
+      <td>555.530518</td>
+      <td>1074482.750</td>
+      <td>0.000000e+00</td>
+      <td>394497.15625</td>
+      <td>81550.476562</td>
+      <td>0.0</td>
+      <td>598601.3750</td>
+      <td>1074649.000</td>
+      <td>-166.250</td>
+      <td>-0.02</td>
+      <td>4</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2011-02-28</th>
+      <td>483469.062500</td>
+      <td>6.166172e+05</td>
+      <td>0.0</td>
+      <td>4.410000e+02</td>
+      <td>1439.527466</td>
+      <td>1101966.750</td>
+      <td>0.000000e+00</td>
+      <td>502048.40625</td>
+      <td>71357.640625</td>
+      <td>0.0</td>
+      <td>528673.3125</td>
+      <td>1102079.375</td>
+      <td>-112.625</td>
+      <td>-0.01</td>
+      <td>4</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2011-03-31</th>
+      <td>198845.421875</td>
+      <td>6.208312e+05</td>
+      <td>0.0</td>
+      <td>2.617255e+05</td>
+      <td>1598.823853</td>
+      <td>1083001.125</td>
+      <td>1.075373e+03</td>
+      <td>494819.87500</td>
+      <td>73988.679688</td>
+      <td>0.0</td>
+      <td>513919.3125</td>
+      <td>1083803.250</td>
+      <td>-802.125</td>
+      <td>-0.07</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>2011-04-30</th>
+      <td>13266.375977</td>
+      <td>6.350020e+05</td>
+      <td>0.0</td>
+      <td>7.910498e+05</td>
+      <td>669.892212</td>
+      <td>1439988.000</td>
+      <td>4.185641e+05</td>
+      <td>384565.34375</td>
+      <td>69679.789062</td>
+      <td>0.0</td>
+      <td>567054.6250</td>
+      <td>1439863.750</td>
+      <td>124.250</td>
+      <td>0.01</td>
+      <td>4</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>2011-05-31</th>
+      <td>0.000000</td>
+      <td>1.154976e+06</td>
+      <td>0.0</td>
+      <td>2.851267e+06</td>
+      <td>0.000000</td>
+      <td>4006243.000</td>
+      <td>2.526834e+06</td>
+      <td>307455.37500</td>
+      <td>303679.531250</td>
+      <td>0.0</td>
+      <td>868731.3750</td>
+      <td>4006700.500</td>
+      <td>-457.500</td>
+      <td>-0.01</td>
+      <td>4</td>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mf6_df</span> <span class="o">=</span> <span class="n">get_listfile_data</span><span class="p">(</span><span class="n">listfile</span><span class="o">=</span><span class="n">mf6_listfile</span><span class="p">,</span> <span class="n">model_start_datetime</span><span class="o">=</span><span class="n">mf6_model_start_date</span><span class="p">,</span>
+                           <span class="p">)</span>
+<span class="n">mf6_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>STO-SS_IN</th>
+      <th>STO-SY_IN</th>
+      <th>WEL_IN</th>
+      <th>RCH_IN</th>
+      <th>SFR_IN</th>
+      <th>TOTAL_IN</th>
+      <th>STO-SS_OUT</th>
+      <th>STO-SY_OUT</th>
+      <th>WEL_OUT</th>
+      <th>RCH_OUT</th>
+      <th>SFR_OUT</th>
+      <th>TOTAL_OUT</th>
+      <th>IN-OUT</th>
+      <th>PERCENT_DISCREPANCY</th>
+      <th>kstp</th>
+      <th>kper</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1998-04-02</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>358429.78125</td>
+      <td>1.019368e+06</td>
+      <td>1377797.250</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>1.378546e+06</td>
+      <td>1378546.000</td>
+      <td>-748.76062</td>
+      <td>-0.05</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2007-04-02</th>
+      <td>6.829200</td>
+      <td>2415.879150</td>
+      <td>0.0</td>
+      <td>358429.78125</td>
+      <td>1.288051e+06</td>
+      <td>1648903.875</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>500968.875000</td>
+      <td>0.0</td>
+      <td>1.147937e+06</td>
+      <td>1648906.125</td>
+      <td>-2.27980</td>
+      <td>-0.00</td>
+      <td>9</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2007-10-02</th>
+      <td>1141.329956</td>
+      <td>381346.062500</td>
+      <td>0.0</td>
+      <td>253336.90625</td>
+      <td>7.053851e+05</td>
+      <td>1341209.375</td>
+      <td>27.621799</td>
+      <td>10508.920898</td>
+      <td>527275.625000</td>
+      <td>0.0</td>
+      <td>8.033984e+05</td>
+      <td>1341210.625</td>
+      <td>-1.22870</td>
+      <td>-0.00</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>2008-04-02</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>456429.18750</td>
+      <td>1.081024e+06</td>
+      <td>1537452.750</td>
+      <td>1518.002197</td>
+      <td>350718.281250</td>
+      <td>17584.275391</td>
+      <td>0.0</td>
+      <td>1.167628e+06</td>
+      <td>1537448.625</td>
+      <td>4.16440</td>
+      <td>0.00</td>
+      <td>4</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>2008-10-02</th>
+      <td>401.908112</td>
+      <td>112861.390625</td>
+      <td>0.0</td>
+      <td>320935.68750</td>
+      <td>1.216493e+06</td>
+      <td>1650692.375</td>
+      <td>44.325199</td>
+      <td>15359.580078</td>
+      <td>652556.437500</td>
+      <td>0.0</td>
+      <td>9.827312e+05</td>
+      <td>1650691.500</td>
+      <td>0.80590</td>
+      <td>0.00</td>
+      <td>4</td>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+</section>
+<section id="Get-an-advanced-stress-package-budget">
+<h2>Get an advanced stress package budget<a class="headerlink" href="#Get-an-advanced-stress-package-budget" title="Permalink to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>in this case, for the SFR package</p></li>
+<li><p>this requires a package budget to be written to the listing file (MODFLOW 6)</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sfr_df</span> <span class="o">=</span> <span class="n">get_listfile_data</span><span class="p">(</span><span class="n">listfile</span><span class="o">=</span><span class="n">mf6_listfile</span><span class="p">,</span> <span class="n">model_start_datetime</span><span class="o">=</span><span class="n">mf6_model_start_date</span><span class="p">,</span>
+                       <span class="n">budgetkey</span><span class="o">=</span><span class="s1">&#39;SFR BUDGET&#39;</span><span class="p">)</span>
+<span class="n">sfr_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>GWF_IN</th>
+      <th>RAINFALL_IN</th>
+      <th>EVAPORATION_IN</th>
+      <th>RUNOFF_IN</th>
+      <th>EXT-INFLOW_IN</th>
+      <th>EXT-OUTFLOW_IN</th>
+      <th>STORAGE_IN</th>
+      <th>AUXILIARY_IN</th>
+      <th>TOTAL_IN</th>
+      <th>GWF_OUT</th>
+      <th>...</th>
+      <th>RUNOFF_OUT</th>
+      <th>EXT-INFLOW_OUT</th>
+      <th>EXT-OUTFLOW_OUT</th>
+      <th>STORAGE_OUT</th>
+      <th>AUXILIARY_OUT</th>
+      <th>TOTAL_OUT</th>
+      <th>IN-OUT</th>
+      <th>PERCENT_DISCREPANCY</th>
+      <th>kstp</th>
+      <th>kper</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>1998-04-02</th>
+      <td>1.378638e+06</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>390723.562500</td>
+      <td>52337480.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>54106840.0</td>
+      <td>1.019311e+06</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>53087528.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>54106840.0</td>
+      <td>-1.490100e-08</td>
+      <td>-0.0</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>2007-04-02</th>
+      <td>1.147938e+06</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>213503.109375</td>
+      <td>56911972.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>58273412.0</td>
+      <td>1.288051e+06</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>56985364.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>58273412.0</td>
+      <td>1.490100e-08</td>
+      <td>0.0</td>
+      <td>9</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2007-10-02</th>
+      <td>8.033963e+05</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>238699.078125</td>
+      <td>19438356.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>20480450.0</td>
+      <td>7.053850e+05</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>19775066.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>20480450.0</td>
+      <td>0.000000e+00</td>
+      <td>0.0</td>
+      <td>4</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>2008-04-02</th>
+      <td>1.167627e+06</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>227403.312500</td>
+      <td>52732372.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>54127404.0</td>
+      <td>1.081026e+06</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>53046380.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>54127404.0</td>
+      <td>2.235200e-08</td>
+      <td>0.0</td>
+      <td>4</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>2008-10-02</th>
+      <td>9.827311e+05</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>386176.125000</td>
+      <td>51699144.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>53068052.0</td>
+      <td>1.216493e+06</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>51851560.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>53068052.0</td>
+      <td>-7.450600e-09</td>
+      <td>-0.0</td>
+      <td>4</td>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 22 columns</p>
+</div></div>
+</div>
+<section id="Basic-summary-of-MODFLOW-water-balance">
+<h3>Basic summary of MODFLOW water balance<a class="headerlink" href="#Basic-summary-of-MODFLOW-water-balance" title="Permalink to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Little Plover example&#39;</span><span class="p">,</span>
+                    <span class="n">xtick_stride</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;AxesSubplot:title={&#39;center&#39;:&#39;Little Plover example budget summary&#39;}, ylabel=&#39;Flow rate, in model units of $L^3/T$&#39;&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_plotting_listing_file_budgets_12_1.png" src="../_images/notebooks_plotting_listing_file_budgets_12_1.png" />
+</div>
+</div>
+</section>
+<section id="Plot-just-the-net-fluxes-for-each-component">
+<h3>Plot just the net fluxes for each component<a class="headerlink" href="#Plot-just-the-net-fluxes-for-each-component" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>add a secondary axis with other units</p></li>
+</ul>
+<p>Note: <code class="docutils literal notranslate"><span class="pre">model_length_units</span></code> and <code class="docutils literal notranslate"><span class="pre">model_time_units</span></code> are needed to convert units to the secondary axis units.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Little Plover example&#39;</span><span class="p">,</span> <span class="n">term_nets</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">model_length_units</span><span class="o">=</span><span class="s1">&#39;feet&#39;</span><span class="p">,</span> <span class="n">model_time_units</span><span class="o">=</span><span class="s1">&#39;time&#39;</span><span class="p">,</span>
+                    <span class="n">secondary_axis_units</span><span class="o">=</span><span class="s1">&#39;mgal/day&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;AxesSubplot:title={&#39;center&#39;:&#39;Little Plover example budget summary (net fluxes)&#39;}, ylabel=&#39;Flow rate, in model units of $ft^3/T$&#39;&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_plotting_listing_file_budgets_14_1.png" src="../_images/notebooks_plotting_listing_file_budgets_14_1.png" />
+</div>
+</div>
+</section>
+<section id="Plot-a-subset-of-results">
+<h3>Plot a subset of results<a class="headerlink" href="#Plot-a-subset-of-results" title="Permalink to this heading">¶</a></h3>
+<p>This can be useful for models with many stress periods</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Little Plover example&#39;</span><span class="p">,</span>
+                    <span class="n">xtick_stride</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                        <span class="n">plot_start_date</span><span class="o">=</span><span class="s1">&#39;2011-05&#39;</span><span class="p">,</span> <span class="n">plot_end_date</span><span class="o">=</span><span class="s1">&#39;2011-09&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;AxesSubplot:title={&#39;center&#39;:&#39;Little Plover example budget summary&#39;}, ylabel=&#39;Flow rate, in model units of $L^3/T$&#39;&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_plotting_listing_file_budgets_16_1.png" src="../_images/notebooks_plotting_listing_file_budgets_16_1.png" />
+</div>
+</div>
+</section>
+<section id="plot-budget-sums-by-calendar-year">
+<h3>plot budget sums by calendar year<a class="headerlink" href="#plot-budget-sums-by-calendar-year" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>with percentages</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Little Plover example&#39;</span><span class="p">,</span>
+                         <span class="n">annual_sums</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">plot_pcts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_plotting_listing_file_budgets_18_0.png" src="../_images/notebooks_plotting_listing_file_budgets_18_0.png" />
+</div>
+</div>
+</section>
+<section id="plot-budget-sums-for-an-arbitrary-grouping">
+<h3>plot budget sums for an arbitrary grouping<a class="headerlink" href="#plot-budget-sums-for-an-arbitrary-grouping" title="Permalink to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">plot_budget_summary</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_budget_term</span></code> can take any DataFrame with column names structured like those output by <code class="docutils literal notranslate"><span class="pre">flopy.utils.MfListBudget</span></code> (i.e. with <code class="docutils literal notranslate"><span class="pre">_IN</span></code> or <code class="docutils literal notranslate"><span class="pre">_OUT</span></code> suffixes), and a datetime index. So pandas <code class="docutils literal notranslate"><span class="pre">groupby</span></code> (or any other manipulations) can be performed on the data beforehand to achieve the desired result.</p>
+<p>In this case, we group the data into growing season vs. non-growing season based on month:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;growing_season&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Non-growing season (Oct - April)&#39;</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">month</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">month</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">),</span> <span class="s1">&#39;growing_season&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Growing season (May - Sept)&#39;</span>
+<span class="n">gs</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;growing_season&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">gs</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>STORAGE_IN</th>
+      <th>CONSTANT_HEAD_IN</th>
+      <th>WELLS_IN</th>
+      <th>RECHARGE_IN</th>
+      <th>STREAM_LEAKAGE_IN</th>
+      <th>TOTAL_IN</th>
+      <th>STORAGE_OUT</th>
+      <th>CONSTANT_HEAD_OUT</th>
+      <th>WELLS_OUT</th>
+      <th>RECHARGE_OUT</th>
+      <th>STREAM_LEAKAGE_OUT</th>
+      <th>TOTAL_OUT</th>
+      <th>IN-OUT</th>
+      <th>PERCENT_DISCREPANCY</th>
+      <th>kstp</th>
+      <th>kper</th>
+    </tr>
+    <tr>
+      <th>growing_season</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Growing season (May - Sept)</th>
+      <td>625680.937500</td>
+      <td>757334.25</td>
+      <td>0.0</td>
+      <td>1.117286e+06</td>
+      <td>684.561279</td>
+      <td>2500986.00</td>
+      <td>681521.0625</td>
+      <td>406225.3750</td>
+      <td>746160.937500</td>
+      <td>0.0</td>
+      <td>667186.375</td>
+      <td>2501093.750</td>
+      <td>-107.687500</td>
+      <td>-0.00500</td>
+      <td>4.0</td>
+      <td>6.5</td>
+    </tr>
+    <tr>
+      <th>Non-growing season (Oct - April)</th>
+      <td>148805.484375</td>
+      <td>845780.50</td>
+      <td>0.0</td>
+      <td>7.841528e+05</td>
+      <td>532.971741</td>
+      <td>1779271.75</td>
+      <td>611469.8125</td>
+      <td>360034.9375</td>
+      <td>110107.578125</td>
+      <td>0.0</td>
+      <td>697856.500</td>
+      <td>1779468.875</td>
+      <td>-197.078125</td>
+      <td>-0.01375</td>
+      <td>4.0</td>
+      <td>5.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">gs</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Little Plover example&#39;</span><span class="p">,</span>
+                         <span class="n">plot_pcts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_tick_params</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_plotting_listing_file_budgets_21_0.png" src="../_images/notebooks_plotting_listing_file_budgets_21_0.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="This-can-be-done-for-net-fluxes-too">
+<h2>This can be done for net fluxes too<a class="headerlink" href="#This-can-be-done-for-net-fluxes-too" title="Permalink to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;growing_season&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Non-growing season (Oct - April)&#39;</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">month</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">month</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">),</span> <span class="s1">&#39;growing_season&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Growing season (May - Sept)&#39;</span>
+<span class="n">gs</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;growing_season&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">plot_budget_summary</span><span class="p">(</span><span class="n">gs</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Little Plover example&#39;</span><span class="p">,</span>
+                         <span class="n">term_nets</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                         <span class="n">plot_pcts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_tick_params</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_plotting_listing_file_budgets_23_0.png" src="../_images/notebooks_plotting_listing_file_budgets_23_0.png" />
+</div>
+</div>
+<section id="Plot-a-budget-term">
+<h3>Plot a budget term<a class="headerlink" href="#Plot-a-budget-term" title="Permalink to this heading">¶</a></h3>
+<p>Two plots are produced * absolute values, optionally with secondary axis as above * as a fraction of model or advanced stress package (e.g. SFR) budget</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_budget_term</span><span class="p">(</span><span class="n">sfr_df</span><span class="p">,</span> <span class="s1">&#39;RUNOFF_IN&#39;</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Shellmound SFR&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_plotting_listing_file_budgets_25_0.png" src="../_images/notebooks_plotting_listing_file_budgets_25_0.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="Any-column-in-the-listing-file-budget-dataframe-(df)-can-be-plotted,">
+<h2>Any column in the listing file budget dataframe (<code class="docutils literal notranslate"><span class="pre">df</span></code>) can be plotted,<a class="headerlink" href="#Any-column-in-the-listing-file-budget-dataframe-(df)-can-be-plotted," title="Permalink to this heading">¶</a></h2>
+<p>by specifying the first part of the column name (without the <code class="docutils literal notranslate"><span class="pre">_IN</span></code> or <code class="docutils literal notranslate"><span class="pre">_OUT</span></code> at the end)</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Index([&#39;STORAGE_IN&#39;, &#39;CONSTANT_HEAD_IN&#39;, &#39;WELLS_IN&#39;, &#39;RECHARGE_IN&#39;,
+       &#39;STREAM_LEAKAGE_IN&#39;, &#39;TOTAL_IN&#39;, &#39;STORAGE_OUT&#39;, &#39;CONSTANT_HEAD_OUT&#39;,
+       &#39;WELLS_OUT&#39;, &#39;RECHARGE_OUT&#39;, &#39;STREAM_LEAKAGE_OUT&#39;, &#39;TOTAL_OUT&#39;,
+       &#39;IN-OUT&#39;, &#39;PERCENT_DISCREPANCY&#39;, &#39;kstp&#39;, &#39;kper&#39;, &#39;growing_season&#39;],
+      dtype=&#39;object&#39;)
+</pre></div></div>
+</div>
+</section>
+<section id="For-example">
+<h2>For example<a class="headerlink" href="#For-example" title="Permalink to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_budget_term</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s1">&#39;WELLS&#39;</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Shellmound SFR&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_plotting_listing_file_budgets_29_0.png" src="../_images/notebooks_plotting_listing_file_budgets_29_0.png" />
+</div>
+</div>
+<section id="Plot-term-by-stress-period-instead-of-time">
+<h3>Plot term by stress period instead of time<a class="headerlink" href="#Plot-term-by-stress-period-instead-of-time" title="Permalink to this heading">¶</a></h3>
+<p>Can be useful for models with long spin-up periods that obscure shorter periods of interest when whole simulation time is plotted.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_budget_term</span><span class="p">(</span><span class="n">sfr_df</span><span class="p">,</span> <span class="s1">&#39;RUNOFF_IN&#39;</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Shellmound SFR&#39;</span><span class="p">,</span>
+                 <span class="n">plot_start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_end_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">datetime_xaxis</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/runner/work/modflow-export/modflow-export/mfexport/listfile.py:638: UserWarning: FixedFormatter should only be used together with FixedLocator
+  ax2.set_xticklabels(datetime_labels, rotation=90)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_plotting_listing_file_budgets_31_1.png" src="../_images/notebooks_plotting_listing_file_budgets_31_1.png" />
+</div>
+</div>
+</section>
+<section id="Plot-mass-balance-error">
+<h3>Plot mass balance error<a class="headerlink" href="#Plot-mass-balance-error" title="Permalink to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_budget_term</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s1">&#39;PERCENT_DISCREPANCY&#39;</span><span class="p">,</span> <span class="n">title_prefix</span><span class="o">=</span><span class="s1">&#39;Mass Balance&#39;</span><span class="p">,</span>
+                 <span class="n">title_suffix</span><span class="o">=</span><span class="s1">&#39;discrepency&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_plotting_listing_file_budgets_33_0.png" src="../_images/notebooks_plotting_listing_file_budgets_33_0.png" />
+</div>
+</div>
+</section>
+<section id="Macro-to-plot-everything-to-PDFs">
+<h3>Macro to plot everything to PDFs<a class="headerlink" href="#Macro-to-plot-everything-to-PDFs" title="Permalink to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>budget summary (in/out and net)</p></li>
+<li><p>timeseries of budget terms for each package, and within each advanced stress package</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_list_budget</span><span class="p">(</span><span class="n">listfile</span><span class="o">=</span><span class="n">mf6_listfile</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span>
+                 <span class="n">model_start_datetime</span><span class="o">=</span><span class="s1">&#39;1998-04-01&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+creating output/pdfs...
+creating output/shps...
+creating output/rasters...
+wrote output/pdfs/listfile_budget_summary.pdf
+wrote output/pdfs/listfile_budget_by_term.pdf
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="modflow_nwt_example.html" class="btn btn-neutral float-left" title="export a model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2019, Andrew Leaf.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
