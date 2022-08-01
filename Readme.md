@@ -24,7 +24,7 @@ MODFLOW Resources
 
 + [MODFLOW Online Guide](https://water.usgs.gov/ogw/modflow-nwt/MODFLOW-NWT-Guide/index.html?nwt_newton_solver.htm)
 + [MODFLOW 6](https://www.usgs.gov/software/modflow-6-usgs-modular-hydrologic-model)
-+ [Modflow-setup](https://github.com/aleaf/modflow-setup)
++ [Modflow-setup](https://github.com/usgs/modflow-setup)
 + [SFRmaker](https://github.com/usgs/sfrmaker)
 
 

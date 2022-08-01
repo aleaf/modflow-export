@@ -25,6 +25,6 @@ dependencies:
   - pip
   - pip:
     - pytest-timeout
-    - git+git://github.com/modflowpy/flopy@develop
-    - git+git://github.com/aleaf/gis-utils@develop
+    - git+https://github.com/modflowpy/flopy@develop
+    - git+https://github.com/aleaf/gis-utils@develop
 
