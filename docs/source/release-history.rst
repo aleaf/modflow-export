@@ -2,20 +2,17 @@
 Release History
 ===============
 
-Version 0.3.0 (2022-08-01)
+Version 0.2.0 (2022-08-01)
 ----------------------------
 * added option to ``listfile.plot_budget_summary`` to plot annual budget sums from MODFLOW Listing file
 * updated ``MFexportGrid`` object to use the :class:`pyproj.crs.CRS` object for coordinate reference system management; added dataframe and grid cell polygon properties
-* bug fixes:
-  * skip MODFLOW 6 perioddata (transientlist datatype) for now; flopy array access can be too slow for large datasets
-
-Version 0.2.0 (2021-11-26)
-----------------------------
 * added online documentation
 * added plotting MODFLOW listing file budgets
 * added support for SFR input export (MF6 only)
 * added option to heads export to export depth to water and overpressurization depth
-* various bug fixes
+* bug fixes:
+  * skip MODFLOW 6 perioddata (transientlist datatype) for now; flopy array access can be too slow for large datasets
+  * various other bug fixes
 
 Initial Release Version 0.1.0 (2019-11-17)
 -------------------------------------------
