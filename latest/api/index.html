@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modules &mdash; modflow-export 0.2.0 documentation</title>
+  <title>Modules &mdash; modflow-export 0.2.0.post1+g79c044b documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
@@ -18,6 +18,7 @@
         <script src="../_static/underscore.js"></script>
         <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
         <script src="../_static/clipboard.min.js"></script>
         <script src="../_static/copybutton.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -36,7 +37,7 @@
             <a href="../index.html" class="icon icon-home"> modflow-export
           </a>
               <div class="version">
-                0.2.0
+                0.2.0.post1+g79c044b
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -58,18 +59,133 @@
 <p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#"> Code reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.array_export">Array export</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.budget_output">Budget output</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.grid">Grid</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.list_export">Tabular data export</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.listfile">Listing file</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.inputs">Model input</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.pdf_export">PDF export</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.results">Model results</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.shapefile_export">Shapefile export</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.units">Units conversion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.utils">Utility functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.zbud">Zone budget</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.array_export">Array export</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.array_export.export_array"><code class="docutils literal notranslate"><span class="pre">export_array()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.array_export.export_array_contours"><code class="docutils literal notranslate"><span class="pre">export_array_contours()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.array_export.make_levels"><code class="docutils literal notranslate"><span class="pre">make_levels()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.array_export.squeeze_3d"><code class="docutils literal notranslate"><span class="pre">squeeze_3d()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.budget_output">Budget output</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.budget_output.aggregate_mf6_stress_budget"><code class="docutils literal notranslate"><span class="pre">aggregate_mf6_stress_budget()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.budget_output.aggregate_sfr_flow_ja_face"><code class="docutils literal notranslate"><span class="pre">aggregate_sfr_flow_ja_face()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.budget_output.get_bc_flux"><code class="docutils literal notranslate"><span class="pre">get_bc_flux()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.budget_output.get_flowja_face"><code class="docutils literal notranslate"><span class="pre">get_flowja_face()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.budget_output.get_intercell_connections"><code class="docutils literal notranslate"><span class="pre">get_intercell_connections()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.budget_output.get_stress_budget_textlist"><code class="docutils literal notranslate"><span class="pre">get_stress_budget_textlist()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.budget_output.read_mf6_dependent_variable_output"><code class="docutils literal notranslate"><span class="pre">read_mf6_dependent_variable_output()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.budget_output.read_mf6_stress_budget_output"><code class="docutils literal notranslate"><span class="pre">read_mf6_stress_budget_output()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.budget_output.read_sfr_output"><code class="docutils literal notranslate"><span class="pre">read_sfr_output()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.grid">Grid</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.grid.MFexportGrid"><code class="docutils literal notranslate"><span class="pre">MFexportGrid</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.bbox"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.bbox</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.bounds"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.bounds</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.crs"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.crs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.dataframe"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.dataframe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.epsg"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.epsg</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.get_dataframe"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.get_dataframe()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.get_vertices"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.get_vertices()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.length_multiplier"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.length_multiplier</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.length_units"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.length_units</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.polygons"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.polygons</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.proj_str"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.proj_str</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.rotation"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.rotation</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.size"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.transform"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.transform</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.vertices"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.vertices</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.wkt"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.wkt</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.write_bbox_shapefile"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.write_bbox_shapefile()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.write_shapefile"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.write_shapefile()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.xul"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.xul</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.yul"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.yul</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.grid.get_crs"><code class="docutils literal notranslate"><span class="pre">get_crs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.grid.get_crs_length_units"><code class="docutils literal notranslate"><span class="pre">get_crs_length_units()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.grid.get_grid_bounding_box"><code class="docutils literal notranslate"><span class="pre">get_grid_bounding_box()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.grid.get_kij_from_node3d"><code class="docutils literal notranslate"><span class="pre">get_kij_from_node3d()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.grid.load_modelgrid"><code class="docutils literal notranslate"><span class="pre">load_modelgrid()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.grid.write_bbox_shapefile"><code class="docutils literal notranslate"><span class="pre">write_bbox_shapefile()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.list_export">Tabular data export</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.list_export.get_tl_variables"><code class="docutils literal notranslate"><span class="pre">get_tl_variables()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.list_export.mftransientlist_to_dataframe"><code class="docutils literal notranslate"><span class="pre">mftransientlist_to_dataframe()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.list_export.squeeze_columns"><code class="docutils literal notranslate"><span class="pre">squeeze_columns()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.listfile">Listing file</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.listfile.get_budget_keys"><code class="docutils literal notranslate"><span class="pre">get_budget_keys()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.listfile.get_listfile_data"><code class="docutils literal notranslate"><span class="pre">get_listfile_data()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.listfile.get_listfile_model_version"><code class="docutils literal notranslate"><span class="pre">get_listfile_model_version()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.listfile.plot_budget_summary"><code class="docutils literal notranslate"><span class="pre">plot_budget_summary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.listfile.plot_budget_term"><code class="docutils literal notranslate"><span class="pre">plot_budget_term()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.listfile.plot_list_budget"><code class="docutils literal notranslate"><span class="pre">plot_list_budget()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.inputs">Model input</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.inputs.export"><code class="docutils literal notranslate"><span class="pre">export()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.inputs.export_sfr"><code class="docutils literal notranslate"><span class="pre">export_sfr()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.inputs.export_thickness"><code class="docutils literal notranslate"><span class="pre">export_thickness()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.inputs.export_variable"><code class="docutils literal notranslate"><span class="pre">export_variable()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.inputs.get_inactive_cells_mask"><code class="docutils literal notranslate"><span class="pre">get_inactive_cells_mask()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.inputs.get_package_list"><code class="docutils literal notranslate"><span class="pre">get_package_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.inputs.get_variable_list"><code class="docutils literal notranslate"><span class="pre">get_variable_list()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.inputs.summarize"><code class="docutils literal notranslate"><span class="pre">summarize()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.inputs.summarize_variable"><code class="docutils literal notranslate"><span class="pre">summarize_variable()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.pdf_export">PDF export</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.pdf_export.export_pdf"><code class="docutils literal notranslate"><span class="pre">export_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.pdf_export.export_pdf_bar_summary"><code class="docutils literal notranslate"><span class="pre">export_pdf_bar_summary()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.pdf_export.sfr_baseflow_pdf"><code class="docutils literal notranslate"><span class="pre">sfr_baseflow_pdf()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.pdf_export.sfr_qaquifer_pdf"><code class="docutils literal notranslate"><span class="pre">sfr_qaquifer_pdf()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.results">Model results</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.results.export_cell_budget"><code class="docutils literal notranslate"><span class="pre">export_cell_budget()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.results.export_drawdown"><code class="docutils literal notranslate"><span class="pre">export_drawdown()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.results.export_heads"><code class="docutils literal notranslate"><span class="pre">export_heads()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.results.export_sfr_results"><code class="docutils literal notranslate"><span class="pre">export_sfr_results()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.shapefile_export">Shapefile export</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.shapefile_export.export_shapefile"><code class="docutils literal notranslate"><span class="pre">export_shapefile()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.units">Units conversion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.units.convert_flux_units"><code class="docutils literal notranslate"><span class="pre">convert_flux_units()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.units.convert_length_units"><code class="docutils literal notranslate"><span class="pre">convert_length_units()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.units.convert_temperature_units"><code class="docutils literal notranslate"><span class="pre">convert_temperature_units()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.units.convert_time_units"><code class="docutils literal notranslate"><span class="pre">convert_time_units()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.units.convert_volume_units"><code class="docutils literal notranslate"><span class="pre">convert_volume_units()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.units.get_figure_label_unit_text"><code class="docutils literal notranslate"><span class="pre">get_figure_label_unit_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.units.get_length_conversions"><code class="docutils literal notranslate"><span class="pre">get_length_conversions()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.units.get_length_units"><code class="docutils literal notranslate"><span class="pre">get_length_units()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.units.get_time_units"><code class="docutils literal notranslate"><span class="pre">get_time_units()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.units.get_unit_text"><code class="docutils literal notranslate"><span class="pre">get_unit_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.units.get_volume_conversions"><code class="docutils literal notranslate"><span class="pre">get_volume_conversions()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.units.parse_flux_units"><code class="docutils literal notranslate"><span class="pre">parse_flux_units()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.units.parse_length_units"><code class="docutils literal notranslate"><span class="pre">parse_length_units()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.utils">Utility functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.utils.get_flopy_package_fname"><code class="docutils literal notranslate"><span class="pre">get_flopy_package_fname()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.utils.get_input_arguments"><code class="docutils literal notranslate"><span class="pre">get_input_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.utils.get_water_table"><code class="docutils literal notranslate"><span class="pre">get_water_table()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.utils.load"><code class="docutils literal notranslate"><span class="pre">load()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.utils.load_json"><code class="docutils literal notranslate"><span class="pre">load_json()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.utils.load_yaml"><code class="docutils literal notranslate"><span class="pre">load_yaml()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.utils.make_output_folders"><code class="docutils literal notranslate"><span class="pre">make_output_folders()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.utils.print_item"><code class="docutils literal notranslate"><span class="pre">print_item()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-mfexport.zbud">Zone budget</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mfexport.zbud.write_zonebudget6_input"><code class="docutils literal notranslate"><span class="pre">write_zonebudget6_input()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../release-history.html"> Release History</a></li>
@@ -89,8 +205,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Modules</li>
+      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li class="breadcrumb-item active">Modules</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/api/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -180,8 +296,8 @@ will have the same number of rows and pixels as the original.</p>
 </dd>
 <dt><strong>a</strong><span class="classifier">2D numpy array</span></dt><dd><p>Array to contour</p>
 </dd>
-<dt><strong>crs</strong><span class="classifier">obj</span></dt><dd><p>A Python int, dict, str, or <a class="reference external" href="https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS" title="(in pyproj v3.3.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyproj.crs.CRS</span></code></a> instance
-passed to the <a class="reference external" href="https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS.from_user_input" title="(in pyproj v3.3.1)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pyproj.crs.CRS.from_user_input()</span></code></a>
+<dt><strong>crs</strong><span class="classifier">obj</span></dt><dd><p>A Python int, dict, str, or <a class="reference external" href="https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS" title="(in pyproj v3.5.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyproj.crs.CRS</span></code></a> instance
+passed to the <a class="reference external" href="https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS.from_user_input" title="(in pyproj v3.5.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pyproj.crs.CRS.from_user_input()</span></code></a>
 See <a class="reference external" href="http://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS.from_user_input">http://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS.from_user_input</a>.
 Can be any of:</p>
 <blockquote>
@@ -195,7 +311,7 @@ Can be any of:</p>
 <li><p>An EPSG integer code [i.e. 4326]</p></li>
 <li><p>A tuple of (“auth_name”: “auth_code”) [i.e (‘epsg’, ‘4326’)]</p></li>
 <li><p>An object with a <cite>to_wkt</cite> method.</p></li>
-<li><p>A <a class="reference external" href="https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS" title="(in pyproj v3.3.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyproj.crs.CRS</span></code></a> class</p></li>
+<li><p>A <a class="reference external" href="https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS" title="(in pyproj v3.5.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyproj.crs.CRS</span></code></a> class</p></li>
 </ul>
 </div></blockquote>
 </dd>
@@ -423,7 +539,7 @@ time : total time in model units</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="mfexport.grid.MFexportGrid">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mfexport.grid.</span></span><span class="sig-name descname"><span class="pre">MFexportGrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">botm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idomain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">laycbd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lenuni</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proj_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wkt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angrot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/grid.html#MFexportGrid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.grid.MFexportGrid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://flopy.readthedocs.io/en/latest/source/flopy.discretization.structuredgrid.html#flopy.discretization.structuredgrid.StructuredGrid" title="(in flopy Documentation v3.3.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">StructuredGrid</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://flopy.readthedocs.io/en/latest/source/flopy.discretization.structuredgrid.html#flopy.discretization.structuredgrid.StructuredGrid" title="(in FloPy Documentation v3.3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">StructuredGrid</span></code></a></p>
 <dl class="py property">
 <dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.bbox">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bbox</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.bbox" title="Permalink to this definition">¶</a></dt>
@@ -681,13 +797,14 @@ just flux values, no id or other ancillary information)</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="mfexport.listfile.plot_budget_summary">
-<span class="sig-prename descclassname"><span class="pre">mfexport.listfile.</span></span><span class="sig-name descname"><span class="pre">plot_budget_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date_index_fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%Y-%m'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">term_nets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_length_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_time_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secondary_axis_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xtick_stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_start_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_end_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_pcts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annual_sums</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/listfile.html#plot_budget_summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.listfile.plot_budget_summary" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">mfexport.listfile.</span></span><span class="sig-name descname"><span class="pre">plot_budget_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_prefix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_suffix</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">date_index_fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'%Y-%m'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">term_nets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_length_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_time_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secondary_axis_units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xtick_stride</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_start_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_end_date</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_pcts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annual_sums</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">special_column_renames</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/listfile.html#plot_budget_summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.listfile.plot_budget_summary" title="Permalink to this definition">¶</a></dt>
 <dd><p>Plot a stacked bar chart summary of a MODFLOW listing file budget dataframe.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>df</strong><span class="classifier">DataFrame</span></dt><dd><p>Table of listing file budget results produced by flopy; typically the flux 
-(not volume) terms (see example below).</p>
+(not volume) terms (see example below). The DataFrame needs to have a 
+datetime index.</p>
 </dd>
 <dt><strong>title_prefix</strong><span class="classifier">str, optional</span></dt><dd><p>Prefix to insert at the begining of the title, for example the model name.
 by default ‘’</p>
@@ -730,7 +847,7 @@ by default None (plot all dates)</p>
 <dt><strong>plot_pcts</strong><span class="classifier">bool</span></dt><dd><p>Option to include the percentage of each flux.
 by default, False</p>
 </dd>
-<dt><strong>annual_sums</strong><span class="classifier">bool</span></dt><dd><p>Option to summarize budget by year (e.g. using <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.groupby.html#pandas.DataFrame.groupby" title="(in pandas v1.4.3)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pandas.DataFrame.groupby()</span></code></a>).
+<dt><strong>annual_sums</strong><span class="classifier">bool</span></dt><dd><p>Option to summarize budget by year (e.g. using <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.groupby.html#pandas.DataFrame.groupby" title="(in pandas v2.0.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pandas.DataFrame.groupby()</span></code></a>).
 Requires that <code class="docutils literal notranslate"><span class="pre">df</span></code> have a valid datetime index.
 by default, False</p>
 </dd>

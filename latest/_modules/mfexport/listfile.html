@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mfexport.listfile &mdash; modflow-export 0.2.0 documentation</title>
+  <title>mfexport.listfile &mdash; modflow-export 0.2.0.post1+g79c044b documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
@@ -17,6 +17,7 @@
         <script src="../../_static/underscore.js"></script>
         <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
         <script src="../../_static/clipboard.min.js"></script>
         <script src="../../_static/copybutton.js"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -33,7 +34,7 @@
             <a href="../../index.html" class="icon icon-home"> modflow-export
           </a>
               <div class="version">
-                0.2.0
+                0.2.0.post1+g79c044b
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -72,9 +73,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../index.html">Module code</a> &raquo;</li>
-      <li>mfexport.listfile</li>
+      <li><a href="../../index.html" class="icon icon-home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mfexport.listfile</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -290,7 +291,7 @@
                         <span class="n">secondary_axis_units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">xtick_stride</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
                         <span class="n">plot_start_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_end_date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                         <span class="n">plot_pcts</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                        <span class="n">annual_sums</span><span class="o">=</span><span class="kc">False</span>
+                        <span class="n">annual_sums</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">special_column_renames</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                         <span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Plot a stacked bar chart summary of a MODFLOW listing file budget dataframe.</span>
 
@@ -298,7 +299,8 @@
 <span class="sd">    ----------</span>
 <span class="sd">    df : DataFrame</span>
 <span class="sd">        Table of listing file budget results produced by flopy; typically the flux </span>
-<span class="sd">        (not volume) terms (see example below).</span>
+<span class="sd">        (not volume) terms (see example below). The DataFrame needs to have a </span>
+<span class="sd">        datetime index.</span>
 <span class="sd">    title_prefix : str, optional</span>
 <span class="sd">        Prefix to insert at the begining of the title, for example the model name.</span>
 <span class="sd">        by default &#39;&#39;</span>
@@ -375,8 +377,33 @@
         <span class="n">xtick_stride</span> <span class="o">=</span> <span class="mi">1</span>
         
     <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="mf">8.5</span><span class="p">))</span>
-    <span class="n">in_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="s1">&#39;_IN&#39;</span> <span class="ow">in</span> <span class="n">c</span> <span class="ow">and</span> <span class="s1">&#39;TOTAL&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">c</span><span class="p">]</span>
+    <span class="n">in_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="s1">&#39;_IN&#39;</span> <span class="ow">in</span> <span class="n">c</span> <span class="ow">and</span> <span class="s1">&#39;TOTAL&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">c</span> <span class="ow">and</span> <span class="s1">&#39;(net)&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">c</span><span class="p">]</span>
+    <span class="c1"># Zone Budget 6 output</span>
+    <span class="n">in_cols</span> <span class="o">+=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="s1">&#39;-IN&#39;</span> <span class="ow">in</span> <span class="n">c</span> <span class="ow">and</span> <span class="s1">&#39;(net)&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">c</span><span class="p">]</span>
+    <span class="n">zone_flux_cols</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;_&#39;</span><span class="p">)</span>  
+                      <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="s1">&#39;FROM &#39;</span> <span class="ow">in</span> <span class="n">c</span> <span class="ow">or</span> <span class="s1">&#39;TO &#39;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">special_column_renames</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">special_column_renames</span> <span class="o">=</span> <span class="p">{</span><span class="n">zone_flux_cols</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span> <span class="n">v</span>
+                                  <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">special_column_renames</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">zone_flux_cols</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">old_name</span><span class="p">,</span> <span class="n">new_name</span> <span class="ow">in</span> <span class="n">zone_flux_cols</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">old_name</span><span class="p">:</span> <span class="n">new_name</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">in_cols</span> <span class="o">+=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">zone_flux_cols</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;FROM&#39;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">]</span>
+    
     <span class="n">out_cols</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="s1">&#39;_OUT&#39;</span> <span class="ow">in</span> <span class="n">c</span> <span class="ow">and</span> <span class="s1">&#39;TOTAL&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">c</span><span class="p">]</span>
+    <span class="n">out_cols</span> <span class="o">+=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="s1">&#39;-OUT&#39;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">]</span>
+    <span class="n">out_cols</span> <span class="o">+=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">zone_flux_cols</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="s1">&#39;TO&#39;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">]</span>
+    
+    <span class="c1"># rename the special columns to make the plot more understandable</span>
+    <span class="k">if</span> <span class="n">special_column_renames</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">old_name</span><span class="p">,</span> <span class="n">new_name</span> <span class="ow">in</span> <span class="n">special_column_renames</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">old_name</span><span class="p">:</span> <span class="n">new_name</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="c1"># update the in and out columns too</span>
+            <span class="k">if</span> <span class="n">old_name</span> <span class="ow">in</span> <span class="n">in_cols</span><span class="p">:</span>
+                <span class="n">in_cols</span><span class="p">[</span><span class="n">in_cols</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">old_name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">new_name</span>
+            <span class="k">elif</span> <span class="n">old_name</span> <span class="ow">in</span> <span class="n">out_cols</span><span class="p">:</span>
+                <span class="n">out_cols</span><span class="p">[</span><span class="n">out_cols</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">old_name</span><span class="p">)]</span> <span class="o">=</span> <span class="n">new_name</span>
+            
     <span class="k">if</span> <span class="ow">not</span> <span class="n">term_nets</span><span class="p">:</span>
         <span class="n">ax</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">in_cols</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">stacked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span><span class="c1"># width=20</span>
                                   <span class="p">)</span>
@@ -384,13 +411,19 @@
         <span class="n">ax</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">out_cols</span><span class="p">])</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">stacked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span><span class="c1"># width=20</span>
                                       <span class="p">)</span>
         <span class="n">df_pcts</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># zone budget output doesn&#39;t have &quot;TOTAL&quot; columns</span>
+        <span class="k">if</span> <span class="s2">&quot;TOTAL_IN&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;TOTAL_IN&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">in_cols</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="c1"># zone budget output doesn&#39;t have &quot;TOTAL_IN&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;TOTAL_OUT&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s1">&#39;TOTAL_OUT&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">out_cols</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">df_pcts</span><span class="p">[</span><span class="n">in_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">in_cols</span><span class="p">]</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;TOTAL_IN&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">df_pcts</span><span class="p">[</span><span class="n">out_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">out_cols</span><span class="p">]</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;TOTAL_OUT&#39;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">pairs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">in_cols</span><span class="p">,</span> <span class="n">out_cols</span><span class="p">))</span>
         <span class="n">net_cols</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">in_col</span><span class="p">,</span> <span class="n">out_col</span> <span class="ow">in</span> <span class="n">pairs</span><span class="p">:</span>
-            <span class="n">net_col</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">in_col</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> (net)&quot;</span>
+            <span class="n">net_col</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">in_col</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_IN&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;-IN&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> (net)&quot;</span>
             <span class="n">df</span><span class="p">[</span><span class="n">net_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">in_col</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="n">out_col</span><span class="p">]</span>
             <span class="n">net_cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">net_col</span><span class="p">)</span>
         <span class="n">ax</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">net_cols</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">stacked</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span><span class="c1"># width=20</span>
