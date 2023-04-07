@@ -162,7 +162,7 @@ def aggregate_mf6_stress_budget(mf6_stress_budget_output,
     df.sort_values(by=['time', 'node'], inplace=True)
     assert not np.any(df.kstpkper.isna().values)
     #assert not np.any(df.rno.isna().values)  # nan rnos can be unconnected reaches
-    df.to_csv('junk.csv')
+    
     #df.dropna(axis=0, subset=['rno'], inplace=True)
     if 'rno' in df.columns:
         #assert np.array_equal(df.node.values, df.rno.values)
@@ -492,6 +492,8 @@ def read_sfr_output(mf2005_sfr_outputfile=None,
             assert np.array_equal(df.index, stg.index)
             df['stage'] = stg['stage']
             df.reset_index(inplace=True)
+        else:
+            df['stage'] = np.nan
 
         # get the row, column location of SFR cells;
         # compute stream depths

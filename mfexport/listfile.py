@@ -204,7 +204,7 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
                         secondary_axis_units=None, xtick_stride=6,
                         plot_start_date=None, plot_end_date=None,
                         plot_pcts=False,
-                        annual_sums=False
+                        annual_sums=False, special_column_renames=None,
                         ):
     """Plot a stacked bar chart summary of a MODFLOW listing file budget dataframe.
 
@@ -212,7 +212,8 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
     ----------
     df : DataFrame
         Table of listing file budget results produced by flopy; typically the flux 
-        (not volume) terms (see example below).
+        (not volume) terms (see example below). The DataFrame needs to have a 
+        datetime index.
     title_prefix : str, optional
         Prefix to insert at the begining of the title, for example the model name.
         by default ''
@@ -289,8 +290,33 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
         xtick_stride = 1
         
     fig, ax = plt.subplots(figsize=(11, 8.5))
-    in_cols = [c for c in df.columns if '_IN' in c and 'TOTAL' not in c]
+    in_cols = [c for c in df.columns if '_IN' in c and 'TOTAL' not in c and '(net)' not in c]
+    # Zone Budget 6 output
+    in_cols += [c for c in df.columns if '-IN' in c and '(net)' not in c]
+    zone_flux_cols = {c: c.replace(' ', '_')  
+                      for c in df.columns if 'FROM ' in c or 'TO ' in c}
+    if special_column_renames is not None:
+        special_column_renames = {zone_flux_cols.get(k, k): v
+                                  for k, v in special_column_renames.items()}
+    if any(zone_flux_cols):
+        for old_name, new_name in zone_flux_cols.items():
+            df.rename(columns={old_name: new_name}, inplace=True)
+    in_cols += [c for c in zone_flux_cols.values() if 'FROM' in c]
+    
     out_cols = [c for c in df.columns if '_OUT' in c and 'TOTAL' not in c]
+    out_cols += [c for c in df.columns if '-OUT' in c]
+    out_cols += [c for c in zone_flux_cols.values() if 'TO' in c]
+    
+    # rename the special columns to make the plot more understandable
+    if special_column_renames is not None:
+        for old_name, new_name in special_column_renames.items():
+            df.rename(columns={old_name: new_name}, inplace=True)
+            # update the in and out columns too
+            if old_name in in_cols:
+                in_cols[in_cols.index(old_name)] = new_name
+            elif old_name in out_cols:
+                out_cols[out_cols.index(old_name)] = new_name
+            
     if not term_nets:
         ax = df[in_cols].plot.bar(stacked=True, ax=ax,# width=20
                                   )
@@ -298,13 +324,19 @@ def plot_budget_summary(df, title_prefix='', title_suffix='', date_index_fmt='%Y
         ax = (df[out_cols]).plot.bar(stacked=True, ax=ax,# width=20
                                       )
         df_pcts = df.copy()
+        # zone budget output doesn't have "TOTAL" columns
+        if "TOTAL_IN" not in df.columns:
+            df['TOTAL_IN'] = df[in_cols].sum(axis=1)
+                # zone budget output doesn't have "TOTAL_IN"
+        if "TOTAL_OUT" not in df.columns:
+            df['TOTAL_OUT'] = df[out_cols].sum(axis=1)
         df_pcts[in_cols] = df[in_cols].div(df['TOTAL_IN'], axis=0)
         df_pcts[out_cols] = df[out_cols].div(df['TOTAL_OUT'], axis=0)
     else:
         pairs = list(zip(in_cols, out_cols))
         net_cols = []
         for in_col, out_col in pairs:
-            net_col = f"{in_col.split('_')[0]} (net)"
+            net_col = f"{in_col.replace('_IN', '').replace('-IN', '')} (net)"
             df[net_col] = df[in_col] - df[out_col]
             net_cols.append(net_col)
         ax = df[net_cols].plot.bar(stacked=True, ax=ax,# width=20
