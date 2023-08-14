@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mfexport.results &mdash; modflow-export 0.2.0.post1+g79c044b documentation</title>
+  <title>mfexport.results &mdash; modflow-export 0.2.0.post3+g6a71367 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
@@ -31,14 +31,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> modflow-export
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            modflow-export
           </a>
               <div class="version">
-                0.2.0.post1+g79c044b
+                0.2.0.post3+g6a71367
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -73,7 +77,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
       <li class="breadcrumb-item active">mfexport.results</li>
       <li class="wy-breadcrumbs-aside">
@@ -104,7 +108,7 @@
                        <span class="n">kstpkper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                        <span class="n">precision</span><span class="o">=</span><span class="s1">&#39;single&#39;</span><span class="p">,</span>
                        <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;postproc&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Read a flow component from MODFLOW binary cell budget output;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read a flow component from MODFLOW binary cell budget output;</span>
 <span class="sd">    write to raster.</span>
 
 <span class="sd">    Parameters</span>
@@ -141,6 +145,7 @@
     <span class="k">for</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">kper</span> <span class="ow">in</span> <span class="n">kstpkper</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;stress period </span><span class="si">{}</span><span class="s1">, timestep </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">variable</span> <span class="o">==</span> <span class="s1">&#39;FLOW-JA-FACE&#39;</span><span class="p">:</span>
                 <span class="n">df</span> <span class="o">=</span> <span class="n">get_flowja_face</span><span class="p">(</span><span class="n">cbbobj</span><span class="p">,</span> <span class="n">binary_grid_file</span><span class="o">=</span><span class="n">binary_grid_file</span><span class="p">,</span>
                                        <span class="n">kstpkper</span><span class="o">=</span><span class="p">(</span><span class="n">kstp</span><span class="p">,</span> <span class="n">kper</span><span class="p">),</span> <span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span>
@@ -159,6 +164,7 @@
                     <span class="n">data</span> <span class="o">=</span> <span class="n">vflux_array</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">data</span> <span class="o">=</span> <span class="n">get_bc_flux</span><span class="p">(</span><span class="n">cbbobj</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">kstpkper</span><span class="o">=</span><span class="p">(</span><span class="n">kstp</span><span class="p">,</span> <span class="n">kper</span><span class="p">),</span> <span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">)</span>
+            <span class="c1"># for example, 1-layer models don&#39;t have vertical fluxes</span>
             <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> not exported.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">variable</span><span class="p">))</span>
                 <span class="k">continue</span>
@@ -173,7 +179,7 @@
                     <span class="n">levels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">export_water_table</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">export_layers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                     <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;postproc&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Export MODFLOW binary head output to rasters and shapefiles.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Export MODFLOW binary head output to rasters and shapefiles.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -253,7 +259,7 @@
                  <span class="n">export_water_table</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">export_depth_to_water</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">export_layers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">land_surface_elevations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;postproc&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Export MODFLOW binary head output to rasters and shapefiles.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Export MODFLOW binary head output to rasters and shapefiles.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -294,6 +300,14 @@
             <span class="n">export_array</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">wt</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="n">hnflo</span><span class="p">)</span>
             <span class="n">export_array_contours</span><span class="p">(</span><span class="n">ctr_outfile</span><span class="p">,</span> <span class="n">wt</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">levels</span><span class="o">=</span><span class="n">levels</span><span class="p">,</span> <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="p">)</span>
             <span class="n">outfiles</span> <span class="o">+=</span> <span class="p">[</span><span class="n">outfile</span><span class="p">,</span> <span class="n">ctr_outfile</span><span class="p">]</span>
+            <span class="c1"># if the grid has cell bottom information</span>
+            <span class="c1"># make an array of 1-based layers containing the water table </span>
+            <span class="c1"># at each i, j location</span>
+            <span class="k">if</span> <span class="n">grid</span><span class="o">.</span><span class="n">botm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">wt_layer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">((</span><span class="n">wt</span> <span class="o">&gt;</span> <span class="n">grid</span><span class="o">.</span><span class="n">botm</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">wt_layer_outfile</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">rasters_dir</span><span class="si">}</span><span class="s1">/wt_per</span><span class="si">{</span><span class="n">kper</span><span class="si">}</span><span class="s1">_stp</span><span class="si">{</span><span class="n">kstp</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">.tif&#39;</span>
+                <span class="n">export_array</span><span class="p">(</span><span class="n">wt_layer_outfile</span><span class="p">,</span> <span class="n">wt_layer</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
+                <span class="n">outfiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wt_layer_outfile</span><span class="p">)</span>
             
         <span class="k">if</span> <span class="n">export_depth_to_water</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">land_surface_elevations</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -405,6 +419,20 @@
         <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Qaquifer&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">df</span><span class="o">.</span><span class="n">GWF</span> <span class="c1"># for consistency with MF2005</span>
     <span class="k">if</span> <span class="s1">&#39;Qmean&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Qmean&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;Qin&#39;</span><span class="p">,</span> <span class="s1">&#39;Qout&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="c1"># fill nan streamflow values from EXT-OUTFLOW totals</span>
+    <span class="c1"># (nan values can cause issues with plotting; as of 8/8/2023</span>
+    <span class="c1"># and MODFLOW 6 version 6.3.0, these appear to be associated with</span>
+    <span class="c1"># headwater reaches that are also outlets </span>
+    <span class="c1"># (no Qin or Qout to another reach, just EXT-OUTFLOW; the nans</span>
+    <span class="c1"># are introduced when the FLOW-JA-FACE results, </span>
+    <span class="c1"># which don&#39;t include these reaches, are joined to the </span>
+    <span class="c1"># full list of SFR reaches)</span>
+    <span class="k">if</span> <span class="n">mf6_sfr_budget_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">na_streamflow</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Qmean&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">na_streamflow</span><span class="p">,</span> <span class="s1">&#39;Qin&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">na_streamflow</span><span class="p">,</span> <span class="s1">&#39;Qout&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">na_streamflow</span><span class="p">,</span> <span class="s1">&#39;EXT-OUTFLOW&#39;</span><span class="p">]</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">na_streamflow</span><span class="p">,</span> <span class="s1">&#39;Qnet&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">na_streamflow</span><span class="p">,</span> <span class="s1">&#39;EXT-OUTFLOW&#39;</span><span class="p">]</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">na_streamflow</span><span class="p">,</span> <span class="s1">&#39;Qmean&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">na_streamflow</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;Qin&#39;</span><span class="p">,</span> <span class="s1">&#39;Qout&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="c1"># write columns in the output units</span>
     <span class="n">df</span><span class="p">[</span><span class="s1">&#39;Qmean_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">unit_text</span><span class="p">)]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Qmean</span> <span class="o">*</span> <span class="n">lmult</span><span class="o">**</span><span class="mi">3</span><span class="o">/</span><span class="n">tmult</span>

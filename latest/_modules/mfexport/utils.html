@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mfexport.utils &mdash; modflow-export 0.2.0.post1+g79c044b documentation</title>
+  <title>mfexport.utils &mdash; modflow-export 0.2.0.post3+g6a71367 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
@@ -31,14 +31,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> modflow-export
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            modflow-export
           </a>
               <div class="version">
-                0.2.0.post1+g79c044b
+                0.2.0.post3+g6a71367
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -73,7 +77,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
       <li class="breadcrumb-item active">mfexport.utils</li>
       <li class="wy-breadcrumbs-aside">
@@ -95,7 +99,7 @@
 
 
 <div class="viewcode-block" id="get_input_arguments"><a class="viewcode-back" href="../../api/index.html#mfexport.utils.get_input_arguments">[docs]</a><span class="k">def</span> <span class="nf">get_input_arguments</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Return subset of keyword arguments in kwargs dict</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return subset of keyword arguments in kwargs dict</span>
 <span class="sd">    that are valid parameters to a function or method.</span>
 
 <span class="sd">    Parameters</span>
@@ -128,7 +132,7 @@
 
 
 <div class="viewcode-block" id="load"><a class="viewcode-back" href="../../api/index.html#mfexport.utils.load">[docs]</a><span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Load a configuration file.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load a configuration file.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.yml&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.yaml&#39;</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">load_yaml</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
     <span class="k">elif</span> <span class="nb">str</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.json&#39;</span><span class="p">):</span>
@@ -136,14 +140,14 @@
 
 
 <div class="viewcode-block" id="load_json"><a class="viewcode-back" href="../../api/index.html#mfexport.utils.load_json">[docs]</a><span class="k">def</span> <span class="nf">load_json</span><span class="p">(</span><span class="n">jsonfile</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Convenience function to load a json file; replacing</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convenience function to load a json file; replacing</span>
 <span class="sd">    some escaped characters.&quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">jsonfile</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="load_yaml"><a class="viewcode-back" href="../../api/index.html#mfexport.utils.load_yaml">[docs]</a><span class="k">def</span> <span class="nf">load_yaml</span><span class="p">(</span><span class="n">yml_file</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Load yaml file into a dictionary.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load yaml file into a dictionary.&quot;&quot;&quot;</span>
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">yml_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">src</span><span class="p">:</span>
         <span class="n">cfg</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">Loader</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">cfg</span></div>
@@ -174,7 +178,7 @@
 
 <div class="viewcode-block" id="get_water_table"><a class="viewcode-back" href="../../api/index.html#mfexport.utils.get_water_table">[docs]</a><span class="k">def</span> <span class="nf">get_water_table</span><span class="p">(</span><span class="n">heads</span><span class="p">,</span> <span class="n">nodata</span><span class="p">,</span> 
                      <span class="n">valid_min</span><span class="o">=-</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">valid_max</span><span class="o">=</span><span class="mf">3e4</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Get a 2D array representing</span>
 <span class="sd">    the water table elevation for each</span>
 <span class="sd">    stress period in heads array.</span>

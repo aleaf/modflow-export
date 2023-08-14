@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modules &mdash; modflow-export 0.2.0.post1+g79c044b documentation</title>
+  <title>Modules &mdash; modflow-export 0.2.0.post3+g6a71367 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
@@ -34,14 +34,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> modflow-export
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            modflow-export
           </a>
               <div class="version">
-                0.2.0.post1+g79c044b
+                0.2.0.post3+g6a71367
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -84,18 +88,15 @@
 <li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.bounds"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.bounds</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.crs"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.crs</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.dataframe"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.dataframe</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.epsg"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.epsg</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.get_dataframe"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.get_dataframe()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.get_vertices"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.get_vertices()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.length_multiplier"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.length_multiplier</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.length_units"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.length_units</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.polygons"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.polygons</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.proj_str"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.proj_str</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.rotation"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.rotation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.size"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.size</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.transform"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.transform</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.vertices"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.vertices</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.wkt"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.wkt</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.write_bbox_shapefile"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.write_bbox_shapefile()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.write_shapefile"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.write_shapefile()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#mfexport.grid.MFexportGrid.xul"><code class="docutils literal notranslate"><span class="pre">MFexportGrid.xul</span></code></a></li>
@@ -205,7 +206,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a></li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Modules</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/api/index.rst.txt" rel="nofollow"> View page source</a>
@@ -216,31 +217,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  
-<style>
-/* CSS overrides for sphinx_rtd_theme */
-
-/* 24px margin */
-.nbinput.nblast.container,
-.nboutput.nblast.container {
-    margin-bottom: 19px;  /* padding has already 5px */
-}
-
-/* ... except between code cells! */
-.nblast.container + .nbinput.container {
-    margin-top: -19px;
-}
-
-.admonition > p:before {
-    margin-right: 4px;  /* make room for the exclamation icon */
-}
-
-/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
-.math {
-    text-align: unset;
-}
-</style>
-<section id="modules">
+  <section id="modules">
 <h1>Modules<a class="headerlink" href="#modules" title="Permalink to this heading">¶</a></h1>
 <section id="module-mfexport.array_export">
 <span id="array-export"></span><h2>Array export<a class="headerlink" href="#module-mfexport.array_export" title="Permalink to this heading">¶</a></h2>
@@ -296,8 +273,8 @@ will have the same number of rows and pixels as the original.</p>
 </dd>
 <dt><strong>a</strong><span class="classifier">2D numpy array</span></dt><dd><p>Array to contour</p>
 </dd>
-<dt><strong>crs</strong><span class="classifier">obj</span></dt><dd><p>A Python int, dict, str, or <a class="reference external" href="https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS" title="(in pyproj v3.5.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyproj.crs.CRS</span></code></a> instance
-passed to the <a class="reference external" href="https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS.from_user_input" title="(in pyproj v3.5.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pyproj.crs.CRS.from_user_input()</span></code></a>
+<dt><strong>crs</strong><span class="classifier">obj</span></dt><dd><p>A Python int, dict, str, or <a class="reference external" href="https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS" title="(in pyproj v3.6.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyproj.crs.CRS</span></code></a> instance
+passed to the <a class="reference external" href="https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS.from_user_input" title="(in pyproj v3.6.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pyproj.crs.CRS.from_user_input()</span></code></a>
 See <a class="reference external" href="http://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS.from_user_input">http://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS.from_user_input</a>.
 Can be any of:</p>
 <blockquote>
@@ -311,7 +288,7 @@ Can be any of:</p>
 <li><p>An EPSG integer code [i.e. 4326]</p></li>
 <li><p>A tuple of (“auth_name”: “auth_code”) [i.e (‘epsg’, ‘4326’)]</p></li>
 <li><p>An object with a <cite>to_wkt</cite> method.</p></li>
-<li><p>A <a class="reference external" href="https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS" title="(in pyproj v3.5.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyproj.crs.CRS</span></code></a> class</p></li>
+<li><p>A <a class="reference external" href="https://pyproj4.github.io/pyproj/stable/api/crs/crs.html#pyproj.crs.CRS" title="(in pyproj v3.6.0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyproj.crs.CRS</span></code></a> class</p></li>
 </ul>
 </div></blockquote>
 </dd>
@@ -539,7 +516,7 @@ time : total time in model units</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="mfexport.grid.MFexportGrid">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">mfexport.grid.</span></span><span class="sig-name descname"><span class="pre">MFexportGrid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">delc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">botm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idomain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">laycbd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lenuni</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proj_str</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wkt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yul</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angrot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/mfexport/grid.html#MFexportGrid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mfexport.grid.MFexportGrid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://flopy.readthedocs.io/en/latest/source/flopy.discretization.structuredgrid.html#flopy.discretization.structuredgrid.StructuredGrid" title="(in FloPy Documentation v3.3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">StructuredGrid</span></code></a></p>
+<dd><p>Bases: <a class="reference external" href="https://flopy.readthedocs.io/en/latest/source/flopy.discretization.structuredgrid.html#flopy.discretization.structuredgrid.StructuredGrid" title="(in FloPy Documentation v3.5.0.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">StructuredGrid</span></code></a></p>
 <dl class="py property">
 <dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.bbox">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bbox</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.bbox" title="Permalink to this definition">¶</a></dt>
@@ -565,11 +542,6 @@ for the model grid.</p>
 <dd><p>Pandas DataFrame of grid cell polygons
 with i, j locations.</p>
 </dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.epsg">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">epsg</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.epsg" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.get_dataframe">
@@ -618,11 +590,6 @@ with a shapely polygon representation of each model cell.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.proj_str">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">proj_str</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.proj_str" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py property">
 <dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.rotation">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rotation</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.rotation" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -643,11 +610,6 @@ with a shapely polygon representation of each model cell.</p>
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">vertices</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.vertices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Vertices for grid cell polygons.</p>
 </dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.wkt">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">wkt</span></span><a class="headerlink" href="#mfexport.grid.MFexportGrid.wkt" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="mfexport.grid.MFexportGrid.write_bbox_shapefile">
@@ -847,7 +809,7 @@ by default None (plot all dates)</p>
 <dt><strong>plot_pcts</strong><span class="classifier">bool</span></dt><dd><p>Option to include the percentage of each flux.
 by default, False</p>
 </dd>
-<dt><strong>annual_sums</strong><span class="classifier">bool</span></dt><dd><p>Option to summarize budget by year (e.g. using <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.groupby.html#pandas.DataFrame.groupby" title="(in pandas v2.0.0)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pandas.DataFrame.groupby()</span></code></a>).
+<dt><strong>annual_sums</strong><span class="classifier">bool</span></dt><dd><p>Option to summarize budget by year (e.g. using <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.groupby.html#pandas.DataFrame.groupby" title="(in pandas v2.0.3)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">pandas.DataFrame.groupby()</span></code></a>).
 Requires that <code class="docutils literal notranslate"><span class="pre">df</span></code> have a valid datetime index.
 by default, False</p>
 </dd>

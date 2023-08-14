@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mfexport.budget_output &mdash; modflow-export 0.2.0.post1+g79c044b documentation</title>
+  <title>mfexport.budget_output &mdash; modflow-export 0.2.0.post3+g6a71367 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
@@ -31,14 +31,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> modflow-export
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            modflow-export
           </a>
               <div class="version">
-                0.2.0.post1+g79c044b
+                0.2.0.post3+g6a71367
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -73,7 +77,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
       <li class="breadcrumb-item active">mfexport.budget_output</li>
       <li class="wy-breadcrumbs-aside">
@@ -99,7 +103,7 @@
 
 
 <div class="viewcode-block" id="aggregate_sfr_flow_ja_face"><a class="viewcode-back" href="../../api/index.html#mfexport.budget_output.aggregate_sfr_flow_ja_face">[docs]</a><span class="k">def</span> <span class="nf">aggregate_sfr_flow_ja_face</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;SFR streamflow in/out components are saved in MODFLOW 6</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;SFR streamflow in/out components are saved in MODFLOW 6</span>
 <span class="sd">    as FLOW-JA-FACE, where all inflows (positive values) and outflows</span>
 <span class="sd">    (negative values) are listed for each stream reach (node). This</span>
 <span class="sd">    method aggregates those results and returns a dataframe</span>
@@ -182,7 +186,7 @@
 <div class="viewcode-block" id="aggregate_mf6_stress_budget"><a class="viewcode-back" href="../../api/index.html#mfexport.budget_output.aggregate_mf6_stress_budget">[docs]</a><span class="k">def</span> <span class="nf">aggregate_mf6_stress_budget</span><span class="p">(</span><span class="n">mf6_stress_budget_output</span><span class="p">,</span>
                                 <span class="n">text</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                 <span class="n">kstpkper</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Read MODFLOW 6 budget output for a stress package into</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read MODFLOW 6 budget output for a stress package into</span>
 <span class="sd">    a DataFrame of one node/stress period per row, with fluxes</span>
 <span class="sd">    listed by column.</span>
 
@@ -268,7 +272,7 @@
 
 <div class="viewcode-block" id="get_flowja_face"><a class="viewcode-back" href="../../api/index.html#mfexport.budget_output.get_flowja_face">[docs]</a><span class="k">def</span> <span class="nf">get_flowja_face</span><span class="p">(</span><span class="n">cell_budget_file</span><span class="p">,</span> <span class="n">binary_grid_file</span><span class="p">,</span> <span class="n">kstpkper</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                     <span class="n">precision</span><span class="o">=</span><span class="s1">&#39;double&#39;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get FLOW-JA-FACE (cell by cell flows) from MODFLOW 6 budget</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get FLOW-JA-FACE (cell by cell flows) from MODFLOW 6 budget</span>
 <span class="sd">    output and binary grid file.</span>
 <span class="sd">    TODO: need test for extracted flowja fluxes</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -325,7 +329,7 @@
 
 
 <div class="viewcode-block" id="get_bc_flux"><a class="viewcode-back" href="../../api/index.html#mfexport.budget_output.get_bc_flux">[docs]</a><span class="k">def</span> <span class="nf">get_bc_flux</span><span class="p">(</span><span class="n">cbbobj</span><span class="p">,</span> <span class="n">txt</span><span class="p">,</span> <span class="n">kstpkper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Read a flow component from MODFLOW binary cell budget output;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read a flow component from MODFLOW binary cell budget output;</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -368,7 +372,7 @@
 
 
 <div class="viewcode-block" id="get_stress_budget_textlist"><a class="viewcode-back" href="../../api/index.html#mfexport.budget_output.get_stress_budget_textlist">[docs]</a><span class="k">def</span> <span class="nf">get_stress_budget_textlist</span><span class="p">(</span><span class="n">mf6_stress_budget_output</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get list of available variable names in a binary budget output file.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get list of available variable names in a binary budget output file.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">cbobj</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">CellBudgetFile</span><span class="p">(</span><span class="n">mf6_stress_budget_output</span><span class="p">,</span>
                               <span class="n">precision</span><span class="o">=</span><span class="s1">&#39;double&#39;</span>
@@ -380,7 +384,7 @@
 <div class="viewcode-block" id="read_mf6_dependent_variable_output"><a class="viewcode-back" href="../../api/index.html#mfexport.budget_output.read_mf6_dependent_variable_output">[docs]</a><span class="k">def</span> <span class="nf">read_mf6_dependent_variable_output</span><span class="p">(</span><span class="n">mf6_dependent_variable_output</span><span class="p">,</span>
                                        <span class="n">text</span><span class="o">=</span><span class="s1">&#39;head&#39;</span><span class="p">,</span>
                                        <span class="n">kstpkper</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hdry</span><span class="o">=-</span><span class="mf">1e30</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Reads dependent variable output; for example, heads from the</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reads dependent variable output; for example, heads from the</span>
 <span class="sd">    groundwater flow solution or output from STAGE FILEOUT in the options</span>
 <span class="sd">    block of the .sfr6 file). Returns a DataFrame of output values.</span>
 
@@ -444,7 +448,7 @@
 <div class="viewcode-block" id="read_mf6_stress_budget_output"><a class="viewcode-back" href="../../api/index.html#mfexport.budget_output.read_mf6_stress_budget_output">[docs]</a><span class="k">def</span> <span class="nf">read_mf6_stress_budget_output</span><span class="p">(</span><span class="n">mf6_stress_budget_output</span><span class="p">,</span>
                                   <span class="n">text</span><span class="o">=</span><span class="s1">&#39;FLOW-JA-FACE&#39;</span><span class="p">,</span>
                                   <span class="n">kstpkper</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Reads budget output from any package that follows the imeth=6</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reads budget output from any package that follows the imeth=6</span>
 <span class="sd">    structure (e.g. LAK, MAW, SFR, and UZF package(s); for example,</span>
 <span class="sd">    output from BUDGET FILEOUT in the options block of the .sfr6 file).</span>
 
@@ -503,7 +507,7 @@
                     <span class="n">mf6_sfr_budget_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">mf6_package_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                     <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">grid_type</span><span class="o">=</span><span class="s1">&#39;structured&#39;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Read MF-2005 or MF-6 style SFR output; return as DataFrame.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read MF-2005 or MF-6 style SFR output; return as DataFrame.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">model_version</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">packagedata</span> <span class="o">=</span> <span class="kc">None</span>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mfexport.units &mdash; modflow-export 0.2.0.post1+g79c044b documentation</title>
+  <title>mfexport.units &mdash; modflow-export 0.2.0.post3+g6a71367 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
@@ -31,14 +31,18 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> modflow-export
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            modflow-export
           </a>
               <div class="version">
-                0.2.0.post1+g79c044b
+                0.2.0.post3+g6a71367
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -73,7 +77,7 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a></li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
       <li class="breadcrumb-item active">mfexport.units</li>
       <li class="wy-breadcrumbs-aside">
@@ -175,7 +179,7 @@
 
 
 <div class="viewcode-block" id="get_time_units"><a class="viewcode-back" href="../../api/index.html#mfexport.units.get_time_units">[docs]</a><span class="k">def</span> <span class="nf">get_time_units</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Return time units for model as text.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return time units for model as text.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">version</span> <span class="o">==</span> <span class="s1">&#39;mf6&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">simulation</span><span class="o">.</span><span class="n">tdis</span><span class="o">.</span><span class="n">time_units</span><span class="o">.</span><span class="n">array</span>
     <span class="k">else</span><span class="p">:</span>
@@ -183,7 +187,7 @@
 
 
 <div class="viewcode-block" id="get_length_units"><a class="viewcode-back" href="../../api/index.html#mfexport.units.get_length_units">[docs]</a><span class="k">def</span> <span class="nf">get_length_units</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Return length units for model as text.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return length units for model as text.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">version</span> <span class="o">==</span> <span class="s1">&#39;mf6&#39;</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">dis</span><span class="o">.</span><span class="n">length_units</span><span class="o">.</span><span class="n">array</span>
     <span class="k">else</span><span class="p">:</span>
@@ -191,7 +195,7 @@
 
 
 <div class="viewcode-block" id="convert_length_units"><a class="viewcode-back" href="../../api/index.html#mfexport.units.convert_length_units">[docs]</a><span class="k">def</span> <span class="nf">convert_length_units</span><span class="p">(</span><span class="n">lenuni1</span><span class="p">,</span> <span class="n">lenuni2</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Convert length units, takes MODFLOW-2005 style lenuni numbers</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert length units, takes MODFLOW-2005 style lenuni numbers</span>
 <span class="sd">    or MF-6 style text.</span>
 
 <span class="sd">    Parameters</span>
@@ -219,7 +223,7 @@
 
 
 <div class="viewcode-block" id="convert_time_units"><a class="viewcode-back" href="../../api/index.html#mfexport.units.convert_time_units">[docs]</a><span class="k">def</span> <span class="nf">convert_time_units</span><span class="p">(</span><span class="n">itmuni1</span><span class="p">,</span> <span class="n">itmuni2</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Convert time units, takes MODFLOW-2005 style itmuni numbers</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert time units, takes MODFLOW-2005 style itmuni numbers</span>
 <span class="sd">    or MF-6 style text.</span>
 
 <span class="sd">    Parameters</span>
@@ -322,7 +326,7 @@
 
 
 <div class="viewcode-block" id="get_unit_text"><a class="viewcode-back" href="../../api/index.html#mfexport.units.get_unit_text">[docs]</a><span class="k">def</span> <span class="nf">get_unit_text</span><span class="p">(</span><span class="n">length_unit</span><span class="p">,</span> <span class="n">time_unit</span><span class="p">,</span> <span class="n">length_unit_exp</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get text abbreviation for common units.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get text abbreviation for common units.</span>
 <span class="sd">    Needs to be filled out more.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">length_unit</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">length_unit</span> <span class="o">=</span> <span class="n">lenuni_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">length_unit</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
@@ -409,7 +413,7 @@
 
 
 <div class="viewcode-block" id="get_figure_label_unit_text"><a class="viewcode-back" href="../../api/index.html#mfexport.units.get_figure_label_unit_text">[docs]</a><span class="k">def</span> <span class="nf">get_figure_label_unit_text</span><span class="p">(</span><span class="n">length_unit</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">length_unit_exp</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get text abbreviation for common units.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get text abbreviation for common units.</span>
 <span class="sd">    Needs to be filled out more.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">length_unit</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">length_unit</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">lenuni_values</span><span class="p">:</span>
@@ -425,11 +429,11 @@
         <span class="n">time_unit</span> <span class="o">=</span> <span class="n">itmuni_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">time_unit</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unrecognized time unit: </span><span class="si">{</span><span class="n">time_unit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;$</span><span class="si">{</span><span class="n">unit_abbreviated_text</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">length_unit</span><span class="p">,</span> <span class="s1">&#39;L&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;$</span><span class="si">{</span><span class="n">unit_abbreviated_text</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">length_unit</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;L&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="k">if</span> <span class="n">length_unit_exp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;^</span><span class="si">{</span><span class="n">length_unit_exp</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="k">if</span> <span class="n">time_unit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;/</span><span class="si">{</span><span class="n">itmuni_abbreviated_text</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">time_unit</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">$&quot;</span>
+        <span class="n">text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;/</span><span class="si">{</span><span class="n">itmuni_abbreviated_text</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">time_unit</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;T&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">$&quot;</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">text</span> <span class="o">+=</span> <span class="s1">&#39;$&#39;</span>
     <span class="k">return</span> <span class="n">text</span></div>
