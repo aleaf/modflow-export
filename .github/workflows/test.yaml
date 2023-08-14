@@ -34,7 +34,7 @@ jobs:
     - name: Setup Micromamba
       uses: mamba-org/setup-micromamba@v1
       with:
-        environment-file: ci/ci/requirements.yaml
+        environment-file: ci/requirements.yaml
         cache-environment: true
         cache-downloads: true
         create-args: >-
