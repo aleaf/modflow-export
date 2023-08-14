@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
+from pandas.api.types import is_numeric_dtype
 import fiona
 import rasterio
 from shapely.geometry import box
@@ -150,8 +151,8 @@ def test_transient_list_export(model):
     if 'cellid' in df.columns:
         df['cellid'] = df['cellid'].astype(str)
     df2 = shp2df(outfiles[0]).drop('geometry', axis=1)
-    assert np.allclose(df.drop('cellid', axis=1),
-                       df2.drop('cellid', axis=1))
+    numeric_cols = [c for c in df.columns if is_numeric_dtype(df[c].dtype)]
+    assert np.allclose(df[numeric_cols], df2[numeric_cols])
 
 
 def test_export_sfr(model):

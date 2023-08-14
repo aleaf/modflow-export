@@ -25,7 +25,7 @@ def export_shapefile(filename, data, modelgrid, kper=None,
     if epsg is None:
         epsg = modelgrid.epsg
     if proj_str is None:
-        proj_str = modelgrid.proj_str
+        proj_str = modelgrid.proj4
 
     if 'cellid' in df.columns and isinstance(df['cellid'].values[0], tuple):
         k, i, j = list(zip(*df['cellid']))
@@ -56,9 +56,10 @@ def export_shapefile(filename, data, modelgrid, kper=None,
     if epsg is None:
         epsg = modelgrid.epsg
     if proj_str is None:
-        proj_str = modelgrid.proj_str
+        proj_str = modelgrid.proj4
     if prj is None:
         prj = modelgrid.prj
-    df2shp(df, filename, epsg=epsg, proj_str=proj_str, prj=prj)
+    crs = modelgrid.crs
+    df2shp(df, filename, epsg=epsg, crs=crs, prj=prj)
     if verbose:
         print("shapefile export took {:.2f}s".format(time.time() - t0))

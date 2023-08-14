@@ -41,7 +41,7 @@ def mftransientlist_to_dataframe(mftransientlist, squeeze=True):
         if hasattr(data.data.get(per), 'dtype'):
             varnames = list([n for n in data.data[per].dtype.names
                              if n not in ['k', 'i', 'j', 'cellid',
-                                          'rno', 'sfrsetting']])
+                                          'rno', 'sfrsetting', 'boundname']])
             break
 
     # create list of dataframes for each stress period
@@ -117,17 +117,23 @@ def mftransientlist_to_dataframe(mftransientlist, squeeze=True):
         squeezed = pd.concat(keep, axis=1)
         squeezed.index = df.index.tolist()
         # join the squeezed data back to other columns
-        other_cols = []
+        other_cols = set()
         for c in df.columns:
             name = ''.join((char for char in c if not char.isdigit()))
             if name not in varnames:
-                other_cols.append(name)
+                other_cols.add(name)
 
         if len(other_cols) > 0:
-            try:
-                df = df[other_cols].join(squeezed)
-            except:
-                j=2
+            # compress multiple instances of 'boundname'
+            # or other auxillary columns to single columns
+            other_cols_dict = {}
+            for col in other_cols:
+                other_cols_dict[col] = df[col].fillna(method='bfill', axis=1).iloc[:, 0]
+            other_cols_df = pd.DataFrame(other_cols_dict)
+            #try:
+            df = other_cols_df.join(squeezed)
+            #except:
+            #    j=2
         else:
             df = squeezed
     # add columns for k, i, j

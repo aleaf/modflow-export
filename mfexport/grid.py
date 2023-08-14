@@ -152,17 +152,17 @@ class MFexportGrid(StructuredGrid):
         crs = get_crs(crs=crs)
         self._crs = crs
 
-    @property
-    def epsg(self):
-        return self.crs.to_epsg()
-
-    @property
-    def proj_str(self):
-        return self.crs.to_proj4()
-
-    @property
-    def wkt(self):
-        return self.crs.to_wkt(pretty=True)
+    #@property
+    #def epsg(self):
+    #    return self.crs.to_epsg()
+#
+    #@property
+    #def proj_str(self):
+    #    return self.crs.to_proj4()
+#
+    #@property
+    #def wkt(self):
+    #    return self.crs.to_wkt(pretty=True)
 
     @property
     def length_units(self):

@@ -54,6 +54,7 @@ def export_cell_budget(cell_budget_file, grid,
     for kstp, kper in kstpkper:
         print('stress period {}, timestep {}'.format(kper, kstp))
         for variable in names:
+            data = None
             if variable == 'FLOW-JA-FACE':
                 df = get_flowja_face(cbbobj, binary_grid_file=binary_grid_file,
                                        kstpkper=(kstp, kper), idx=idx,
@@ -72,6 +73,7 @@ def export_cell_budget(cell_budget_file, grid,
                     data = vflux_array
             else:
                 data = get_bc_flux(cbbobj, variable, kstpkper=(kstp, kper), idx=idx)
+            # for example, 1-layer models don't have vertical fluxes
             if data is None:
                 print('{} not exported.'.format(variable))
                 continue
@@ -207,6 +209,14 @@ def export_heads(heads_file, grid, hdry, hnflo,
             export_array(outfile, wt, grid, nodata=hnflo)
             export_array_contours(ctr_outfile, wt, grid, levels=levels, interval=interval)
             outfiles += [outfile, ctr_outfile]
+            # if the grid has cell bottom information
+            # make an array of 1-based layers containing the water table 
+            # at each i, j location
+            if grid.botm is not None:
+                wt_layer = np.argmax((wt > grid.botm), axis=0)
+                wt_layer_outfile = f'{rasters_dir}/wt_per{kper}_stp{kstp}{suffix}.tif'
+                export_array(wt_layer_outfile, wt_layer, grid)
+                outfiles.append(wt_layer_outfile)
             
         if export_depth_to_water:
             if land_surface_elevations is None:
@@ -318,6 +328,20 @@ def export_sfr_results(mf2005_sfr_outputfile=None,
         df['Qaquifer'] = -df.GWF # for consistency with MF2005
     if 'Qmean' not in df.columns:
         df['Qmean'] = df[['Qin', 'Qout']].abs().mean(axis=1)
+    # fill nan streamflow values from EXT-OUTFLOW totals
+    # (nan values can cause issues with plotting; as of 8/8/2023
+    # and MODFLOW 6 version 6.3.0, these appear to be associated with
+    # headwater reaches that are also outlets 
+    # (no Qin or Qout to another reach, just EXT-OUTFLOW; the nans
+    # are introduced when the FLOW-JA-FACE results, 
+    # which don't include these reaches, are joined to the 
+    # full list of SFR reaches)
+    if mf6_sfr_budget_file is not None:
+        na_streamflow = df['Qmean'].isna()
+        df.loc[na_streamflow, 'Qin'] = 0
+        df.loc[na_streamflow, 'Qout'] = df.loc[na_streamflow, 'EXT-OUTFLOW']
+        df.loc[na_streamflow, 'Qnet'] = df.loc[na_streamflow, 'EXT-OUTFLOW']
+        df.loc[na_streamflow, 'Qmean'] = df.loc[na_streamflow, ['Qin', 'Qout']].abs().mean(axis=1)
 
     # write columns in the output units
     df['Qmean_{}'.format(unit_text)] = df.Qmean * lmult**3/tmult

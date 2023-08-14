@@ -1,7 +1,6 @@
 name: mfexport
 channels:
 - conda-forge
-- defaults
 dependencies:
 - python
 - pyyaml
@@ -12,7 +11,7 @@ dependencies:
 - fiona
 - rasterio
 - shapely
-- pyproj>=2.0
+- pyproj
 - pip
 - pip:
   - git+https://github.com/modflowpy/flopy@develop

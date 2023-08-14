@@ -24,7 +24,8 @@ def test_transient_list_to_dataframe(model):
     m, grid, output_path = model
     period_sums = get_period_sums(m.wel.stress_period_data)
     df = mftransientlist_to_dataframe(m.wel.stress_period_data)
-    df.drop(['cellid', 'k', 'i', 'j'], axis=1, inplace=True)
+    df.drop(['cellid', 'k', 'i', 'j', 'boundname'], axis=1, 
+            inplace=True, errors='ignore')
 
     def get_per(column_name):
         return int(''.join(filter(lambda x: x.isdigit(), column_name)))
