@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mfexport.shapefile_export &mdash; modflow-export 0.2.0.post4+gaf0296e documentation</title>
+  <title>mfexport.shapefile_export &mdash; modflow-export 0.2.0.post6+g812f820 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
@@ -38,7 +38,7 @@
             modflow-export
           </a>
               <div class="version">
-                0.2.0.post4+gaf0296e
+                0.2.0.post6+g812f820
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -130,9 +130,9 @@
 
     <span class="k">if</span> <span class="n">kper</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">per</span> <span class="o">==</span> <span class="n">kper</span><span class="p">]</span>
-        <span class="n">verts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">modelgrid</span><span class="o">.</span><span class="n">get_cell_vertices</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">))</span>
+        <span class="n">verts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">modelgrid</span><span class="o">.</span><span class="n">_cell_vert_list</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">))</span>
     <span class="k">elif</span> <span class="n">df</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">verts</span> <span class="o">=</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">get_vertices</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
+        <span class="n">verts</span> <span class="o">=</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">_cell_vert_list</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">)</span>
     <span class="c1"># use cell geometries from the model grid</span>
     <span class="k">if</span> <span class="s1">&#39;geometry&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">polys</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">Polygon</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">verts</span><span class="p">])</span>
