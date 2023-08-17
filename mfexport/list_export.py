@@ -128,7 +128,7 @@ def mftransientlist_to_dataframe(mftransientlist, squeeze=True):
             # or other auxillary columns to single columns
             other_cols_dict = {}
             for col in other_cols:
-                other_cols_dict[col] = df[col].fillna(method='bfill', axis=1).iloc[:, 0]
+                other_cols_dict[col] = pd.DataFrame(df[col]).fillna(method='bfill', axis=1).iloc[:, 0]
             other_cols_df = pd.DataFrame(other_cols_dict)
             #try:
             df = other_cols_df.join(squeezed)
