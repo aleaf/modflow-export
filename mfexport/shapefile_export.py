@@ -39,9 +39,9 @@ def export_shapefile(filename, data, modelgrid, kper=None,
 
     if kper is not None:
         df = df.loc[df.per == kper]
-        verts = np.array(modelgrid.get_cell_vertices(i, j))
+        verts = np.array(modelgrid._cell_vert_list(i, j))
     elif df is not None:
-        verts = modelgrid.get_vertices(i, j)
+        verts = modelgrid._cell_vert_list(i, j)
     # use cell geometries from the model grid
     if 'geometry' not in df.columns:
         polys = np.array([Polygon(v) for v in verts])
