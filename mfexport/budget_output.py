@@ -253,31 +253,34 @@ def get_bc_flux(cbbobj, txt, kstpkper=None, idx=None):
     arr : ndarray
     """
     nrow, ncol, nlay = cbbobj.nrow, cbbobj.ncol, cbbobj.nlay
-    results = cbbobj.get_data(text=txt, kstpkper=kstpkper, idx=idx)
+    results_list = cbbobj.get_data(text=txt, kstpkper=kstpkper, idx=idx)
     # this logic needs some cleanup
-    if len(results) > 0:
-        results = results[0]
-    else:
+    #if len(results) > 0:
+    #    results = results[0]
+    if len(results_list) == 0:
         print('no data found at {} for {}'.format(kstpkper, txt))
         return
-    if isinstance(results, list) and txt == 'RECHARGE':
-        results = results[1]
-    if results.size == 0:
-        print('no data found at {} for {}'.format(kstpkper, txt))
-        return
-    if results.shape == (nlay, nrow, ncol):
-        return results
-    elif results.shape == (1, nrow, ncol):
-        return results[0]
-    elif results.shape == (nrow, ncol):
-        return results
-    elif len(results.shape) == 1 and \
-            len({'node', 'q'}.difference(set(results.dtype.names))) == 0:
-        arr = np.zeros(nlay * nrow * ncol, dtype=float)
-        arr[results.node - 1] = results.q
-        arr = np.reshape(arr, (nlay, nrow, ncol))
-        arr = arr.sum(axis=0)
-        return arr
+    all_results = []
+    for i, results in enumerate(results_list):
+        if isinstance(results, list) and txt == 'RECHARGE':
+            results = results[1]
+        if results.size == 0:
+            print(f'no data found at {kstpkper} for {txt}, layer {i}')
+            continue
+        #if results.shape == (nlay, nrow, ncol):
+        #    return results
+        #if results.shape == (1, nrow, ncol):
+        #    results = results[0]
+        #elif results.shape == (nrow, ncol):
+        #    return results
+        if len(results.shape) == 1 and \
+                len({'node', 'q'}.difference(set(results.dtype.names))) == 0:
+            arr = np.zeros(nlay * nrow * ncol, dtype=float)
+            arr[results.node - 1] = results.q
+            arr = np.reshape(arr, (nlay, nrow, ncol))
+            results = arr.sum(axis=0)
+        all_results.append(np.squeeze(results))
+    return np.squeeze(all_results)
 
 
 def get_stress_budget_textlist(mf6_stress_budget_output):
