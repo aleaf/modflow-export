@@ -44,6 +44,10 @@ def export_cell_budget(cell_budget_file, grid,
     if text is not None and not isinstance(text, list):
         text = [text]
 
+    # Use the exact record name byte string, 
+    # otherwise records for multiple packages (e.g. RCHA and RCH)
+    # can apparently be confused
+    unique_records = cbbobj.get_unique_record_names()
     names = [r.decode().strip() for r in cbbobj.get_unique_record_names()]
     if text is not None:
         names = list(set(text).intersection(names))
@@ -53,7 +57,7 @@ def export_cell_budget(cell_budget_file, grid,
     outfiles = []
     for kstp, kper in kstpkper:
         print('stress period {}, timestep {}'.format(kper, kstp))
-        for variable in names:
+        for i, variable in enumerate(names):
             data = None
             if variable == 'FLOW-JA-FACE':
                 df = get_flowja_face(cbbobj, binary_grid_file=binary_grid_file,
@@ -72,7 +76,7 @@ def export_cell_budget(cell_budget_file, grid,
                                 vflux['jn'].values] = vflux.q.values
                     data = vflux_array
             else:
-                data = get_bc_flux(cbbobj, variable, kstpkper=(kstp, kper), idx=idx)
+                data = get_bc_flux(cbbobj, unique_records[i], kstpkper=(kstp, kper), idx=idx)
             # for example, 1-layer models don't have vertical fluxes
             if data is None:
                 print('{} not exported.'.format(variable))
@@ -214,7 +218,7 @@ def export_heads(heads_file, grid, hdry, hnflo,
             # at each i, j location
             if grid.botm is not None:
                 wt_layer = np.argmax((wt > grid.botm), axis=0)
-                wt_layer_outfile = f'{rasters_dir}/wt_per{kper}_stp{kstp}{suffix}.tif'
+                wt_layer_outfile = f'{rasters_dir}/wt-layers_per{kper}_stp{kstp}{suffix}.tif'
                 export_array(wt_layer_outfile, wt_layer, grid)
                 outfiles.append(wt_layer_outfile)
             
