@@ -508,7 +508,8 @@ def read_sfr_output(mf2005_sfr_outputfile=None,
             assert rd.rno.min() == 0
             assert df.node.min() == 0
                 
-            rno_strtop = dict(zip(rd.rno, rd.rtp))
+            strtop_col = {'rtp', 'strtop'}.intersection(rd.columns).pop()
+            rno_strtop = dict(zip(rd.rno, rd[strtop_col]))
             df['strtop'] = pd.to_numeric([rno_strtop[rno] for rno in df.node.values], errors='coerce')
             # fill nan stages with their streambed tops
             isna = df['stage'].isna()
