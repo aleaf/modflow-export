@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Modules &mdash; modflow-export 0.2.0.post11+g6c2287f documentation</title>
+  <title>Modules &mdash; modflow-export 0.2.0.post13+g7e372b0 documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
@@ -41,7 +41,7 @@
             modflow-export
           </a>
               <div class="version">
-                0.2.0.post11+g6c2287f
+                0.2.0.post13+g7e372b0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -229,14 +229,14 @@ reference.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><dl class="simple">
-<dt><strong>modelgrid</strong><span class="classifier">MFsetupGrid instance</span></dt><dd></dd>
+<dt><strong>modelgrid</strong><span class="classifier">Flopy StructuredGrid instance</span></dt><dd></dd>
 <dt><strong>filename</strong><span class="classifier">str</span></dt><dd><p>Path of output file. Export format is determined by
 file extention.
 ‘.asc’  Arc Ascii grid
 ‘.tif’  GeoTIFF (requries rasterio package)
 ‘.shp’  Shapefile</p>
 </dd>
-<dt><strong>a</strong><span class="classifier">2D numpy.ndarray</span></dt><dd><p>Array to export</p>
+<dt><strong>a</strong><span class="classifier">2D or 3D numpy.ndarray</span></dt><dd><p>Array to export</p>
 </dd>
 <dt><strong>nodata</strong><span class="classifier">scalar</span></dt><dd><p>Value to assign to np.nan entries (default -9999)</p>
 </dd>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mfexport.array_export &mdash; modflow-export 0.2.0.post11+g6c2287f documentation</title>
+  <title>mfexport.array_export &mdash; modflow-export 0.2.0.post13+g7e372b0 documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
@@ -38,7 +38,7 @@
             modflow-export
           </a>
               <div class="version">
-                0.2.0.post11+g6c2287f
+                0.2.0.post13+g7e372b0
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -95,6 +95,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">rasterio</span>
+<span class="kn">from</span> <span class="nn">rasterio</span> <span class="kn">import</span> <span class="n">Affine</span>
 <span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">LineString</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">gisutils</span> <span class="kn">import</span> <span class="n">df2shp</span>
@@ -109,14 +110,14 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    modelgrid : MFsetupGrid instance</span>
+<span class="sd">    modelgrid : Flopy StructuredGrid instance</span>
 <span class="sd">    filename : str</span>
 <span class="sd">        Path of output file. Export format is determined by</span>
 <span class="sd">        file extention.</span>
 <span class="sd">        &#39;.asc&#39;  Arc Ascii grid</span>
 <span class="sd">        &#39;.tif&#39;  GeoTIFF (requries rasterio package)</span>
 <span class="sd">        &#39;.shp&#39;  Shapefile</span>
-<span class="sd">    a : 2D numpy.ndarray</span>
+<span class="sd">    a : 2D or 3D numpy.ndarray</span>
 <span class="sd">        Array to export</span>
 <span class="sd">    nodata : scalar</span>
 <span class="sd">        Value to assign to np.nan entries (default -9999)</span>
@@ -149,7 +150,12 @@
                 <span class="ow">or</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">delr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">delc</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;GeoTIFF export require a uniform grid.&#39;</span><span class="p">)</span>
 
-        <span class="n">trans</span> <span class="o">=</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">transform</span>
+        <span class="n">x0</span> <span class="o">=</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">xyedges</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">y0</span> <span class="o">=</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">xyedges</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">xul</span><span class="p">,</span> <span class="n">yul</span> <span class="o">=</span> <span class="n">modelgrid</span><span class="o">.</span><span class="n">get_coords</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">y0</span><span class="p">)</span>
+        <span class="n">trans</span> <span class="o">=</span> <span class="n">Affine</span><span class="p">(</span><span class="n">modelgrid</span><span class="o">.</span><span class="n">delr</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">xul</span><span class="p">,</span>
+                  <span class="mf">0.</span><span class="p">,</span> <span class="o">-</span><span class="n">modelgrid</span><span class="o">.</span><span class="n">delc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">yul</span><span class="p">)</span> <span class="o">*</span> \
+                      <span class="n">Affine</span><span class="o">.</span><span class="n">rotation</span><span class="p">(</span><span class="o">-</span><span class="n">modelgrid</span><span class="o">.</span><span class="n">angrot</span><span class="p">)</span>
 
         <span class="c1"># third dimension is the number of bands</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
