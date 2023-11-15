@@ -163,13 +163,14 @@ def aggregate_mf6_stress_budget(mf6_stress_budget_output,
     assert not np.any(df.kstpkper.isna().values)
     #assert not np.any(df.rno.isna().values)  # nan rnos can be unconnected reaches
     
-    #df.dropna(axis=0, subset=['rno'], inplace=True)
-    if 'rno' in df.columns:
+    rno_col = {'rno', 'ifno'}.intersection(df.columns)
+    if rno_col:
+        rno_col = rno_col.pop()
         #assert np.array_equal(df.node.values, df.rno.values)
-        assert np.array_equal(df.dropna(axis=0, subset=['rno']).node.values,
-                              df.dropna(axis=0, subset=['rno']).rno.values)
+        assert np.array_equal(df.dropna(axis=0, subset=['rno'])['node'].values,
+                              df.dropna(axis=0, subset=['rno'])[rno_col].values)
 
-        df.drop('rno', axis=1, inplace=True)
+        df.drop(rno_col, axis=1, inplace=True)
     # convert to zero-based
     # (rnos in flopy package input are zero-based)
     if df['node'].min() == 1:
@@ -264,7 +265,7 @@ def get_bc_flux(cbbobj, txt, kstpkper=None, idx=None):
     for i, results in enumerate(results_list):
         if isinstance(results, list) and txt == 'RECHARGE':
             results = results[1]
-        if results.size == 0:
+        if len(results) == 0:
             print(f'no data found at {kstpkper} for {txt}, layer {i}')
             continue
         #if results.shape == (nlay, nrow, ncol):
@@ -273,7 +274,7 @@ def get_bc_flux(cbbobj, txt, kstpkper=None, idx=None):
         #    results = results[0]
         #elif results.shape == (nrow, ncol):
         #    return results
-        if len(results.shape) == 1 and \
+        if np.ndim(results) == 1 and \
                 len({'node', 'q'}.difference(set(results.dtype.names))) == 0:
             arr = np.zeros(nlay * nrow * ncol, dtype=float)
             arr[results.node - 1] = results.q
@@ -460,7 +461,7 @@ def read_sfr_output(mf2005_sfr_outputfile=None,
                 raw_pd = raw_pd.lower().replace('none', '0 0 0')
             packagedata = pd.read_csv(io.StringIO(raw_pd), names=names, 
                                       skiprows=skiprows, delim_whitespace=True)
-            for col in ['rno', 'k', 'i', 'j']:
+            for col in ['rno', 'ifno', 'k', 'i', 'j']:
                 if col in packagedata:
                     packagedata[col] -= 1
             if 'cellid' in packagedata.columns:
@@ -502,14 +503,15 @@ def read_sfr_output(mf2005_sfr_outputfile=None,
         # compute stream depths
         if packagedata is not None:
             rd = packagedata
+            rno_col = {'rno', 'ifno'}.intersection(rd.columns).pop()
             # convert reach number to zero-based
-            if rd.rno.min() == 1:     
-                rd['rno'] -= 1
-            assert rd.rno.min() == 0
+            if rd[rno_col].min() == 1:     
+                rd[rno_col] -= 1
+            assert rd[rno_col].min() == 0
             assert df.node.min() == 0
                 
             strtop_col = {'rtp', 'strtop'}.intersection(rd.columns).pop()
-            rno_strtop = dict(zip(rd.rno, rd[strtop_col]))
+            rno_strtop = dict(zip(rd[rno_col], rd[strtop_col]))
             df['strtop'] = pd.to_numeric([rno_strtop[rno] for rno in df.node.values], errors='coerce')
             # fill nan stages with their streambed tops
             isna = df['stage'].isna()
@@ -519,7 +521,7 @@ def read_sfr_output(mf2005_sfr_outputfile=None,
             if 'cellid' not in rd.columns:
                 rd['cellid'] = list(zip(rd['k'], rd['i'], rd['j']))
                 
-            rno_cellid = dict(zip(rd.rno, rd.cellid))
+            rno_cellid = dict(zip(rd[rno_col], rd.cellid))
             for i, dim in enumerate(['k', 'i', 'j']):
                 df[dim] = pd.to_numeric([rno_cellid[rno][i] for rno in df.node.values], errors='coerce')
             df.dropna(subset=['k', 'i', 'j'], axis=0, inplace=True)

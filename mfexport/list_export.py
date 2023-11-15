@@ -40,7 +40,7 @@ def mftransientlist_to_dataframe(mftransientlist, squeeze=True):
     for per in range(data.model.nper):
         if hasattr(data.data.get(per), 'dtype'):
             varnames = list([n for n in data.data[per].dtype.names
-                             if n not in ['k', 'i', 'j', 'cellid',
+                             if n not in ['k', 'i', 'j', 'cellid', 'ifno',
                                           'rno', 'sfrsetting', 'boundname']])
             break
 
@@ -69,17 +69,20 @@ def mftransientlist_to_dataframe(mftransientlist, squeeze=True):
             elif 'id' in dfi.columns and 'cellid' not in dfi.columns:
                 index_col = 'id'
             # map the cellid to the reach number (SFR package data)
-            elif 'rno' in dfi.columns and 'cellid' not in dfi.columns:
+            elif ('rno' in dfi.columns or 'ifno' in dfi.columns) and\
+                'cellid' not in dfi.columns:
+                rno_col = {'rno', 'ifno'}.intersection(dfi.columns).pop()
                 packagedata = data.package.packagedata
-                cellid = dict(zip(packagedata.array['rno'], packagedata.array['cellid']))
-                dfi['cellid'] = [cellid[rno] for rno in dfi['rno']]
-                cols = ['rno', 'cellid']
+                pd_rno_col = {'rno', 'ifno'}.intersection(packagedata.columns).pop()
+                cellid = dict(zip(packagedata.array[pd_rno_col], packagedata.array['cellid']))
+                dfi['cellid'] = [cellid[rno] for rno in dfi[rno_col]]
+                cols = [rno_col, 'cellid']
                 # rearrange the column order to start with rno, cellid
                 cols = cols + [c for c in dfi.columns if c not in cols]
                 dfi = dfi[cols]
                 # index on reach number, allowing for multiple instances of a cellid
                 # (multiple reaches per cell)
-                index_col = 'rno'
+                index_col = rno_col
             # cast tuple cellids to strings
             # so that pd.concat works in pandas >=1.2
             if 'cellid' in dfi.columns:
@@ -92,7 +95,7 @@ def mftransientlist_to_dataframe(mftransientlist, squeeze=True):
             # aggregate (sum) data to model cells
             # because pd.concat can't handle a non-unique index
             # (and modflow input doesn't have a unique identifier at sub-cell level)
-            if dfi.index.name != 'rno':
+            if dfi.index.name not in {'rno', 'ifno'}:
                 try:
                     dfg = dfi.reset_index(drop=True).groupby(index_col)
                 except:
@@ -186,7 +189,7 @@ def get_tl_variables(mftransientlist):
     # monkey patch the mf6 version to behave like the mf2005 version
     #if isinstance(mftransientlist, flopy.mf6.data.mfdatalist.MFTransientList):
     #    mftransientlist.data = {per: ra for per, ra in enumerate(mftransientlist.array)}
-    non_data_columns = {'k', 'i', 'j', 'cellid', 'rno', 'sfrsetting'}
+    non_data_columns = {'k', 'i', 'j', 'cellid', 'rno', 'ifno', 'sfrsetting'}
 
     for per, recarray in mftransientlist.data.items():
         if recarray is not None:

@@ -78,8 +78,8 @@ def export_cell_budget(cell_budget_file, grid,
             else:
                 data = get_bc_flux(cbbobj, unique_records[i], kstpkper=(kstp, kper), idx=idx)
             # for example, 1-layer models don't have vertical fluxes
-            if data is None:
-                print('{} not exported.'.format(variable))
+            if data is None or (len(data) == 0):
+                print(f'{variable}, period {kper}, timestep {kstp} not exported.')
                 continue
             outfile = '{}/{}_per{}_stp{}{}.tif'.format(rasters_dir, variable, kper, kstp, suffix)
             export_array(outfile, data, grid, nodata=0)

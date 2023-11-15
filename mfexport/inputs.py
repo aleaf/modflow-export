@@ -333,6 +333,7 @@ def export_sfr(package, modelgrid, gis=True, pdfs=False,
     
     if package.parent.version == 'mf6':
         df = pd.DataFrame(package.packagedata.array)
+        rno_col = {'rno', 'ifno'}.intersection(df.columns).pop()
         
         # drop reaches that have no k, i, j info
         df = df.loc[df['cellid'] != 'none']
@@ -350,7 +351,7 @@ def export_sfr(package, modelgrid, gis=True, pdfs=False,
         out_rno = []
         for row in package.connectiondata.array:
             rno = row[0]
-            if rno in df['rno']:
+            if rno in df[rno_col]:
                 downstream = [c for c in list(row)[1:] if c < 0]
                 if any(downstream):
                     out_rno.append(-downstream[0])
