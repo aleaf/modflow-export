@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>export a model &mdash; modflow-export 0.2.0.post6+g812f820 documentation</title>
+  <title>export a model &mdash; modflow-export 0.2.0.post11+g6c2287f documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
@@ -44,7 +44,7 @@
             modflow-export
           </a>
               <div class="version">
-                0.2.0.post6+g812f820
+                0.2.0.post11+g6c2287f
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -141,9 +141,9 @@
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/runner/micromamba/envs/mfexport_ci/lib/python3.11/site-packages/flopy/mbase.py:85: UserWarning: The program mf2005 does not exist or is not executable.
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/flopy/mbase.py:96: UserWarning: The program mf2005 does not exist or is not executable.
   warn(
-/home/runner/micromamba/envs/mfexport_ci/lib/python3.11/site-packages/pyproj/crs/crs.py:141: FutureWarning: &#39;+init=&lt;authority&gt;:&lt;code&gt;&#39; syntax is deprecated. &#39;&lt;authority&gt;:&lt;code&gt;&#39; is the preferred initialization method. When making the change, be mindful of axis order changes: https://pyproj4.github.io/pyproj/stable/gotchas.html#axis-order-changes-in-proj-6
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/pyproj/crs/crs.py:141: FutureWarning: &#39;+init=&lt;authority&gt;:&lt;code&gt;&#39; syntax is deprecated. &#39;&lt;authority&gt;:&lt;code&gt;&#39; is the preferred initialization method. When making the change, be mindful of axis order changes: https://pyproj4.github.io/pyproj/stable/gotchas.html#axis-order-changes-in-proj-6
   in_crs_string = _prepare_from_proj_string(in_crs_string)
 </pre></div></div>
 </div>
@@ -179,15 +179,15 @@ MODFLOW 3 layer(s) 137 row(s) 171 column(s) 12 stress period(s)
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/runner/micromamba/envs/mfexport_ci/lib/python3.11/site-packages/flopy/utils/crs.py:114: PendingDeprecationWarning: the prj argument will be deprecated and will be removed in version 3.6. Use prjfile instead.
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/flopy/utils/crs.py:114: PendingDeprecationWarning: the prj argument will be deprecated and will be removed in version 3.6. Use prjfile instead.
   warnings.warn(
-/home/runner/micromamba/envs/mfexport_ci/lib/python3.11/site-packages/flopy/utils/crs.py:121: PendingDeprecationWarning: the epsg argument will be deprecated and will be removed in version 3.6. Use crs instead.
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/flopy/utils/crs.py:121: PendingDeprecationWarning: the epsg argument will be deprecated and will be removed in version 3.6. Use crs instead.
   warnings.warn(
-/home/runner/micromamba/envs/mfexport_ci/lib/python3.11/site-packages/flopy/utils/crs.py:140: PendingDeprecationWarning: the proj4 argument will be deprecated and will be removed in version 3.6. Use crs instead.
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/flopy/utils/crs.py:140: PendingDeprecationWarning: the proj4 argument will be deprecated and will be removed in version 3.6. Use crs instead.
   warnings.warn(
-/home/runner/micromamba/envs/mfexport_ci/lib/python3.11/site-packages/flopy/utils/crs.py:121: PendingDeprecationWarning: the epsg argument will be deprecated and will be removed in version 3.6. Use crs instead.
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/flopy/utils/crs.py:121: PendingDeprecationWarning: the epsg argument will be deprecated and will be removed in version 3.6. Use crs instead.
   warnings.warn(
-/home/runner/micromamba/envs/mfexport_ci/lib/python3.11/site-packages/flopy/utils/crs.py:140: PendingDeprecationWarning: the proj4 argument will be deprecated and will be removed in version 3.6. Use crs instead.
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/flopy/utils/crs.py:140: PendingDeprecationWarning: the proj4 argument will be deprecated and will be removed in version 3.6. Use crs instead.
   warnings.warn(
 </pre></div></div>
 </div>
@@ -572,11 +572,13 @@ writing postproc/shps/wt_ctr_per0_stp4.shp... Done
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/runner/micromamba/envs/mfexport_ci/lib/python3.11/site-packages/gisutils/shapefile.py:117: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+/home/runner/work/modflow-export/modflow-export/mfexport/array_export.py:157: MatplotlibDeprecationWarning: The collections attribute was deprecated in Matplotlib 3.8 and will be removed two minor releases later.
+  for i, c in enumerate(ctr.collections):
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/gisutils/shapefile.py:117: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
   if LooseVersion(fiona.__gdal_version__) &lt; LooseVersion(&#34;3.0.0&#34;):
-/home/runner/micromamba/envs/mfexport_ci/lib/python3.11/site-packages/gisutils/shapefile.py:117: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/gisutils/shapefile.py:117: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
   if LooseVersion(fiona.__gdal_version__) &lt; LooseVersion(&#34;3.0.0&#34;):
-/home/runner/micromamba/envs/mfexport_ci/lib/python3.11/site-packages/gisutils/shapefile.py:129: ShapelyDeprecationWarning: The &#39;type&#39; attribute is deprecated, and will be removed in the future. You can use the &#39;geom_type&#39; attribute instead.
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/gisutils/shapefile.py:129: ShapelyDeprecationWarning: The &#39;type&#39; attribute is deprecated, and will be removed in the future. You can use the &#39;geom_type&#39; attribute instead.
   Type = g.type
 </pre></div></div>
 </div>
@@ -627,11 +629,13 @@ writing postproc/shps/wt-ddn_ctr_per8_stp4.shp... Done
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-/home/runner/micromamba/envs/mfexport_ci/lib/python3.11/site-packages/gisutils/shapefile.py:117: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+/home/runner/work/modflow-export/modflow-export/mfexport/array_export.py:157: MatplotlibDeprecationWarning: The collections attribute was deprecated in Matplotlib 3.8 and will be removed two minor releases later.
+  for i, c in enumerate(ctr.collections):
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/gisutils/shapefile.py:117: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
   if LooseVersion(fiona.__gdal_version__) &lt; LooseVersion(&#34;3.0.0&#34;):
-/home/runner/micromamba/envs/mfexport_ci/lib/python3.11/site-packages/gisutils/shapefile.py:117: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/gisutils/shapefile.py:117: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
   if LooseVersion(fiona.__gdal_version__) &lt; LooseVersion(&#34;3.0.0&#34;):
-/home/runner/micromamba/envs/mfexport_ci/lib/python3.11/site-packages/gisutils/shapefile.py:129: ShapelyDeprecationWarning: The &#39;type&#39; attribute is deprecated, and will be removed in the future. You can use the &#39;geom_type&#39; attribute instead.
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/gisutils/shapefile.py:129: ShapelyDeprecationWarning: The &#39;type&#39; attribute is deprecated, and will be removed in the future. You can use the &#39;geom_type&#39; attribute instead.
   Type = g.type
 </pre></div></div>
 </div>

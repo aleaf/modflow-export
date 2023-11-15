@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mfexport.results &mdash; modflow-export 0.2.0.post6+g812f820 documentation</title>
+  <title>mfexport.results &mdash; modflow-export 0.2.0.post11+g6c2287f documentation</title>
       <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
       <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
@@ -38,7 +38,7 @@
             modflow-export
           </a>
               <div class="version">
-                0.2.0.post6+g812f820
+                0.2.0.post11+g6c2287f
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -135,6 +135,10 @@
     <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
         <span class="n">text</span> <span class="o">=</span> <span class="p">[</span><span class="n">text</span><span class="p">]</span>
 
+    <span class="c1"># Use the exact record name byte string, </span>
+    <span class="c1"># otherwise records for multiple packages (e.g. RCHA and RCH)</span>
+    <span class="c1"># can apparently be confused</span>
+    <span class="n">unique_records</span> <span class="o">=</span> <span class="n">cbbobj</span><span class="o">.</span><span class="n">get_unique_record_names</span><span class="p">()</span>
     <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">cbbobj</span><span class="o">.</span><span class="n">get_unique_record_names</span><span class="p">()]</span>
     <span class="k">if</span> <span class="n">text</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">names</span><span class="p">))</span>
@@ -144,7 +148,7 @@
     <span class="n">outfiles</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">kper</span> <span class="ow">in</span> <span class="n">kstpkper</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;stress period </span><span class="si">{}</span><span class="s1">, timestep </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">))</span>
-        <span class="k">for</span> <span class="n">variable</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">variable</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">names</span><span class="p">):</span>
             <span class="n">data</span> <span class="o">=</span> <span class="kc">None</span>
             <span class="k">if</span> <span class="n">variable</span> <span class="o">==</span> <span class="s1">&#39;FLOW-JA-FACE&#39;</span><span class="p">:</span>
                 <span class="n">df</span> <span class="o">=</span> <span class="n">get_flowja_face</span><span class="p">(</span><span class="n">cbbobj</span><span class="p">,</span> <span class="n">binary_grid_file</span><span class="o">=</span><span class="n">binary_grid_file</span><span class="p">,</span>
@@ -163,10 +167,10 @@
                                 <span class="n">vflux</span><span class="p">[</span><span class="s1">&#39;jn&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">]</span> <span class="o">=</span> <span class="n">vflux</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">values</span>
                     <span class="n">data</span> <span class="o">=</span> <span class="n">vflux_array</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="n">get_bc_flux</span><span class="p">(</span><span class="n">cbbobj</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">kstpkper</span><span class="o">=</span><span class="p">(</span><span class="n">kstp</span><span class="p">,</span> <span class="n">kper</span><span class="p">),</span> <span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">get_bc_flux</span><span class="p">(</span><span class="n">cbbobj</span><span class="p">,</span> <span class="n">unique_records</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">kstpkper</span><span class="o">=</span><span class="p">(</span><span class="n">kstp</span><span class="p">,</span> <span class="n">kper</span><span class="p">),</span> <span class="n">idx</span><span class="o">=</span><span class="n">idx</span><span class="p">)</span>
             <span class="c1"># for example, 1-layer models don&#39;t have vertical fluxes</span>
-            <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> not exported.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">variable</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">variable</span><span class="si">}</span><span class="s1">, period </span><span class="si">{</span><span class="n">kper</span><span class="si">}</span><span class="s1">, timestep </span><span class="si">{</span><span class="n">kstp</span><span class="si">}</span><span class="s1"> not exported.&#39;</span><span class="p">)</span>
                 <span class="k">continue</span>
             <span class="n">outfile</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">/</span><span class="si">{}</span><span class="s1">_per</span><span class="si">{}</span><span class="s1">_stp</span><span class="si">{}{}</span><span class="s1">.tif&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rasters_dir</span><span class="p">,</span> <span class="n">variable</span><span class="p">,</span> <span class="n">kper</span><span class="p">,</span> <span class="n">kstp</span><span class="p">,</span> <span class="n">suffix</span><span class="p">)</span>
             <span class="n">export_array</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">nodata</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
@@ -305,7 +309,7 @@
             <span class="c1"># at each i, j location</span>
             <span class="k">if</span> <span class="n">grid</span><span class="o">.</span><span class="n">botm</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">wt_layer</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">((</span><span class="n">wt</span> <span class="o">&gt;</span> <span class="n">grid</span><span class="o">.</span><span class="n">botm</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-                <span class="n">wt_layer_outfile</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">rasters_dir</span><span class="si">}</span><span class="s1">/wt_per</span><span class="si">{</span><span class="n">kper</span><span class="si">}</span><span class="s1">_stp</span><span class="si">{</span><span class="n">kstp</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">.tif&#39;</span>
+                <span class="n">wt_layer_outfile</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">rasters_dir</span><span class="si">}</span><span class="s1">/wt-layers_per</span><span class="si">{</span><span class="n">kper</span><span class="si">}</span><span class="s1">_stp</span><span class="si">{</span><span class="n">kstp</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s1">.tif&#39;</span>
                 <span class="n">export_array</span><span class="p">(</span><span class="n">wt_layer_outfile</span><span class="p">,</span> <span class="n">wt_layer</span><span class="p">,</span> <span class="n">grid</span><span class="p">)</span>
                 <span class="n">outfiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">wt_layer_outfile</span><span class="p">)</span>
             
