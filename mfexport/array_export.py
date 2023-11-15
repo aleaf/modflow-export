@@ -4,6 +4,7 @@ import time
 import numpy as np
 import pandas as pd
 import rasterio
+from rasterio import Affine
 from shapely.geometry import LineString
 import matplotlib.pyplot as plt
 from gisutils import df2shp
@@ -18,14 +19,14 @@ def export_array(filename, a, modelgrid, nodata=-9999,
 
     Parameters
     ----------
-    modelgrid : MFsetupGrid instance
+    modelgrid : Flopy StructuredGrid instance
     filename : str
         Path of output file. Export format is determined by
         file extention.
         '.asc'  Arc Ascii grid
         '.tif'  GeoTIFF (requries rasterio package)
         '.shp'  Shapefile
-    a : 2D numpy.ndarray
+    a : 2D or 3D numpy.ndarray
         Array to export
     nodata : scalar
         Value to assign to np.nan entries (default -9999)
@@ -58,7 +59,12 @@ def export_array(filename, a, modelgrid, nodata=-9999,
                 or modelgrid.delr[0] != modelgrid.delc[0]:
             raise ValueError('GeoTIFF export require a uniform grid.')
 
-        trans = modelgrid.transform
+        x0 = modelgrid.xyedges[0][0]
+        y0 = modelgrid.xyedges[1][0]
+        xul, yul = modelgrid.get_coords(x0, y0)
+        trans = Affine(modelgrid.delr[0], 0., xul,
+                  0., -modelgrid.delc[0], yul) * \
+                      Affine.rotation(-modelgrid.angrot)
 
         # third dimension is the number of bands
         if len(a.shape) == 2:
