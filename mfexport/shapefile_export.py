@@ -1,10 +1,15 @@
 import time
 import numpy as np
 import pandas as pd
+from packaging import version
 from shapely.geometry import Polygon
+import flopy
 from flopy.utils import MfList
 from flopy.mf6.data.mfdatalist import MFTransientList
-from flopy.mf6.data.mfdataplist import MFPandasTransientList
+try:
+    from flopy.mf6.data.mfdataplist import MFPandasTransientList
+except:
+    MFPandasTransientList = False
 from gisutils import df2shp
 from mfexport.list_export import mftransientlist_to_dataframe
 
@@ -14,8 +19,9 @@ def export_shapefile(filename, data, modelgrid, kper=None,
                      epsg=None, proj_str=None, prj=None,
                      verbose=False):
     t0 = time.time()
-    if isinstance(data, MFTransientList) or isinstance(data, MfList) or\
-        isinstance(data, MFPandasTransientList):
+    if isinstance(data, MFTransientList) or isinstance(data, MfList):
+        df = mftransientlist_to_dataframe(data, squeeze=squeeze)
+    elif MFPandasTransientList and isinstance(data, MFPandasTransientList):
         df = mftransientlist_to_dataframe(data, squeeze=squeeze)
     elif isinstance(data, np.recarray):
         df = pd.DataFrame(data)
