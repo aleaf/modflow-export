@@ -1,25 +1,24 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mfexport.inputs &mdash; modflow-export 0.2.0.post13+g7e372b0 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+  <title>mfexport.inputs &mdash; modflow-export 0.2.0.post14+g95c2080 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
-        <script src="../../_static/clipboard.min.js"></script>
-        <script src="../../_static/copybutton.js"></script>
+        <script src="../../_static/documentation_options.js?v=cf84ba4d"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -38,7 +37,7 @@
             modflow-export
           </a>
               <div class="version">
-                0.2.0.post13+g7e372b0
+                0.2.0.post14+g95c2080
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -107,7 +106,9 @@
 <span class="n">othername</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;model_top&#39;</span><span class="p">:</span> <span class="s1">&#39;top&#39;</span><span class="p">}</span>
 
 
-<div class="viewcode-block" id="get_package_list"><a class="viewcode-back" href="../../api/index.html#mfexport.inputs.get_package_list">[docs]</a><span class="k">def</span> <span class="nf">get_package_list</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+<div class="viewcode-block" id="get_package_list">
+<a class="viewcode-back" href="../../api/index.html#mfexport.inputs.get_package_list">[docs]</a>
+<span class="k">def</span> <span class="nf">get_package_list</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
     <span class="n">skip_packages</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;OC&#39;</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">version</span> <span class="o">==</span> <span class="s1">&#39;mf6&#39;</span><span class="p">:</span>
         <span class="n">packages</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">model</span><span class="o">.</span><span class="n">packagelist</span><span class="p">]</span>
@@ -117,7 +118,10 @@
     <span class="k">return</span> <span class="n">packages</span></div>
 
 
-<div class="viewcode-block" id="get_variable_list"><a class="viewcode-back" href="../../api/index.html#mfexport.inputs.get_variable_list">[docs]</a><span class="k">def</span> <span class="nf">get_variable_list</span><span class="p">(</span><span class="n">variables</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_variable_list">
+<a class="viewcode-back" href="../../api/index.html#mfexport.inputs.get_variable_list">[docs]</a>
+<span class="k">def</span> <span class="nf">get_variable_list</span><span class="p">(</span><span class="n">variables</span><span class="p">):</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">variables</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
         <span class="n">variables</span> <span class="o">=</span> <span class="p">[</span><span class="n">variables</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
     <span class="k">else</span><span class="p">:</span>
@@ -125,7 +129,10 @@
     <span class="k">return</span> <span class="n">variables</span></div>
 
 
-<div class="viewcode-block" id="get_inactive_cells_mask"><a class="viewcode-back" href="../../api/index.html#mfexport.inputs.get_inactive_cells_mask">[docs]</a><span class="k">def</span> <span class="nf">get_inactive_cells_mask</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_inactive_cells_mask">
+<a class="viewcode-back" href="../../api/index.html#mfexport.inputs.get_inactive_cells_mask">[docs]</a>
+<span class="k">def</span> <span class="nf">get_inactive_cells_mask</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">version</span> <span class="o">==</span> <span class="s1">&#39;mf6&#39;</span><span class="p">:</span>
         <span class="n">inactive_cells</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">model</span><span class="o">.</span><span class="n">dis</span><span class="o">.</span><span class="n">nlay</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">dis</span><span class="o">.</span><span class="n">nrow</span><span class="o">.</span><span class="n">array</span><span class="p">,</span> <span class="n">model</span><span class="o">.</span><span class="n">dis</span><span class="o">.</span><span class="n">ncol</span><span class="o">.</span><span class="n">array</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
         <span class="n">inactive_cells</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">dis</span><span class="o">.</span><span class="n">idomain</span><span class="o">.</span><span class="n">array</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
@@ -135,7 +142,10 @@
     <span class="k">return</span> <span class="n">inactive_cells</span></div>
 
 
-<div class="viewcode-block" id="export"><a class="viewcode-back" href="../../api/index.html#mfexport.inputs.export">[docs]</a><span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span> <span class="n">packages</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;postproc&#39;</span><span class="p">,</span>
+
+<div class="viewcode-block" id="export">
+<a class="viewcode-back" href="../../api/index.html#mfexport.inputs.export">[docs]</a>
+<span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span> <span class="n">packages</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;postproc&#39;</span><span class="p">,</span>
            <span class="n">contours</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">include_inactive_cells</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
            <span class="n">gis</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pdfs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
@@ -229,7 +239,10 @@
     <span class="k">return</span> <span class="n">filenames</span></div>
 
 
-<div class="viewcode-block" id="export_variable"><a class="viewcode-back" href="../../api/index.html#mfexport.inputs.export_variable">[docs]</a><span class="k">def</span> <span class="nf">export_variable</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span>
+
+<div class="viewcode-block" id="export_variable">
+<a class="viewcode-back" href="../../api/index.html#mfexport.inputs.export_variable">[docs]</a>
+<span class="k">def</span> <span class="nf">export_variable</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span>
                     <span class="n">inactive_cells</span><span class="p">,</span> <span class="n">inactive_cells2d</span><span class="p">,</span>
                     <span class="n">filenames</span><span class="p">,</span> <span class="n">rasters_dir</span><span class="p">,</span> <span class="n">shps_dir</span><span class="p">,</span> <span class="n">pdfs_dir</span><span class="p">,</span>
                     <span class="n">gis</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pdfs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">contours</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
@@ -409,7 +422,10 @@
                 <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="export_sfr"><a class="viewcode-back" href="../../api/index.html#mfexport.inputs.export_sfr">[docs]</a><span class="k">def</span> <span class="nf">export_sfr</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span> <span class="n">gis</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pdfs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+
+<div class="viewcode-block" id="export_sfr">
+<a class="viewcode-back" href="../../api/index.html#mfexport.inputs.export_sfr">[docs]</a>
+<span class="k">def</span> <span class="nf">export_sfr</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span> <span class="n">gis</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pdfs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
                <span class="n">shapefile_outfolder</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">pdf_outfolder</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span>
                <span class="n">filenames</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Export an SFR package&quot;&quot;&quot;</span>
@@ -464,7 +480,10 @@
     <span class="k">return</span></div>
 
 
-<div class="viewcode-block" id="export_thickness"><a class="viewcode-back" href="../../api/index.html#mfexport.inputs.export_thickness">[docs]</a><span class="k">def</span> <span class="nf">export_thickness</span><span class="p">(</span><span class="n">top_array</span><span class="p">,</span> <span class="n">botm_array</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span>
+
+<div class="viewcode-block" id="export_thickness">
+<a class="viewcode-back" href="../../api/index.html#mfexport.inputs.export_thickness">[docs]</a>
+<span class="k">def</span> <span class="nf">export_thickness</span><span class="p">(</span><span class="n">top_array</span><span class="p">,</span> <span class="n">botm_array</span><span class="p">,</span> <span class="n">modelgrid</span><span class="p">,</span>
                      <span class="n">filenames</span><span class="p">,</span> <span class="n">rasters_dir</span><span class="p">,</span> <span class="n">shps_dir</span><span class="p">,</span> <span class="n">pdfs_dir</span><span class="p">,</span>
                      <span class="n">gis</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pdfs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">contours</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                      <span class="n">include_inactive_cells</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inactive_cells</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -500,7 +519,10 @@
             <span class="n">filenames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="summarize"><a class="viewcode-back" href="../../api/index.html#mfexport.inputs.summarize">[docs]</a><span class="k">def</span> <span class="nf">summarize</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">packages</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+
+<div class="viewcode-block" id="summarize">
+<a class="viewcode-back" href="../../api/index.html#mfexport.inputs.summarize">[docs]</a>
+<span class="k">def</span> <span class="nf">summarize</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">packages</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">variables</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
               <span class="n">include_inactive_cells</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
               <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
               <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -564,7 +586,10 @@
     <span class="k">return</span> <span class="n">df</span></div>
 
 
-<div class="viewcode-block" id="summarize_variable"><a class="viewcode-back" href="../../api/index.html#mfexport.inputs.summarize_variable">[docs]</a><span class="k">def</span> <span class="nf">summarize_variable</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">inactive_cells</span><span class="p">,</span> <span class="n">inactive_cells2d</span><span class="p">,</span>
+
+<div class="viewcode-block" id="summarize_variable">
+<a class="viewcode-back" href="../../api/index.html#mfexport.inputs.summarize_variable">[docs]</a>
+<span class="k">def</span> <span class="nf">summarize_variable</span><span class="p">(</span><span class="n">variable</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">inactive_cells</span><span class="p">,</span> <span class="n">inactive_cells2d</span><span class="p">,</span>
                        <span class="n">summarized</span><span class="p">,</span>
                        <span class="n">include_inactive_cells</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                        <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -677,6 +702,7 @@
                            <span class="s1">&#39;max&#39;</span><span class="p">:</span> <span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
                            <span class="p">}</span>
                 <span class="n">summarized</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span></div>
+
 </pre></div>
 
            </div>

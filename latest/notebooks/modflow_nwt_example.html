@@ -1,27 +1,26 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>export a model &mdash; modflow-export 0.2.0.post13+g7e372b0 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
+  <title>export a model &mdash; modflow-export 0.2.0.post14+g95c2080 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+
+  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
-        <script src="../_static/clipboard.min.js"></script>
-        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/documentation_options.js?v=cf84ba4d"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -44,7 +43,7 @@
             modflow-export
           </a>
               <div class="version">
-                0.2.0.post13+g7e372b0
+                0.2.0.post14+g95c2080
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -123,9 +122,9 @@
 </div>
 </div>
 <section id="export-a-model">
-<h1>export a model<a class="headerlink" href="#export-a-model" title="Permalink to this heading">¶</a></h1>
+<h1>export a model<a class="headerlink" href="#export-a-model" title="Link to this heading">¶</a></h1>
 <section id="load-the-model-using-flopy">
-<h2>load the model using flopy<a class="headerlink" href="#load-the-model-using-flopy" title="Permalink to this heading">¶</a></h2>
+<h2>load the model using flopy<a class="headerlink" href="#load-the-model-using-flopy" title="Link to this heading">¶</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
@@ -158,7 +157,7 @@ MODFLOW 3 layer(s) 137 row(s) 171 column(s) 12 stress period(s)
 </div>
 </section>
 <section id="define-the-location-of-the-model-grid">
-<h2>define the location of the model grid<a class="headerlink" href="#define-the-location-of-the-model-grid" title="Permalink to this heading">¶</a></h2>
+<h2>define the location of the model grid<a class="headerlink" href="#define-the-location-of-the-model-grid" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>spacing in meters</p></li>
 </ul>
@@ -192,7 +191,7 @@ MODFLOW 3 layer(s) 137 row(s) 171 column(s) 12 stress period(s)
 </pre></div></div>
 </div>
 <section id="export-all-data-arrays-and-stress-period-data-(MfLists)-to-shapefiles,-rasters-and-PDFs">
-<h3>export all data arrays and stress period data (<code class="docutils literal notranslate"><span class="pre">MfLists</span></code>) to shapefiles, rasters and PDFs<a class="headerlink" href="#export-all-data-arrays-and-stress-period-data-(MfLists)-to-shapefiles,-rasters-and-PDFs" title="Permalink to this heading">¶</a></h3>
+<h3>export all data arrays and stress period data (<code class="docutils literal notranslate"><span class="pre">MfLists</span></code>) to shapefiles, rasters and PDFs<a class="headerlink" href="#export-all-data-arrays-and-stress-period-data-(MfLists)-to-shapefiles,-rasters-and-PDFs" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>array data are written to compressed GeoTIFFs</p></li>
 <li><p>transient lists are written to shapefiles</p>
@@ -214,7 +213,7 @@ MODFLOW 3 layer(s) 137 row(s) 171 column(s) 12 stress period(s)
 </div>
 </section>
 <section id="export-a-package">
-<h3>export a package<a class="headerlink" href="#export-a-package" title="Permalink to this heading">¶</a></h3>
+<h3>export a package<a class="headerlink" href="#export-a-package" title="Link to this heading">¶</a></h3>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
@@ -226,7 +225,7 @@ MODFLOW 3 layer(s) 137 row(s) 171 column(s) 12 stress period(s)
 </div>
 </section>
 <section id="summarize-model-input">
-<h3>summarize model input<a class="headerlink" href="#summarize-model-input" title="Permalink to this heading">¶</a></h3>
+<h3>summarize model input<a class="headerlink" href="#summarize-model-input" title="Link to this heading">¶</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
@@ -483,11 +482,11 @@ summarizing lpr_inset input...
 </div>
 </section>
 <section id="Export-model-results">
-<h3>Export model results<a class="headerlink" href="#Export-model-results" title="Permalink to this heading">¶</a></h3>
+<h3>Export model results<a class="headerlink" href="#Export-model-results" title="Link to this heading">¶</a></h3>
 </section>
 </section>
 <section id="cell-by-cell-flows">
-<h2>cell by cell flows<a class="headerlink" href="#cell-by-cell-flows" title="Permalink to this heading">¶</a></h2>
+<h2>cell by cell flows<a class="headerlink" href="#cell-by-cell-flows" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>written to compressed GeoTIFFs</p></li>
 </ul>
@@ -538,7 +537,7 @@ wrote postproc/rasters/STREAM LEAKAGE_per0_stp4.tif
 </div>
 </section>
 <section id="heads">
-<h2>heads<a class="headerlink" href="#heads" title="Permalink to this heading">¶</a></h2>
+<h2>heads<a class="headerlink" href="#heads" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>compressed GeoTIFFs</p></li>
 <li><p>shapefiles of equipotential contours</p></li>
@@ -593,7 +592,7 @@ writing postproc/shps/wt_ctr_per0_stp4.shp... Done
 </div>
 </section>
 <section id="drawdown">
-<h2>drawdown<a class="headerlink" href="#drawdown" title="Permalink to this heading">¶</a></h2>
+<h2>drawdown<a class="headerlink" href="#drawdown" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>compressed GeoTIFFs</p></li>
 <li><p>shapefiles of equipotential contours</p></li>
@@ -651,7 +650,7 @@ writing postproc/shps/wt-ddn_ctr_per8_stp4.shp... Done
 </div>
 </section>
 <section id="SFR-results">
-<h2>SFR results<a class="headerlink" href="#SFR-results" title="Permalink to this heading">¶</a></h2>
+<h2>SFR results<a class="headerlink" href="#SFR-results" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>shapefile of SFR water balance results</p></li>
 <li><p>PDFs of simulated stream flows and stream/aquifer interactions</p></li>

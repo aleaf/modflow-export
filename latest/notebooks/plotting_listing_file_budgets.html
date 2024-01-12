@@ -1,27 +1,26 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../">
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Plotting MODFLOW listing file budgets &mdash; modflow-export 0.2.0.post13+g7e372b0 documentation</title>
-      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/copybutton.css" type="text/css" />
-      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
+  <title>Plotting MODFLOW listing file budgets &mdash; modflow-export 0.2.0.post14+g95c2080 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+
+  
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/sphinx_highlight.js"></script>
-        <script src="../_static/clipboard.min.js"></script>
-        <script src="../_static/copybutton.js"></script>
+        <script src="../_static/documentation_options.js?v=cf84ba4d"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
         <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
         <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -44,7 +43,7 @@
             modflow-export
           </a>
               <div class="version">
-                0.2.0.post13+g7e372b0
+                0.2.0.post14+g95c2080
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
@@ -126,7 +125,7 @@
            <div itemprop="articleBody">
              
   <section id="Plotting-MODFLOW-listing-file-budgets">
-<h1>Plotting MODFLOW listing file budgets<a class="headerlink" href="#Plotting-MODFLOW-listing-file-budgets" title="Permalink to this heading">¶</a></h1>
+<h1>Plotting MODFLOW listing file budgets<a class="headerlink" href="#Plotting-MODFLOW-listing-file-budgets" title="Link to this heading">¶</a></h1>
 <p>This notebook shows how to</p>
 <ul class="simple">
 <li><p>make stacked bar chart summaries of MODFLOW water budgets by stress period, including global budgets and budgets for advanced stress packages (SFR, Lake, etc).</p></li>
@@ -145,7 +144,7 @@
 </div>
 </div>
 <section id="Example-MODFLOW-NWT-model-with-monthly-stress-periods">
-<h2>Example MODFLOW-NWT model with monthly stress periods<a class="headerlink" href="#Example-MODFLOW-NWT-model-with-monthly-stress-periods" title="Permalink to this heading">¶</a></h2>
+<h2>Example MODFLOW-NWT model with monthly stress periods<a class="headerlink" href="#Example-MODFLOW-NWT-model-with-monthly-stress-periods" title="Link to this heading">¶</a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
 </pre></div>
@@ -160,7 +159,7 @@
 </div>
 </section>
 <section id="Example-MODFLOW-6-model-with-biannual-stress-periods">
-<h2>Example MODFLOW 6 model with biannual stress periods<a class="headerlink" href="#Example-MODFLOW-6-model-with-biannual-stress-periods" title="Permalink to this heading">¶</a></h2>
+<h2>Example MODFLOW 6 model with biannual stress periods<a class="headerlink" href="#Example-MODFLOW-6-model-with-biannual-stress-periods" title="Link to this heading">¶</a></h2>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
 </pre></div>
@@ -174,7 +173,7 @@
 </div>
 </div>
 <section id="Parse-the-listing-file-budget-to-a-dataframe">
-<h3>Parse the listing file budget to a dataframe<a class="headerlink" href="#Parse-the-listing-file-budget-to-a-dataframe" title="Permalink to this heading">¶</a></h3>
+<h3>Parse the listing file budget to a dataframe<a class="headerlink" href="#Parse-the-listing-file-budget-to-a-dataframe" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>no <code class="docutils literal notranslate"><span class="pre">budgetkey</span></code> argument returns the global mass balance</p></li>
 <li><p>alternatively, use an identifying <code class="docutils literal notranslate"><span class="pre">budgetkey</span></code> (text string from the listing file) to get the terms for an advanced stress package</p></li>
@@ -483,7 +482,7 @@
 </section>
 </section>
 <section id="Get-an-advanced-stress-package-budget">
-<h2>Get an advanced stress package budget<a class="headerlink" href="#Get-an-advanced-stress-package-budget" title="Permalink to this heading">¶</a></h2>
+<h2>Get an advanced stress package budget<a class="headerlink" href="#Get-an-advanced-stress-package-budget" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>in this case, for the SFR package</p></li>
 <li><p>this requires a package budget to be written to the listing file (MODFLOW 6)</p></li>
@@ -671,7 +670,7 @@
 </div></div>
 </div>
 <section id="Basic-summary-of-MODFLOW-water-balance">
-<h3>Basic summary of MODFLOW water balance<a class="headerlink" href="#Basic-summary-of-MODFLOW-water-balance" title="Permalink to this heading">¶</a></h3>
+<h3>Basic summary of MODFLOW water balance<a class="headerlink" href="#Basic-summary-of-MODFLOW-water-balance" title="Link to this heading">¶</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
@@ -699,7 +698,7 @@
 </div>
 </section>
 <section id="Plot-just-the-net-fluxes-for-each-component">
-<h3>Plot just the net fluxes for each component<a class="headerlink" href="#Plot-just-the-net-fluxes-for-each-component" title="Permalink to this heading">¶</a></h3>
+<h3>Plot just the net fluxes for each component<a class="headerlink" href="#Plot-just-the-net-fluxes-for-each-component" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>add a secondary axis with other units</p></li>
 </ul>
@@ -732,7 +731,7 @@
 </div>
 </section>
 <section id="Plot-a-subset-of-results">
-<h3>Plot a subset of results<a class="headerlink" href="#Plot-a-subset-of-results" title="Permalink to this heading">¶</a></h3>
+<h3>Plot a subset of results<a class="headerlink" href="#Plot-a-subset-of-results" title="Link to this heading">¶</a></h3>
 <p>This can be useful for models with many stress periods</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
@@ -762,7 +761,7 @@
 </div>
 </section>
 <section id="plot-budget-sums-by-calendar-year">
-<h3>plot budget sums by calendar year<a class="headerlink" href="#plot-budget-sums-by-calendar-year" title="Permalink to this heading">¶</a></h3>
+<h3>plot budget sums by calendar year<a class="headerlink" href="#plot-budget-sums-by-calendar-year" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>with percentages</p></li>
 </ul>
@@ -784,7 +783,7 @@
 </div>
 </section>
 <section id="plot-budget-sums-for-an-arbitrary-grouping">
-<h3>plot budget sums for an arbitrary grouping<a class="headerlink" href="#plot-budget-sums-for-an-arbitrary-grouping" title="Permalink to this heading">¶</a></h3>
+<h3>plot budget sums for an arbitrary grouping<a class="headerlink" href="#plot-budget-sums-for-an-arbitrary-grouping" title="Link to this heading">¶</a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">plot_budget_summary</span></code> and <code class="docutils literal notranslate"><span class="pre">plot_budget_term</span></code> can take any DataFrame with column names structured like those output by <code class="docutils literal notranslate"><span class="pre">flopy.utils.MfListBudget</span></code> (i.e. with <code class="docutils literal notranslate"><span class="pre">_IN</span></code> or <code class="docutils literal notranslate"><span class="pre">_OUT</span></code> suffixes), and a datetime index. So pandas <code class="docutils literal notranslate"><span class="pre">groupby</span></code> (or any other manipulations) can be performed on the data beforehand to achieve the desired result.</p>
 <p>In this case, we group the data into growing season vs. non-growing season based on month:</p>
 <div class="nbinput docutils container">
@@ -921,7 +920,7 @@
 </section>
 </section>
 <section id="This-can-be-done-for-net-fluxes-too">
-<h2>This can be done for net fluxes too<a class="headerlink" href="#This-can-be-done-for-net-fluxes-too" title="Permalink to this heading">¶</a></h2>
+<h2>This can be done for net fluxes too<a class="headerlink" href="#This-can-be-done-for-net-fluxes-too" title="Link to this heading">¶</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
 </pre></div>
@@ -944,7 +943,7 @@
 </div>
 </div>
 <section id="Plot-a-budget-term">
-<h3>Plot a budget term<a class="headerlink" href="#Plot-a-budget-term" title="Permalink to this heading">¶</a></h3>
+<h3>Plot a budget term<a class="headerlink" href="#Plot-a-budget-term" title="Link to this heading">¶</a></h3>
 <p>Two plots are produced * absolute values, optionally with secondary axis as above * as a fraction of model or advanced stress package (e.g. SFR) budget</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
@@ -964,7 +963,7 @@
 </section>
 </section>
 <section id="Any-column-in-the-listing-file-budget-dataframe-(df)-can-be-plotted,">
-<h2>Any column in the listing file budget dataframe (<code class="docutils literal notranslate"><span class="pre">df</span></code>) can be plotted,<a class="headerlink" href="#Any-column-in-the-listing-file-budget-dataframe-(df)-can-be-plotted," title="Permalink to this heading">¶</a></h2>
+<h2>Any column in the listing file budget dataframe (<code class="docutils literal notranslate"><span class="pre">df</span></code>) can be plotted,<a class="headerlink" href="#Any-column-in-the-listing-file-budget-dataframe-(df)-can-be-plotted," title="Link to this heading">¶</a></h2>
 <p>by specifying the first part of the column name (without the <code class="docutils literal notranslate"><span class="pre">_IN</span></code> or <code class="docutils literal notranslate"><span class="pre">_OUT</span></code> at the end)</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
@@ -989,7 +988,7 @@ Index([&#39;STORAGE_IN&#39;, &#39;CONSTANT_HEAD_IN&#39;, &#39;WELLS_IN&#39;, &#3
 </div>
 </section>
 <section id="For-example">
-<h2>For example<a class="headerlink" href="#For-example" title="Permalink to this heading">¶</a></h2>
+<h2>For example<a class="headerlink" href="#For-example" title="Link to this heading">¶</a></h2>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
@@ -1006,7 +1005,7 @@ Index([&#39;STORAGE_IN&#39;, &#39;CONSTANT_HEAD_IN&#39;, &#39;WELLS_IN&#39;, &#3
 </div>
 </div>
 <section id="Plot-term-by-stress-period-instead-of-time">
-<h3>Plot term by stress period instead of time<a class="headerlink" href="#Plot-term-by-stress-period-instead-of-time" title="Permalink to this heading">¶</a></h3>
+<h3>Plot term by stress period instead of time<a class="headerlink" href="#Plot-term-by-stress-period-instead-of-time" title="Link to this heading">¶</a></h3>
 <p>Can be useful for models with long spin-up periods that obscure shorter periods of interest when whole simulation time is plotted.</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
@@ -1036,7 +1035,7 @@ Index([&#39;STORAGE_IN&#39;, &#39;CONSTANT_HEAD_IN&#39;, &#39;WELLS_IN&#39;, &#3
 </div>
 </section>
 <section id="Plot-mass-balance-error">
-<h3>Plot mass balance error<a class="headerlink" href="#Plot-mass-balance-error" title="Permalink to this heading">¶</a></h3>
+<h3>Plot mass balance error<a class="headerlink" href="#Plot-mass-balance-error" title="Link to this heading">¶</a></h3>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
 </pre></div>
@@ -1055,7 +1054,7 @@ Index([&#39;STORAGE_IN&#39;, &#39;CONSTANT_HEAD_IN&#39;, &#39;WELLS_IN&#39;, &#3
 </div>
 </section>
 <section id="Macro-to-plot-everything-to-PDFs">
-<h3>Macro to plot everything to PDFs<a class="headerlink" href="#Macro-to-plot-everything-to-PDFs" title="Permalink to this heading">¶</a></h3>
+<h3>Macro to plot everything to PDFs<a class="headerlink" href="#Macro-to-plot-everything-to-PDFs" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>budget summary (in/out and net)</p></li>
 <li><p>timeseries of budget terms for each package, and within each advanced stress package</p></li>
@@ -1069,7 +1068,7 @@ Index([&#39;STORAGE_IN&#39;, &#39;CONSTANT_HEAD_IN&#39;, &#39;WELLS_IN&#39;, &#3
 </pre></div>
 </div>
 </div>
-<div class="nboutput nblast docutils container">
+<div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
@@ -1077,7 +1076,21 @@ Index([&#39;STORAGE_IN&#39;, &#39;CONSTANT_HEAD_IN&#39;, &#39;WELLS_IN&#39;, &#3
 creating output/pdfs...
 creating output/shps...
 creating output/rasters...
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
 wrote output/pdfs/listfile_budget_summary.pdf
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
 wrote output/pdfs/listfile_budget_by_term.pdf
 </pre></div></div>
 </div>

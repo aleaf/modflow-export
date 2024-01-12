@@ -1,25 +1,24 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+<html class="writer-html5" lang="en" data-content_root="../../">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>mfexport.list_export &mdash; modflow-export 0.2.0.post13+g7e372b0 documentation</title>
-      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/plot_directive.css" type="text/css" />
-      <link rel="stylesheet" href="../../_static/copybutton.css" type="text/css" />
+  <title>mfexport.list_export &mdash; modflow-export 0.2.0.post14+g95c2080 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+
+  
   <!--[if lt IE 9]>
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
-        <script src="../../_static/sphinx_highlight.js"></script>
-        <script src="../../_static/clipboard.min.js"></script>
-        <script src="../../_static/copybutton.js"></script>
+        <script src="../../_static/documentation_options.js?v=cf84ba4d"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../_static/copybutton.js?v=f281be69"></script>
         <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -38,7 +37,7 @@
             modflow-export
           </a>
               <div class="version">
-                0.2.0.post13+g7e372b0
+                0.2.0.post14+g95c2080
               </div>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
@@ -93,7 +92,9 @@
 <span class="kn">import</span> <span class="nn">flopy</span>
 
 
-<div class="viewcode-block" id="mftransientlist_to_dataframe"><a class="viewcode-back" href="../../api/index.html#mfexport.list_export.mftransientlist_to_dataframe">[docs]</a><span class="k">def</span> <span class="nf">mftransientlist_to_dataframe</span><span class="p">(</span><span class="n">mftransientlist</span><span class="p">,</span> <span class="n">squeeze</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="mftransientlist_to_dataframe">
+<a class="viewcode-back" href="../../api/index.html#mfexport.list_export.mftransientlist_to_dataframe">[docs]</a>
+<span class="k">def</span> <span class="nf">mftransientlist_to_dataframe</span><span class="p">(</span><span class="n">mftransientlist</span><span class="p">,</span> <span class="n">squeeze</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Cast a MFTransientList of stress period data</span>
 <span class="sd">    into single dataframe containing all stress periods. Output data are</span>
@@ -247,7 +248,10 @@
     <span class="k">return</span> <span class="n">df</span></div>
 
 
-<div class="viewcode-block" id="squeeze_columns"><a class="viewcode-back" href="../../api/index.html#mfexport.list_export.squeeze_columns">[docs]</a><span class="k">def</span> <span class="nf">squeeze_columns</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">fillna</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
+
+<div class="viewcode-block" id="squeeze_columns">
+<a class="viewcode-back" href="../../api/index.html#mfexport.list_export.squeeze_columns">[docs]</a>
+<span class="k">def</span> <span class="nf">squeeze_columns</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">fillna</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Drop columns where the forward difference</span>
 <span class="sd">    (along axis 1, the column axis) is 0 in all rows.</span>
 <span class="sd">    In other words, only retain columns where the data</span>
@@ -273,7 +277,10 @@
     <span class="k">return</span> <span class="n">squeezed</span></div>
 
 
-<div class="viewcode-block" id="get_tl_variables"><a class="viewcode-back" href="../../api/index.html#mfexport.list_export.get_tl_variables">[docs]</a><span class="k">def</span> <span class="nf">get_tl_variables</span><span class="p">(</span><span class="n">mftransientlist</span><span class="p">):</span>
+
+<div class="viewcode-block" id="get_tl_variables">
+<a class="viewcode-back" href="../../api/index.html#mfexport.list_export.get_tl_variables">[docs]</a>
+<span class="k">def</span> <span class="nf">get_tl_variables</span><span class="p">(</span><span class="n">mftransientlist</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Get variable names in a flopy.utils.MFList or</span>
 <span class="sd">    flopy.mf6.data.mfdatalist.MFTransientList instance</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -286,6 +293,7 @@
         <span class="k">if</span> <span class="n">recarray</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">recarray</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">names</span>
                     <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">non_data_columns</span><span class="p">]</span></div>
+
 </pre></div>
 
            </div>
