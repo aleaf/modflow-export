@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mfexport.units &mdash; modflow-export 0.3.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/documentation_options.js?v=e259d695"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../../_static/copybutton.js?v=f281be69"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            modflow-export
+          </a>
+              <div class="version">
+                0.3.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html"> Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html"> Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html"> Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html"> Code reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../release-history.html"> Release History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html"> Contributing to Modflow-export</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">modflow-export</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">mfexport.units</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for mfexport.units</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Stuff for handling units</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">lenuni_values</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;unknown&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                 <span class="s1">&#39;undefined&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                 <span class="s1">&#39;feet&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                 <span class="s1">&#39;meters&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                 <span class="s1">&#39;centimeters&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                 <span class="s1">&#39;millimeters&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+                 <span class="s1">&#39;kilometers&#39;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+                 <span class="s1">&#39;inches&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                 <span class="s1">&#39;miles&#39;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+                 <span class="s1">&#39;ft&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                 <span class="s1">&#39;m&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                 <span class="s1">&#39;cm&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                 <span class="s1">&#39;mm&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+                 <span class="s1">&#39;in&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                 <span class="s1">&#39;mi&#39;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+                 <span class="s1">&#39;km&#39;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+                 <span class="s1">&#39;foot&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                 <span class="s1">&#39;meter&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                 <span class="s1">&#39;centimeter&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                 <span class="s1">&#39;millimeter&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+                 <span class="s1">&#39;kilometer&#39;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+                 <span class="s1">&#39;inch&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                 <span class="s1">&#39;mile&#39;</span><span class="p">:</span> <span class="mi">11</span><span class="p">,</span>
+                 <span class="p">}</span>
+
+<span class="n">fullnames</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;unknown&#39;</span><span class="p">,</span> <span class="s1">&#39;undefined&#39;</span><span class="p">,</span> <span class="s1">&#39;feet&#39;</span><span class="p">,</span> <span class="s1">&#39;meters&#39;</span><span class="p">,</span> <span class="s1">&#39;centimeters&#39;</span><span class="p">,</span>
+             <span class="s1">&#39;millimeters&#39;</span><span class="p">,</span> <span class="s1">&#39;inches&#39;</span><span class="p">,</span> <span class="s1">&#39;miles&#39;</span><span class="p">,</span> <span class="s1">&#39;kilometers&#39;</span><span class="p">,</span>
+             <span class="s1">&#39;seconds&#39;</span><span class="p">,</span> <span class="s1">&#39;minutes&#39;</span><span class="p">,</span> <span class="s1">&#39;hours&#39;</span><span class="p">,</span> <span class="s1">&#39;days&#39;</span><span class="p">,</span> <span class="s1">&#39;years&#39;</span><span class="p">,</span>
+             <span class="s1">&#39;liters&#39;</span><span class="p">,</span> <span class="s1">&#39;gallons&#39;</span><span class="p">,</span> <span class="s1">&#39;million gallons&#39;</span><span class="p">,</span> <span class="s1">&#39;acre-feet&#39;</span>
+             <span class="p">}</span>
+
+<span class="n">abbreviations</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;ft&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;cm&#39;</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span> <span class="s1">&#39;h&#39;</span><span class="p">,</span> <span class="s1">&#39;d&#39;</span><span class="p">,</span> <span class="s1">&#39;yr&#39;</span><span class="p">,</span> <span class="s1">&#39;mgal&#39;</span><span class="p">,</span> <span class="s1">&#39;L&#39;</span><span class="p">,</span> <span class="s1">&#39;gal&#39;</span><span class="p">,</span> <span class="s1">&#39;acre-ft&#39;</span><span class="p">}</span>
+<span class="n">lenuni_text</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">lenuni_values</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">fullnames</span><span class="p">}</span>
+<span class="n">unit_abbreviated_text</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">lenuni_values</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">abbreviations</span><span class="p">}</span>
+
+<span class="n">volumetric_units</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;liters&#39;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span>
+                    <span class="s1">&#39;L&#39;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span>
+                    <span class="s1">&#39;gallons&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span>
+                    <span class="s1">&#39;gallon&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span>
+                    <span class="s1">&#39;gal&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span>
+                    <span class="s1">&#39;mgal&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+                    <span class="s1">&#39;million gallons&#39;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+                    <span class="s1">&#39;acre feet&#39;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+                    <span class="s1">&#39;acre-feet&#39;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+                    <span class="s1">&#39;af&#39;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+                    <span class="s1">&#39;acre-ft&#39;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+                    <span class="s1">&#39;acre foot&#39;</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span>
+                    <span class="s1">&#39;acre-foot&#39;</span><span class="p">:</span> <span class="mi">16</span>
+                    <span class="p">}</span>
+<span class="n">volumetric_units_text</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">volumetric_units</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                         <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">fullnames</span><span class="p">}</span>
+<span class="n">unit_abbreviated_text</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">volumetric_units</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                              <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">abbreviations</span><span class="p">})</span>
+
+
+<span class="n">itmuni_values</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;unknown&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                 <span class="s2">&quot;seconds&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                 <span class="s2">&quot;minutes&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                 <span class="s2">&quot;hours&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                 <span class="s2">&quot;days&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+                 <span class="s2">&quot;years&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                 <span class="s2">&quot;second&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                 <span class="s2">&quot;minute&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                 <span class="s2">&quot;hour&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                 <span class="s2">&quot;day&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+                 <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+                 <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                 <span class="s2">&quot;m&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                 <span class="s2">&quot;h&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+                 <span class="s2">&quot;d&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+                 <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="mi">5</span>
+                 <span class="p">}</span>
+
+<span class="c1"># convert from model length units to the unit abbreviations that pandas uses</span>
+<span class="n">pandas_units</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;seconds&quot;</span><span class="p">:</span> <span class="s2">&quot;s&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;minutes&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;hours&quot;</span><span class="p">:</span> <span class="s2">&quot;h&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;days&quot;</span><span class="p">:</span> <span class="s2">&quot;D&quot;</span>
+                <span class="p">}</span>
+
+<span class="n">itmuni_text</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">itmuni_values</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">fullnames</span><span class="p">}</span>
+<span class="n">itmuni_abbreviated_text</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">itmuni_values</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">abbreviations</span><span class="p">}</span>
+
+
+<div class="viewcode-block" id="get_time_units">
+<a class="viewcode-back" href="../../api/index.html#mfexport.units.get_time_units">[docs]</a>
+<span class="k">def</span> <span class="nf">get_time_units</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return time units for model as text.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">version</span> <span class="o">==</span> <span class="s1">&#39;mf6&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">simulation</span><span class="o">.</span><span class="n">tdis</span><span class="o">.</span><span class="n">time_units</span><span class="o">.</span><span class="n">array</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">itmuni_text</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">dis</span><span class="o">.</span><span class="n">itmuni</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="get_length_units">
+<a class="viewcode-back" href="../../api/index.html#mfexport.units.get_length_units">[docs]</a>
+<span class="k">def</span> <span class="nf">get_length_units</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return length units for model as text.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">version</span> <span class="o">==</span> <span class="s1">&#39;mf6&#39;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">dis</span><span class="o">.</span><span class="n">length_units</span><span class="o">.</span><span class="n">array</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">lenuni_text</span><span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">dis</span><span class="o">.</span><span class="n">lenuni</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="convert_length_units">
+<a class="viewcode-back" href="../../api/index.html#mfexport.units.convert_length_units">[docs]</a>
+<span class="k">def</span> <span class="nf">convert_length_units</span><span class="p">(</span><span class="n">lenuni1</span><span class="p">,</span> <span class="n">lenuni2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert length units, takes MODFLOW-2005 style lenuni numbers</span>
+<span class="sd">    or MF-6 style text.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lenuni1 : int or str</span>
+<span class="sd">        Convert from.</span>
+<span class="sd">    lenuni2 : int or str</span>
+<span class="sd">        Convert to.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    mult : float</span>
+<span class="sd">        Multiplier to convert from lenuni1 to lenuni2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">lenuni1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">lenuni2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">1.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lenuni1</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">lenuni1</span> <span class="o">=</span> <span class="n">lenuni_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">lenuni1</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lenuni2</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">lenuni2</span> <span class="o">=</span> <span class="n">lenuni_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">lenuni2</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">length_conversions</span> <span class="o">=</span> <span class="n">get_length_conversions</span><span class="p">()</span>
+    <span class="n">mult</span> <span class="o">=</span> <span class="n">length_conversions</span><span class="p">[</span><span class="n">lenuni1</span><span class="p">,</span> <span class="n">lenuni2</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">mult</span></div>
+
+
+
+<div class="viewcode-block" id="convert_time_units">
+<a class="viewcode-back" href="../../api/index.html#mfexport.units.convert_time_units">[docs]</a>
+<span class="k">def</span> <span class="nf">convert_time_units</span><span class="p">(</span><span class="n">itmuni1</span><span class="p">,</span> <span class="n">itmuni2</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert time units, takes MODFLOW-2005 style itmuni numbers</span>
+<span class="sd">    or MF-6 style text.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    itmuni1 : int or str</span>
+<span class="sd">        Convert from.</span>
+<span class="sd">    itmuni2 : int or str</span>
+<span class="sd">        Convert to.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    mult : float</span>
+<span class="sd">        Multiplier to convert from itmuni1 to itmuni2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">itmuni1</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">itmuni2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">1.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">itmuni1</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">itmuni1</span> <span class="o">=</span> <span class="n">itmuni_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">itmuni1</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">itmuni2</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">itmuni2</span> <span class="o">=</span> <span class="n">itmuni_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">itmuni2</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">yearlen</span> <span class="o">=</span> <span class="mf">365.25</span>
+    <span class="n">mults</span> <span class="o">=</span> <span class="p">{(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span> <span class="mi">1</span><span class="o">/</span><span class="mi">60</span><span class="p">,</span>
+             <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="mi">1</span><span class="o">/</span><span class="mi">3600</span><span class="p">,</span>
+             <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span> <span class="mi">1</span><span class="o">/</span><span class="mi">86400</span><span class="p">,</span>
+             <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">86400</span> <span class="o">*</span> <span class="n">yearlen</span><span class="p">),</span>
+             <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="mi">1</span><span class="o">/</span><span class="mi">60</span><span class="p">,</span>
+             <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span> <span class="mi">1</span><span class="o">/</span><span class="mi">1440</span><span class="p">,</span>
+             <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1440</span> <span class="o">*</span> <span class="n">yearlen</span><span class="p">),</span>
+             <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span> <span class="mi">1</span><span class="o">/</span><span class="mi">24</span><span class="p">,</span>
+             <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">24</span> <span class="o">*</span> <span class="n">yearlen</span><span class="p">),</span>
+             <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span> <span class="mi">1</span><span class="o">/</span><span class="n">yearlen</span><span class="p">}</span>
+    <span class="n">convert_time_units</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">u0</span><span class="p">,</span> <span class="n">u1</span><span class="p">),</span> <span class="n">mult</span> <span class="ow">in</span> <span class="n">mults</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">convert_time_units</span><span class="p">[</span><span class="n">u0</span><span class="p">,</span> <span class="n">u1</span><span class="p">]</span> <span class="o">=</span> <span class="n">mult</span>
+        <span class="n">convert_time_units</span><span class="p">[</span><span class="n">u1</span><span class="p">,</span> <span class="n">u0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">mult</span>
+    <span class="n">mult</span> <span class="o">=</span> <span class="n">convert_time_units</span><span class="p">[</span><span class="n">itmuni1</span><span class="p">,</span> <span class="n">itmuni2</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">mult</span></div>
+
+
+
+<div class="viewcode-block" id="get_length_conversions">
+<a class="viewcode-back" href="../../api/index.html#mfexport.units.get_length_conversions">[docs]</a>
+<span class="k">def</span> <span class="nf">get_length_conversions</span><span class="p">():</span>
+    <span class="n">mults</span> <span class="o">=</span> <span class="p">{(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span> <span class="mi">1</span> <span class="o">*</span> <span class="mf">0.3048</span><span class="p">,</span>  <span class="c1"># feet to m</span>
+             <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="mi">100</span> <span class="o">*</span> <span class="mf">0.3048</span><span class="p">,</span>
+             <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span> <span class="mi">1000</span> <span class="o">*</span> <span class="mf">0.3048</span><span class="p">,</span>
+             <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">9</span><span class="p">):</span> <span class="mi">1</span> <span class="o">*</span> <span class="mf">0.3048</span> <span class="o">/</span> <span class="mi">5280</span><span class="p">,</span>  <span class="c1"># feet to km</span>
+             <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span> <span class="mi">1</span> <span class="o">*</span> <span class="mi">12</span><span class="p">,</span>
+             <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">5280</span><span class="p">,</span>  <span class="c1"># feet to miles</span>
+             <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="mi">100</span><span class="p">,</span>  <span class="c1"># meters to cm</span>
+             <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span> <span class="mi">1000</span><span class="p">,</span>
+             <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">9</span><span class="p">):</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">,</span>
+             <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span> <span class="mi">1</span> <span class="o">*</span> <span class="mi">12</span> <span class="o">/</span> <span class="mf">.3048</span><span class="p">,</span>
+             <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mf">.3048</span> <span class="o">*</span> <span class="mi">5280</span><span class="p">),</span>
+             <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span> <span class="mi">10</span><span class="p">,</span>  <span class="c1"># cm to mm</span>
+             <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">9</span><span class="p">):</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">),</span>
+             <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span> <span class="mi">1</span> <span class="o">*</span> <span class="mi">12</span> <span class="o">/</span> <span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="mf">.3048</span><span class="p">),</span>
+             <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mf">.3048</span> <span class="o">*</span> <span class="mi">5280</span> <span class="o">*</span> <span class="mi">100</span><span class="p">),</span>
+             <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">9</span><span class="p">):</span> <span class="mi">1</span> <span class="o">/</span> <span class="mf">1e6</span><span class="p">,</span>  <span class="c1"># mm to km</span>
+             <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span> <span class="mi">1</span> <span class="o">*</span> <span class="mi">12</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="mf">.3048</span><span class="p">),</span>
+             <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span> <span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="mf">.3048</span> <span class="o">*</span> <span class="mi">5280</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">),</span>
+             <span class="p">}</span>
+    <span class="n">length_conversions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">u0</span><span class="p">,</span> <span class="n">u1</span><span class="p">),</span> <span class="n">mult</span> <span class="ow">in</span> <span class="n">mults</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">length_conversions</span><span class="p">[</span><span class="n">u0</span><span class="p">,</span> <span class="n">u1</span><span class="p">]</span> <span class="o">=</span> <span class="n">mult</span>
+        <span class="n">length_conversions</span><span class="p">[</span><span class="n">u1</span><span class="p">,</span> <span class="n">u0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">mult</span>
+    <span class="k">return</span> <span class="n">length_conversions</span></div>
+
+
+
+<div class="viewcode-block" id="get_volume_conversions">
+<a class="viewcode-back" href="../../api/index.html#mfexport.units.get_volume_conversions">[docs]</a>
+<span class="k">def</span> <span class="nf">get_volume_conversions</span><span class="p">():</span>
+    <span class="n">length_conversions</span> <span class="o">=</span> <span class="n">get_length_conversions</span><span class="p">()</span>
+    <span class="n">m</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">length_conversions</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">size</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">volumetric_units</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">volume_conversions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">volume_conversions</span><span class="p">[:</span><span class="n">m</span><span class="p">,</span> <span class="p">:</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">length_conversions</span> <span class="o">**</span><span class="mi">3</span>
+    <span class="n">mults</span> <span class="o">=</span> <span class="p">{(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mf">.3048</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">/</span><span class="mi">1000</span><span class="p">,</span>  <span class="c1"># liters to ft3</span>
+             <span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span> <span class="mi">1</span><span class="o">/</span><span class="mi">1000</span><span class="p">,</span>
+             <span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="mi">1000</span><span class="p">,</span>
+             <span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span> <span class="mf">1e6</span><span class="p">,</span>
+             <span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mf">.3048</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">/</span><span class="mi">1000</span><span class="o">/</span><span class="p">(</span><span class="mi">12</span><span class="o">**</span><span class="mi">3</span><span class="p">),</span> <span class="c1"># liters to cubic inches</span>
+             <span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">):</span> <span class="mi">1</span><span class="o">/</span><span class="mf">3.78541</span><span class="p">,</span> <span class="c1"># liters to gallons</span>
+             <span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">15</span><span class="p">):</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mf">3.78541</span> <span class="o">*</span> <span class="mf">1e6</span><span class="p">),</span> <span class="c1"># liters to million gallons</span>
+             <span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">16</span><span class="p">):</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mf">.3048</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">/</span><span class="mi">1000</span><span class="o">/</span><span class="mi">43560</span><span class="p">,</span> <span class="c1"># liters to acre feet</span>
+             <span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="mi">1</span> <span class="o">/</span> <span class="mf">7.48052</span><span class="p">,</span>  <span class="c1"># gallons to ft3</span>
+             <span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span> <span class="p">(</span><span class="mf">.3048</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="mf">7.48052</span><span class="p">,</span> <span class="c1"># gallons to m3</span>
+             <span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="mf">1e6</span> <span class="o">*</span> <span class="p">(</span><span class="mf">.3048</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="mf">7.48052</span><span class="p">,</span>  <span class="c1"># gallons to cm3</span>
+             <span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span> <span class="mf">1e9</span> <span class="o">*</span> <span class="p">(</span><span class="mf">.3048</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="mf">7.48052</span><span class="p">,</span>  <span class="c1"># gallons to mm3</span>
+             <span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span> <span class="mi">1</span><span class="o">/</span><span class="mi">231</span><span class="p">,</span> <span class="c1"># gallons to cubic inches</span>
+             <span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">):</span> <span class="mi">1</span><span class="o">/</span><span class="mf">1e6</span><span class="p">,</span> <span class="c1"># gallons to million gallons</span>
+             <span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">16</span><span class="p">):</span> <span class="mi">1</span> <span class="o">/</span> <span class="mf">7.48052</span> <span class="o">/</span> <span class="mi">43560</span><span class="p">,</span> <span class="c1"># gallons to acre feet</span>
+             <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="mf">1e6</span> <span class="o">/</span> <span class="mf">7.48052</span><span class="p">,</span>  <span class="c1"># million gallons to ft3</span>
+             <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span> <span class="mf">1e6</span> <span class="o">*</span> <span class="p">(</span><span class="mf">.3048</span> <span class="o">**</span> <span class="mi">3</span><span class="p">)</span> <span class="o">/</span> <span class="mf">7.48052</span><span class="p">,</span>  <span class="c1"># million gallons to m3</span>
+             <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span> <span class="mf">1e6</span> <span class="o">/</span> <span class="mi">231</span><span class="p">,</span>
+             <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">):</span> <span class="mf">1e6</span> <span class="o">/</span> <span class="mf">7.48052</span> <span class="o">/</span> <span class="mi">43560</span><span class="p">,</span> <span class="c1"># million gallons to acre feet</span>
+             <span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="mi">1</span><span class="o">/</span><span class="mi">43560</span><span class="p">,</span>  <span class="c1"># acre feet to ft3</span>
+             <span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span> <span class="mi">1</span><span class="o">/</span><span class="mi">43560</span> <span class="o">*</span> <span class="p">(</span><span class="mf">.3048</span> <span class="o">**</span> <span class="mi">3</span><span class="p">),</span> <span class="c1"># acre feet to m3</span>
+             <span class="p">}</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">u0</span><span class="p">,</span> <span class="n">u1</span><span class="p">),</span> <span class="n">mult</span> <span class="ow">in</span> <span class="n">mults</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">volume_conversions</span><span class="p">[</span><span class="n">u0</span><span class="p">,</span> <span class="n">u1</span><span class="p">]</span> <span class="o">=</span> <span class="n">mult</span>
+        <span class="n">volume_conversions</span><span class="p">[</span><span class="n">u1</span><span class="p">,</span> <span class="n">u0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">mult</span>
+    <span class="k">return</span> <span class="n">volume_conversions</span></div>
+
+
+
+<div class="viewcode-block" id="get_unit_text">
+<a class="viewcode-back" href="../../api/index.html#mfexport.units.get_unit_text">[docs]</a>
+<span class="k">def</span> <span class="nf">get_unit_text</span><span class="p">(</span><span class="n">length_unit</span><span class="p">,</span> <span class="n">time_unit</span><span class="p">,</span> <span class="n">length_unit_exp</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get text abbreviation for common units.</span>
+<span class="sd">    Needs to be filled out more.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">length_unit</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">length_unit</span> <span class="o">=</span> <span class="n">lenuni_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">length_unit</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time_unit</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">time_unit</span> <span class="o">=</span> <span class="n">itmuni_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">time_unit</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="p">{(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="s1">&#39;cfs&#39;</span><span class="p">,</span>
+            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="s1">&#39;cfd&#39;</span><span class="p">,</span>
+            <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="s1">&#39;cms&#39;</span><span class="p">,</span>
+            <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span> <span class="s1">&#39;cmd&#39;</span>
+            <span class="p">}</span>
+    <span class="k">return</span> <span class="n">text</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">length_unit</span><span class="p">,</span> <span class="n">time_unit</span><span class="p">,</span> <span class="n">length_unit_exp</span><span class="p">),</span> <span class="s1">&#39;units&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="convert_volume_units">
+<a class="viewcode-back" href="../../api/index.html#mfexport.units.convert_volume_units">[docs]</a>
+<span class="k">def</span> <span class="nf">convert_volume_units</span><span class="p">(</span><span class="n">input_volume_units</span><span class="p">,</span> <span class="n">output_volume_units</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">input_volume_units</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">output_volume_units</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">1.</span>
+
+    <span class="c1"># if both units are expressed as lengths cubed</span>
+    <span class="n">in_units</span> <span class="o">=</span> <span class="n">parse_length_units</span><span class="p">(</span><span class="n">input_volume_units</span><span class="p">,</span> <span class="n">text_output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">in_units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">in_units</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">in_units</span> <span class="o">=</span> <span class="n">lenuni_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">in_units</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">in_units</span> <span class="o">=</span> <span class="n">volumetric_units</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">input_volume_units</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">out_units</span> <span class="o">=</span> <span class="n">parse_length_units</span><span class="p">(</span><span class="n">output_volume_units</span><span class="p">,</span> <span class="n">text_output</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">out_units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">out_units</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">out_units</span> <span class="o">=</span> <span class="n">lenuni_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">out_units</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">out_units</span> <span class="o">=</span> <span class="n">volumetric_units</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">output_volume_units</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="c1"># get the volume conversions matrix</span>
+    <span class="n">vol_conversions</span> <span class="o">=</span> <span class="n">get_volume_conversions</span><span class="p">()</span>
+
+    <span class="c1"># look up the multiplier</span>
+    <span class="n">mult</span> <span class="o">=</span> <span class="n">vol_conversions</span><span class="p">[</span><span class="n">in_units</span><span class="p">,</span> <span class="n">out_units</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">mult</span></div>
+
+
+
+<div class="viewcode-block" id="convert_flux_units">
+<a class="viewcode-back" href="../../api/index.html#mfexport.units.convert_flux_units">[docs]</a>
+<span class="k">def</span> <span class="nf">convert_flux_units</span><span class="p">(</span><span class="n">input_length_units</span><span class="p">,</span> <span class="n">input_time_units</span><span class="p">,</span>
+                       <span class="n">output_length_units</span><span class="p">,</span> <span class="n">output_time_units</span><span class="p">):</span>
+    <span class="c1"># TODO: add support for areas and volumes</span>
+
+    <span class="n">lmult</span> <span class="o">=</span> <span class="n">convert_length_units</span><span class="p">(</span><span class="n">input_length_units</span><span class="p">,</span> <span class="n">output_length_units</span><span class="p">)</span>
+    <span class="n">tmult</span> <span class="o">=</span> <span class="n">convert_time_units</span><span class="p">(</span><span class="n">input_time_units</span><span class="p">,</span> <span class="n">output_time_units</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">lmult</span> <span class="o">/</span> <span class="n">tmult</span></div>
+
+
+
+<div class="viewcode-block" id="parse_length_units">
+<a class="viewcode-back" href="../../api/index.html#mfexport.units.parse_length_units">[docs]</a>
+<span class="k">def</span> <span class="nf">parse_length_units</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">text_output</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">volumetric_units</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="k">return</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">lenuni_values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">text</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">text_output</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">k</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">v</span></div>
+
+
+
+<div class="viewcode-block" id="convert_temperature_units">
+<a class="viewcode-back" href="../../api/index.html#mfexport.units.convert_temperature_units">[docs]</a>
+<span class="k">def</span> <span class="nf">convert_temperature_units</span><span class="p">(</span><span class="n">input_temp_units</span><span class="p">,</span> <span class="n">output_temp_units</span><span class="p">):</span>
+    <span class="n">temp_units</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;celsius&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                  <span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                  <span class="s1">&#39;fahrenheit&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+                  <span class="s1">&#39;f&#39;</span><span class="p">:</span> <span class="mi">2</span>
+                  <span class="p">}</span>
+
+    <span class="n">input_temp_units</span> <span class="o">=</span> <span class="n">temp_units</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">input_temp_units</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">output_temp_units</span> <span class="o">=</span> <span class="n">temp_units</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">output_temp_units</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">unknown</span><span class="p">(</span><span class="n">temp</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">temp</span>
+
+    <span class="k">def</span> <span class="nf">c_to_f</span><span class="p">(</span><span class="n">temp</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">temp</span> <span class="o">*</span> <span class="p">(</span><span class="mi">9</span><span class="o">/</span><span class="mi">5</span><span class="p">)</span> <span class="o">+</span> <span class="mi">32</span>
+
+    <span class="k">def</span> <span class="nf">f_to_c</span><span class="p">(</span><span class="n">temp</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mi">5</span><span class="o">/</span><span class="mi">9</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">temp</span> <span class="o">-</span> <span class="mi">32</span><span class="p">)</span>
+
+    <span class="n">conversions</span> <span class="o">=</span> <span class="p">{(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span> <span class="n">c_to_f</span><span class="p">,</span>
+                   <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span> <span class="n">f_to_c</span><span class="p">}</span>
+    <span class="n">conversion</span> <span class="o">=</span> <span class="n">conversions</span><span class="o">.</span><span class="n">get</span><span class="p">((</span><span class="n">input_temp_units</span><span class="p">,</span> <span class="n">output_temp_units</span><span class="p">),</span> <span class="n">unknown</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">conversion</span></div>
+
+
+
+<div class="viewcode-block" id="get_figure_label_unit_text">
+<a class="viewcode-back" href="../../api/index.html#mfexport.units.get_figure_label_unit_text">[docs]</a>
+<span class="k">def</span> <span class="nf">get_figure_label_unit_text</span><span class="p">(</span><span class="n">length_unit</span><span class="p">,</span> <span class="n">time_unit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">length_unit_exp</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get text abbreviation for common units.</span>
+<span class="sd">    Needs to be filled out more.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">length_unit</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">length_unit</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">lenuni_values</span><span class="p">:</span>
+            <span class="n">length_unit</span> <span class="o">=</span> <span class="n">lenuni_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">length_unit</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">length_unit</span> <span class="o">=</span> <span class="n">volumetric_units</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">length_unit</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="c1"># if volume-only units (liters, gallons, etc.), no exponent</span>
+            <span class="k">if</span> <span class="n">length_unit</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">length_unit_exp</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unrecognized length unit: </span><span class="si">{</span><span class="n">length_unit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time_unit</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">time_unit</span> <span class="o">=</span> <span class="n">itmuni_values</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">time_unit</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unrecognized time unit: </span><span class="si">{</span><span class="n">time_unit</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;$</span><span class="si">{</span><span class="n">unit_abbreviated_text</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">length_unit</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;L&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="n">length_unit_exp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;^</span><span class="si">{</span><span class="n">length_unit_exp</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="n">time_unit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;/</span><span class="si">{</span><span class="n">itmuni_abbreviated_text</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">time_unit</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;T&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">$&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">+=</span> <span class="s1">&#39;$&#39;</span>
+    <span class="k">return</span> <span class="n">text</span></div>
+
+
+
+<div class="viewcode-block" id="parse_flux_units">
+<a class="viewcode-back" href="../../api/index.html#mfexport.units.parse_flux_units">[docs]</a>
+<span class="k">def</span> <span class="nf">parse_flux_units</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="n">divby_char</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;per&#39;</span><span class="p">}</span>
+    <span class="n">split_char</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">divby_char</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">text</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">split_char</span><span class="p">:</span>
+        <span class="n">split_char</span> <span class="o">=</span> <span class="n">split_char</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">length_units</span><span class="p">,</span> <span class="n">time_units</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">split_char</span><span class="p">)</span>
+    <span class="n">exp</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">length_units</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isdigit</span><span class="p">()]</span>
+    <span class="k">if</span> <span class="n">exp</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">exp</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">exp</span> <span class="o">=</span> <span class="n">exp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">exp</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">exp</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">return</span> <span class="n">length_units</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">exp</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">time_units</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2019, Andrew Leaf.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

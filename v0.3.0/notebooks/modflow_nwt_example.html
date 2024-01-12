@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>export a model &mdash; modflow-export 0.3.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/documentation_options.js?v=e259d695"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+        <script src="../_static/copybutton.js?v=f281be69"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Plotting MODFLOW listing file budgets" href="plotting_listing_file_budgets.html" />
+    <link rel="prev" title="Examples" href="../examples.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            modflow-export
+          </a>
+              <div class="version">
+                0.3.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../examples.html"> Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#"> Summarizing inputs and outputs for a MODFLOW-NWT model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#load-the-model-using-flopy">load the model using flopy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#define-the-location-of-the-model-grid">define the location of the model grid</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#export-all-data-arrays-and-stress-period-data-(MfLists)-to-shapefiles,-rasters-and-PDFs">export all data arrays and stress period data (<code class="docutils literal notranslate"><span class="pre">MfLists</span></code>) to shapefiles, rasters and PDFs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#export-a-package">export a package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#summarize-model-input">summarize model input</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Export-model-results">Export model results</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cell-by-cell-flows">cell by cell flows</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#heads">heads</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#drawdown">drawdown</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#SFR-results">SFR results</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="plotting_listing_file_budgets.html"> Plotting budgets from a MODFLOW listing file</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html"> Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html"> Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html"> Code reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../release-history.html"> Release History</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html"> Contributing to Modflow-export</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">modflow-export</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../examples.html">Examples</a></li>
+      <li class="breadcrumb-item active">export a model</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/notebooks/modflow_nwt_example.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">flopy.modflow</span> <span class="k">as</span> <span class="nn">fm</span>
+<span class="kn">import</span> <span class="nn">mfexport</span>
+</pre></div>
+</div>
+</div>
+<section id="export-a-model">
+<h1>export a model<a class="headerlink" href="#export-a-model" title="Link to this heading">¶</a></h1>
+<section id="load-the-model-using-flopy">
+<h2>load the model using flopy<a class="headerlink" href="#load-the-model-using-flopy" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">m</span> <span class="o">=</span> <span class="n">fm</span><span class="o">.</span><span class="n">Modflow</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s1">&#39;lpr_inset.nam&#39;</span><span class="p">,</span>
+                    <span class="n">model_ws</span><span class="o">=</span><span class="s1">&#39;data/lpr&#39;</span><span class="p">)</span>
+<span class="n">m</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/flopy/mbase.py:96: UserWarning: The program mf2005 does not exist or is not executable.
+  warn(
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/pyproj/crs/crs.py:141: FutureWarning: &#39;+init=&lt;authority&gt;:&lt;code&gt;&#39; syntax is deprecated. &#39;&lt;authority&gt;:&lt;code&gt;&#39; is the preferred initialization method. When making the change, be mindful of axis order changes: https://pyproj4.github.io/pyproj/stable/gotchas.html#axis-order-changes-in-proj-6
+  in_crs_string = _prepare_from_proj_string(in_crs_string)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+MODFLOW 3 layer(s) 137 row(s) 171 column(s) 12 stress period(s)
+</pre></div></div>
+</div>
+</section>
+<section id="define-the-location-of-the-model-grid">
+<h2>define the location of the model grid<a class="headerlink" href="#define-the-location-of-the-model-grid" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>spacing in meters</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grid</span> <span class="o">=</span> <span class="n">mfexport</span><span class="o">.</span><span class="n">MFexportGrid</span><span class="p">(</span><span class="n">delr</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">dis</span><span class="o">.</span><span class="n">delr</span><span class="o">.</span><span class="n">array</span> <span class="o">*</span> <span class="mf">.3048</span><span class="p">,</span> <span class="c1"># grid spacing in meters</span>
+                             <span class="n">delc</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">dis</span><span class="o">.</span><span class="n">delc</span><span class="o">.</span><span class="n">array</span> <span class="o">*</span> <span class="mf">.3048</span><span class="p">,</span>
+                             <span class="n">xul</span><span class="o">=</span><span class="mi">557571</span><span class="p">,</span> <span class="n">yul</span><span class="o">=</span><span class="mi">446166</span><span class="p">,</span> <span class="c1"># upper left corner in CRS</span>
+                             <span class="n">epsg</span><span class="o">=</span><span class="mi">3070</span> <span class="c1"># epsg reference for projected CRS</span>
+                            <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/flopy/utils/crs.py:114: PendingDeprecationWarning: the prj argument will be deprecated and will be removed in version 3.6. Use prjfile instead.
+  warnings.warn(
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/flopy/utils/crs.py:121: PendingDeprecationWarning: the epsg argument will be deprecated and will be removed in version 3.6. Use crs instead.
+  warnings.warn(
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/flopy/utils/crs.py:140: PendingDeprecationWarning: the proj4 argument will be deprecated and will be removed in version 3.6. Use crs instead.
+  warnings.warn(
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/flopy/utils/crs.py:121: PendingDeprecationWarning: the epsg argument will be deprecated and will be removed in version 3.6. Use crs instead.
+  warnings.warn(
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/flopy/utils/crs.py:140: PendingDeprecationWarning: the proj4 argument will be deprecated and will be removed in version 3.6. Use crs instead.
+  warnings.warn(
+</pre></div></div>
+</div>
+<section id="export-all-data-arrays-and-stress-period-data-(MfLists)-to-shapefiles,-rasters-and-PDFs">
+<h3>export all data arrays and stress period data (<code class="docutils literal notranslate"><span class="pre">MfLists</span></code>) to shapefiles, rasters and PDFs<a class="headerlink" href="#export-all-data-arrays-and-stress-period-data-(MfLists)-to-shapefiles,-rasters-and-PDFs" title="Link to this heading">¶</a></h3>
+<ul class="simple">
+<li><p>array data are written to compressed GeoTIFFs</p></li>
+<li><p>transient lists are written to shapefiles</p>
+<ul>
+<li><p>only model cells in the list are included</p></li>
+<li><p>stress period data are included as attributes; only periods where stresses change are included</p></li>
+</ul>
+</li>
+<li><p>all data are displayed in PDFs using <code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.imshow</span></code></p></li>
+</ul>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%capture</span>
+<span class="n">mfexport</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;postproc&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="export-a-package">
+<h3>export a package<a class="headerlink" href="#export-a-package" title="Link to this heading">¶</a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%capture</span>
+<span class="n">mfexport</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="s1">&#39;wel&#39;</span><span class="p">,</span> <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;postproc&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="summarize-model-input">
+<h3>summarize model input<a class="headerlink" href="#summarize-model-input" title="Link to this heading">¶</a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">mfexport</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+summarizing lpr_inset input...
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>package</th>
+      <th>variable</th>
+      <th>layer</th>
+      <th>min</th>
+      <th>mean</th>
+      <th>max</th>
+      <th>period</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>DIS</td>
+      <td>botm</td>
+      <td>0.0</td>
+      <td>1033.500000</td>
+      <td>1049.306527</td>
+      <td>1066.699951</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>DIS</td>
+      <td>botm</td>
+      <td>1.0</td>
+      <td>991.239990</td>
+      <td>1004.092457</td>
+      <td>1063.699951</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>DIS</td>
+      <td>botm</td>
+      <td>2.0</td>
+      <td>988.239990</td>
+      <td>1000.740342</td>
+      <td>1042.599976</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>DIS</td>
+      <td>model_top</td>
+      <td>NaN</td>
+      <td>1071.079956</td>
+      <td>1105.837196</td>
+      <td>1190.459961</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>BAS6</td>
+      <td>ibound</td>
+      <td>0.0</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>BAS6</td>
+      <td>ibound</td>
+      <td>1.0</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>BAS6</td>
+      <td>ibound</td>
+      <td>2.0</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>BAS6</td>
+      <td>strt</td>
+      <td>0.0</td>
+      <td>1069.800049</td>
+      <td>1087.256670</td>
+      <td>1107.099976</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>BAS6</td>
+      <td>strt</td>
+      <td>1.0</td>
+      <td>1069.900024</td>
+      <td>1087.247706</td>
+      <td>1107.099976</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>BAS6</td>
+      <td>strt</td>
+      <td>2.0</td>
+      <td>1070.000000</td>
+      <td>1087.247450</td>
+      <td>1107.099976</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>UPW</td>
+      <td>hani</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>UPW</td>
+      <td>hani</td>
+      <td>1.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>UPW</td>
+      <td>hani</td>
+      <td>2.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>UPW</td>
+      <td>hk</td>
+      <td>0.0</td>
+      <td>1.005800</td>
+      <td>241.219448</td>
+      <td>10000.000000</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>UPW</td>
+      <td>hk</td>
+      <td>1.0</td>
+      <td>19.238001</td>
+      <td>249.383617</td>
+      <td>354.209991</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>UPW</td>
+      <td>hk</td>
+      <td>2.0</td>
+      <td>19.238001</td>
+      <td>243.610578</td>
+      <td>354.209991</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>UPW</td>
+      <td>ss</td>
+      <td>0.0</td>
+      <td>0.001000</td>
+      <td>0.004113</td>
+      <td>1.000000</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>UPW</td>
+      <td>ss</td>
+      <td>1.0</td>
+      <td>0.001000</td>
+      <td>0.001000</td>
+      <td>0.001000</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>UPW</td>
+      <td>ss</td>
+      <td>2.0</td>
+      <td>0.001000</td>
+      <td>0.001000</td>
+      <td>0.001000</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>UPW</td>
+      <td>sy</td>
+      <td>0.0</td>
+      <td>0.120000</td>
+      <td>0.122742</td>
+      <td>1.000000</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="Export-model-results">
+<h3>Export model results<a class="headerlink" href="#Export-model-results" title="Link to this heading">¶</a></h3>
+</section>
+</section>
+<section id="cell-by-cell-flows">
+<h2>cell by cell flows<a class="headerlink" href="#cell-by-cell-flows" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>written to compressed GeoTIFFs</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mfexport</span><span class="o">.</span><span class="n">export_cell_budget</span><span class="p">(</span><span class="s1">&#39;data/lpr/lpr_inset.cbc&#39;</span><span class="p">,</span>
+                   <span class="n">grid</span><span class="p">,</span>
+                   <span class="n">kstpkper</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;postproc&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exporting cell budget info...
+file: data/lpr/lpr_inset.cbc
+binary grid file: None
+stress period 0, timestep 4
+wrote postproc/rasters/STORAGE_per0_stp4.tif
+wrote postproc/rasters/CONSTANT HEAD_per0_stp4.tif
+wrote postproc/rasters/FLOW RIGHT FACE_per0_stp4.tif
+wrote postproc/rasters/FLOW FRONT FACE_per0_stp4.tif
+wrote postproc/rasters/FLOW LOWER FACE_per0_stp4.tif
+wrote postproc/rasters/WELLS_per0_stp4.tif
+wrote postproc/rasters/RECHARGE_per0_stp4.tif
+wrote postproc/rasters/STREAM LEAKAGE_per0_stp4.tif
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;postproc/rasters/STORAGE_per0_stp4.tif&#39;,
+ &#39;postproc/rasters/CONSTANT HEAD_per0_stp4.tif&#39;,
+ &#39;postproc/rasters/FLOW RIGHT FACE_per0_stp4.tif&#39;,
+ &#39;postproc/rasters/FLOW FRONT FACE_per0_stp4.tif&#39;,
+ &#39;postproc/rasters/FLOW LOWER FACE_per0_stp4.tif&#39;,
+ &#39;postproc/rasters/WELLS_per0_stp4.tif&#39;,
+ &#39;postproc/rasters/RECHARGE_per0_stp4.tif&#39;,
+ &#39;postproc/rasters/STREAM LEAKAGE_per0_stp4.tif&#39;]
+</pre></div></div>
+</div>
+</section>
+<section id="heads">
+<h2>heads<a class="headerlink" href="#heads" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>compressed GeoTIFFs</p></li>
+<li><p>shapefiles of equipotential contours</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">headsfile</span> <span class="o">=</span> <span class="s1">&#39;data/lpr/lpr_inset.hds&#39;</span>
+
+<span class="n">mfexport</span><span class="o">.</span><span class="n">export_heads</span><span class="p">(</span><span class="n">headsfile</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">hdry</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">upw</span><span class="o">.</span><span class="n">hdry</span><span class="p">,</span> <span class="n">hnflo</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">bas6</span><span class="o">.</span><span class="n">hnoflo</span><span class="p">,</span>
+                      <span class="n">kstpkper</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                      <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;postproc&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exporting heads...
+file: data/lpr/lpr_inset.hds
+stress period 0, timestep 4
+wrote postproc/rasters/wt_per0_stp4.tif
+writing postproc/shps/wt_ctr_per0_stp4.shp... Done
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/runner/work/modflow-export/modflow-export/mfexport/array_export.py:163: MatplotlibDeprecationWarning: The collections attribute was deprecated in Matplotlib 3.8 and will be removed two minor releases later.
+  for i, c in enumerate(ctr.collections):
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/gisutils/shapefile.py:117: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if LooseVersion(fiona.__gdal_version__) &lt; LooseVersion(&#34;3.0.0&#34;):
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/gisutils/shapefile.py:117: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if LooseVersion(fiona.__gdal_version__) &lt; LooseVersion(&#34;3.0.0&#34;):
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/gisutils/shapefile.py:129: ShapelyDeprecationWarning: The &#39;type&#39; attribute is deprecated, and will be removed in the future. You can use the &#39;geom_type&#39; attribute instead.
+  Type = g.type
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;postproc/rasters/wt_per0_stp4.tif&#39;, &#39;postproc/shps/wt_ctr_per0_stp4.shp&#39;]
+</pre></div></div>
+</div>
+</section>
+<section id="drawdown">
+<h2>drawdown<a class="headerlink" href="#drawdown" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>compressed GeoTIFFs</p></li>
+<li><p>shapefiles of equipotential contours</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mfexport</span><span class="o">.</span><span class="n">export_drawdown</span><span class="p">(</span><span class="n">headsfile</span><span class="p">,</span> <span class="n">grid</span><span class="p">,</span> <span class="n">hdry</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">upw</span><span class="o">.</span><span class="n">hdry</span><span class="p">,</span> <span class="n">hnflo</span><span class="o">=</span><span class="n">m</span><span class="o">.</span><span class="n">bas6</span><span class="o">.</span><span class="n">hnoflo</span><span class="p">,</span>
+                         <span class="n">kstpkper0</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                         <span class="n">kstpkper1</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+                         <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;postproc&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Exporting drawdown...
+file: data/lpr/lpr_inset.hds
+from stress period 0, timestep 4
+to stress period 8, timestep 4
+
+
+wrote postproc/rasters/wt-ddn_per8_stp4.tif
+writing postproc/shps/wt-ddn_ctr_per8_stp4.shp... Done
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/runner/work/modflow-export/modflow-export/mfexport/array_export.py:163: MatplotlibDeprecationWarning: The collections attribute was deprecated in Matplotlib 3.8 and will be removed two minor releases later.
+  for i, c in enumerate(ctr.collections):
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/gisutils/shapefile.py:117: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if LooseVersion(fiona.__gdal_version__) &lt; LooseVersion(&#34;3.0.0&#34;):
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/gisutils/shapefile.py:117: DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  if LooseVersion(fiona.__gdal_version__) &lt; LooseVersion(&#34;3.0.0&#34;):
+/home/runner/micromamba/envs/mfexport_ci/lib/python3.12/site-packages/gisutils/shapefile.py:129: ShapelyDeprecationWarning: The &#39;type&#39; attribute is deprecated, and will be removed in the future. You can use the &#39;geom_type&#39; attribute instead.
+  Type = g.type
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;postproc/rasters/wt-ddn_per8_stp4.tif&#39;,
+ &#39;postproc/shps/wt-ddn_ctr_per8_stp4.shp&#39;]
+</pre></div></div>
+</div>
+</section>
+<section id="SFR-results">
+<h2>SFR results<a class="headerlink" href="#SFR-results" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>shapefile of SFR water balance results</p></li>
+<li><p>PDFs of simulated stream flows and stream/aquifer interactions</p></li>
+</ul>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%capture</span>
+<span class="n">mf2005_sfr_outputfile</span> <span class="o">=</span> <span class="s1">&#39;data/lpr/lpr_inset.sfr.out&#39;</span>
+<span class="n">outfiles</span> <span class="o">=</span> <span class="n">mfexport</span><span class="o">.</span><span class="n">export_sfr_results</span><span class="p">(</span><span class="n">mf2005_sfr_outputfile</span><span class="o">=</span><span class="n">mf2005_sfr_outputfile</span><span class="p">,</span>
+                                       <span class="n">model</span><span class="o">=</span><span class="n">m</span><span class="p">,</span>
+                                       <span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span>
+                                       <span class="n">kstpkper</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                                       <span class="n">output_length_units</span><span class="o">=</span><span class="s1">&#39;feet&#39;</span><span class="p">,</span>
+                                       <span class="n">output_time_units</span><span class="o">=</span><span class="s1">&#39;seconds&#39;</span><span class="p">,</span>
+                                       <span class="n">output_path</span><span class="o">=</span><span class="s1">&#39;postproc&#39;</span>
+                                       <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../examples.html" class="btn btn-neutral float-left" title="Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="plotting_listing_file_budgets.html" class="btn btn-neutral float-right" title="Plotting MODFLOW listing file budgets" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2019, Andrew Leaf.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
