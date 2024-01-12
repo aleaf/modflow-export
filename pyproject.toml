@@ -1,0 +1,73 @@
+[build-system]
+requires = [
+    "setuptools >= 61",
+    #'tomli; python_version < "3.11"',
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "modflow-export"
+dynamic = ["version"]
+authors = [
+    { name = "Andrew Leaf", email = "aleaf@usgs.gov" },
+    { name = "Mike Fienen", email = "mnfienen@usgs.gov" },
+]
+description = "Fast & easy summarizing of MODFLOW data and export to GIS file formats"
+readme = "Readme.md"
+keywords = ["MODFLOW", "groundwater", "hydrogeology"]
+license = {file = "LICENSE.md"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Scientific/Engineering :: Hydrology",
+]
+requires-python = ">=3.11"
+dependencies = [
+    "gis-utils",
+    "fiona",
+    "flopy",
+    "matplotlib",
+    "numpy",
+    "pandas",
+    "pyproj",
+    "pyyaml",
+    "rasterio",
+    "shapely",
+    "xarray",
+]
+
+[project.optional-dependencies]
+optional = [
+]
+test = [
+    "codecov",
+    "coverage",
+    "pytest",
+]
+docs = [
+    "modflow-export[optional]",
+    "ipython[kernel]",
+    "sphinx",
+    "numpydoc",
+    "nbsphinx",
+    "sphinx-copybutton",
+    "sphinx-rtd-theme"
+]
+
+[project.scripts]
+get-modflow = "flopy.utils.get_modflow:cli_main"
+
+[project.urls]
+documentation = "https://aleaf.github.io/modflow-export/latest/"
+repository = "https://github.com/aleaf/modflow-export"
+
+[tool.setuptools.packages.find]
+include = ["mfexport", "mfexport.*"]
+
+[tool.versioneer]
+VCS = "git"
+style = "pep440-post"
+versionfile_source = "mfexport/_version.py"
+versionfile_build = "mfexport/_version.py"
+tag_prefix = "v"
