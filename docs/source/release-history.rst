@@ -2,6 +2,14 @@
 Release History
 ===============
 
+Version 0.3.0 (2024-01-12)
+----------------------------
+* add support for zone budget output to listfile module; fix issue that occured when there is only one stress period
+* add suport for regular Flopy StructuredGrids
+* read_sfr_output: add support for using an 'sfrlines' shapefile produced by SFRmaker in lieu Modflow 6 package data
+* fixes to cell budget output processing to support multiple instances of a package in MODFLOW 6
+* various other fixes to support pandas 2.0 and flopy 3.5
+
 Version 0.2.0 (2022-08-01)
 ----------------------------
 * added option to ``listfile.plot_budget_summary`` to plot annual budget sums from MODFLOW Listing file

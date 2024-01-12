@@ -3,7 +3,7 @@ modflow-export
 -----------------------------------------------
 Fast & easy summarizing of MODFLOW data and export to GIS file formats.
 
-### Version 0.2
+### Version 0.3
 ![Tests](https://github.com/aleaf/modflow-export/workflows/Tests/badge.svg)
 [![codecov](https://codecov.io/gh/aleaf/modflow-export/branch/master/graph/badge.svg)](https://codecov.io/gh/aleaf/modflow-export)
 [![PyPI version](https://badge.fury.io/py/modflow-export.svg)](https://badge.fury.io/py/modflow-export)
