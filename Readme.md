@@ -7,6 +7,7 @@ Fast & easy summarizing of MODFLOW data and export to GIS file formats.
 ![Tests](https://github.com/aleaf/modflow-export/workflows/Tests/badge.svg)
 [![codecov](https://codecov.io/gh/aleaf/modflow-export/branch/master/graph/badge.svg)](https://codecov.io/gh/aleaf/modflow-export)
 [![PyPI version](https://badge.fury.io/py/modflow-export.svg)](https://badge.fury.io/py/modflow-export)
+[![Conda Version](https://img.shields.io/conda/vn/conda-forge/modflow-export.svg)](https://anaconda.org/conda-forge/modflow-export)
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 
 Getting Started
