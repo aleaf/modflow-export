@@ -633,7 +633,7 @@ def read_maw_output(maw_head_file, maw_budget_file,
                         
                         data = pd.read_csv(f, names=names, 
                                            skiprows=skiprows, sep='\\s+')
-                        data = data.loc[data['mawsetting'] != 'status']
+                        data = data.loc[data[names[1]] != 'status']
                         data = data.pivot(index=data.columns[0], columns=data.columns[1], 
                                         values=data.columns[2])
                         data.reset_index(inplace=True)
